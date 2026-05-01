@@ -1,15 +1,26 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
-import { Trash2, FileText, Lock } from "lucide-react";
+import { Trash2, FileText, Lock, MessageCircle, CreditCard } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import { useCart } from "../../components/CartContext";
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart, total } = useCart();
+  const [showCheckout, setShowCheckout] = useState(false);
 
   const deliveryCharge = cart.length > 0 ? 50 : 0;
   const grandTotal = total + deliveryCharge;
+
+  const whatsappMessage = encodeURIComponent(
+    `Hi, I would like to place an order:\n\nItems:\n${cart
+      .map(
+        (item: any) =>
+          `- ${item.name} x ${item.qty} = ₹${item.price * item.qty}`
+      )
+      .join("\n")}\n\nSubtotal: ₹${total}\nDelivery charge: ₹${deliveryCharge}\nTotal: ₹${grandTotal}`
+  );
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
@@ -17,8 +28,6 @@ export default function CartPage() {
 
       <section className="mx-auto max-w-6xl px-6 py-14">
         <div className="grid gap-12 rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8] lg:grid-cols-[1.4fr_0.8fr]">
-          
-          {/* LEFT CART */}
           <div>
             <h1 className="text-2xl font-extrabold">My cart</h1>
 
@@ -28,7 +37,7 @@ export default function CartPage() {
                   <p className="text-[#7A6262]">Your cart is empty.</p>
                   <Link
                     href="/menu"
-                    className="mt-6 inline-block rounded-full bg-[#F08C9B] px-7 py-3 text-white font-semibold hover:bg-[#E77E8D]"
+                    className="mt-6 inline-block rounded-full bg-[#F08C9B] px-7 py-3 font-semibold text-white hover:bg-[#E77E8D]"
                   >
                     View Menu
                   </Link>
@@ -37,12 +46,12 @@ export default function CartPage() {
                 cart.map((item: any) => (
                   <div
                     key={item.id}
-                    className="grid grid-cols-[100px_1fr_auto_auto_auto] items-start gap-5 border-b border-[#F4CFC8] py-5"
+                    className="grid grid-cols-[90px_1fr] gap-5 border-b border-[#F4CFC8] py-5 md:grid-cols-[100px_1fr_auto_auto_auto]"
                   >
                     <img
                       src={item.image}
                       alt={item.name}
-                      className="h-[100px] w-[100px] rounded-xl object-cover"
+                      className="h-[90px] w-[90px] rounded-xl object-cover md:h-[100px] md:w-[100px]"
                     />
 
                     <div>
@@ -55,8 +64,7 @@ export default function CartPage() {
                       </p>
                     </div>
 
-                    {/* QTY STEPPER */}
-                    <div className="flex h-9 items-center rounded-full border border-[#F08C9B]">
+                    <div className="flex h-9 w-fit items-center rounded-full border border-[#F08C9B]">
                       <button
                         onClick={() => updateQty(item.id, item.qty - 1)}
                         className="px-3 text-[#F08C9B]"
@@ -76,7 +84,7 @@ export default function CartPage() {
                       </button>
                     </div>
 
-                    <p className="min-w-[70px] text-right font-semibold">
+                    <p className="font-semibold md:min-w-[70px] md:text-right">
                       ₹{item.price * item.qty}
                     </p>
 
@@ -91,20 +99,102 @@ export default function CartPage() {
               )}
             </div>
 
-            {/* NOTE */}
             <div className="space-y-5 border-b border-[#F4CFC8] py-7">
               <button className="flex items-center gap-3 text-sm text-[#7A6262] hover:text-[#F08C9B]">
                 <FileText size={16} />
                 Add a note
               </button>
             </div>
+
+            {showCheckout && cart.length > 0 && (
+              <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 ring-1 ring-[#F4CFC8]">
+                <h2 className="text-2xl font-extrabold">Delivery details</h2>
+                <p className="mt-2 text-sm text-[#7A6262]">
+                  Add address and choose how you want to confirm the order.
+                </p>
+
+                <div className="mt-6 grid gap-4">
+                  <input
+                    className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                    placeholder="Full name"
+                  />
+
+                  <input
+                    className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                    placeholder="Mobile number"
+                  />
+
+                  <input
+                    className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                    placeholder="Address line"
+                  />
+
+                  <div className="grid gap-4 sm:grid-cols-3">
+                    <input
+                      className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                      placeholder="City"
+                    />
+                    <input
+                      className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                      placeholder="State"
+                    />
+                    <input
+                      className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                      placeholder="PIN code"
+                    />
+                  </div>
+
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold">
+                        Preferred delivery date
+                      </label>
+                      <input
+                        type="date"
+                        className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-sm font-semibold">
+                        Preferred delivery time
+                      </label>
+                      <input
+                        type="time"
+                        className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                      />
+                    </div>
+                  </div>
+
+                  <textarea
+                    className="min-h-24 rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
+                    placeholder="Special instructions"
+                  />
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <button className="flex items-center justify-center gap-2 rounded-full bg-[#F08C9B] px-6 py-3 font-semibold text-white hover:bg-[#E77E8D]">
+                      <CreditCard size={18} />
+                      Pay with Razorpay
+                    </button>
+
+                    <a
+                      href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
+                      target="_blank"
+                      className="flex items-center justify-center gap-2 rounded-full border border-[#F08C9B] px-6 py-3 text-center font-semibold text-[#F08C9B] hover:bg-[#FADCD4]"
+                    >
+                      <MessageCircle size={18} />
+                      Send on WhatsApp
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* RIGHT SUMMARY */}
           <aside>
             <h2 className="text-2xl font-extrabold">Order summary</h2>
 
-            <div className="mt-6 border-t border-[#F4CFC8] pt-6 space-y-4">
+            <div className="mt-6 space-y-4 border-t border-[#F4CFC8] pt-6">
               <div className="flex justify-between text-[#7A6262]">
                 <span>Subtotal</span>
                 <span>₹{total}</span>
@@ -112,9 +202,7 @@ export default function CartPage() {
 
               <div className="flex justify-between text-[#7A6262]">
                 <span>Delivery</span>
-                <span>
-                  {cart.length > 0 ? `₹${deliveryCharge}` : "--"}
-                </span>
+                <span>{cart.length > 0 ? `₹${deliveryCharge}` : "--"}</span>
               </div>
             </div>
 
@@ -124,12 +212,13 @@ export default function CartPage() {
                 <span>₹{grandTotal}</span>
               </div>
 
-              <Link
-                href="/order"
-                className="mt-6 block rounded-full bg-[#F08C9B] px-8 py-3 text-center font-semibold text-white hover:bg-[#E77E8D]"
+              <button
+                onClick={() => setShowCheckout(true)}
+                disabled={cart.length === 0}
+                className="mt-6 block w-full rounded-full bg-[#F08C9B] px-8 py-3 text-center font-semibold text-white hover:bg-[#E77E8D] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Checkout
-              </Link>
+              </button>
 
               <div className="mt-4 flex items-center justify-center gap-2 text-sm text-[#7A6262]">
                 <Lock size={14} />

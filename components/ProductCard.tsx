@@ -18,7 +18,7 @@ export default function ProductCard({ product }: any) {
           className="h-full w-full object-cover"
         />
       </div>
-
+    
       {/* CONTENT */}
       <div className="pt-4">
         <div className="mb-2 flex items-center justify-between gap-3">
