@@ -15,7 +15,7 @@ export default function CustomCakePage() {
   });
 
   const [preview, setPreview] = useState<string | null>(null);
-
+  const [fileName, setFileName] = useState("");
   const whatsappMessage = encodeURIComponent(
     `Hi, I want to order a custom cake.
 
@@ -36,7 +36,7 @@ I will attach the reference design image here.`
 
       <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[1fr_0.8fr]">
         <div className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8]">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#F08C9B]">
+          <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
             Custom Cake
           </p>
 
@@ -120,15 +120,31 @@ I will attach the reference design image here.`
               <label className="mb-2 block text-sm font-semibold">
                 Upload reference design
               </label>
-              <input
-                type="file"
-                accept="image/*"
-                className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) setPreview(URL.createObjectURL(file));
-                }}
-              />
+              <label className="block cursor-pointer">
+                  <div className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#D4AF37] bg-[#FFF8E4] px-4 py-6 text-center hover:bg-[#FADCD4]">
+                    <span className="text-sm font-semibold text-[#1D3C42]">
+                      Upload reference design
+                    </span>
+                  </div>
+
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        setPreview(URL.createObjectURL(file));
+                        setFileName(file.name);
+                      }
+                    }}
+                  />
+                </label>
+                {fileName && (
+                  <p className="mt-2 text-sm text-[#7A6262]">
+                    Selected: <span className="font-semibold">{fileName}</span>
+                  </p>
+                )}
               <p className="mt-2 text-xs text-[#7A6262]">
                 Note: the website prepares the WhatsApp message. Please attach
                 the image manually in WhatsApp after it opens.
@@ -145,7 +161,7 @@ I will attach the reference design image here.`
             <a
               href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
               target="_blank"
-              className="rounded-full bg-[#F08C9B] px-6 py-3 text-center font-semibold text-white transition hover:bg-[#E77E8D]"
+              className="rounded-full bg-[#1D3C42] px-6 py-3 text-center font-semibold text-white transition hover:bg-[#E77E8D]"
             >
               Send Custom Cake Enquiry
             </a>

@@ -89,14 +89,14 @@ export default function OrderPage() {
               placeholder="Special instructions"
             />
 
-            <button className="mt-4 rounded-full bg-[#F08C9B] px-6 py-3 font-semibold text-white transition hover:bg-[#E77E8D]">
+            <button className="mt-4 rounded-full bg-[#1D3C42] px-6 py-3 font-semibold text-white transition hover:bg-[#E77E8D]">
               Pay Online with Razorpay
             </button>
 
             <a
               href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
               target="_blank"
-              className="rounded-full border border-[#F08C9B] px-6 py-3 text-center font-semibold text-[#F08C9B] transition hover:bg-[#FADCD4]"
+              className="rounded-full border border-[#F08C9B] px-6 py-3 text-center font-semibold text-[#D4AF37] transition hover:bg-[#FADCD4]"
             >
               Send Order on WhatsApp
             </a>

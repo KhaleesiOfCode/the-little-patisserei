@@ -37,7 +37,7 @@ export default function CartPage() {
                   <p className="text-[#7A6262]">Your cart is empty.</p>
                   <Link
                     href="/menu"
-                    className="mt-6 inline-block rounded-full bg-[#F08C9B] px-7 py-3 font-semibold text-white hover:bg-[#E77E8D]"
+                    className="mt-6 inline-block rounded-full bg-[#1D3C42] px-7 py-3 font-semibold text-white hover:bg-[#E77E8D]"
                   >
                     View Menu
                   </Link>
@@ -67,7 +67,7 @@ export default function CartPage() {
                     <div className="flex h-9 w-fit items-center rounded-full border border-[#F08C9B]">
                       <button
                         onClick={() => updateQty(item.id, item.qty - 1)}
-                        className="px-3 text-[#F08C9B]"
+                        className="px-3 text-[#D4AF37]"
                       >
                         −
                       </button>
@@ -78,7 +78,7 @@ export default function CartPage() {
 
                       <button
                         onClick={() => updateQty(item.id, item.qty + 1)}
-                        className="px-3 text-[#F08C9B]"
+                        className="px-3 text-[#D4AF37]"
                       >
                         +
                       </button>
@@ -90,7 +90,7 @@ export default function CartPage() {
 
                     <button
                       onClick={() => removeFromCart(item.id)}
-                      className="text-[#F08C9B]"
+                      className="text-[#D4AF37]"
                     >
                       <Trash2 size={18} />
                     </button>
@@ -99,11 +99,16 @@ export default function CartPage() {
               )}
             </div>
 
-            <div className="space-y-5 border-b border-[#F4CFC8] py-7">
-              <button className="flex items-center gap-3 text-sm text-[#7A6262] hover:text-[#F08C9B]">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-sm font-semibold text-[#1D3C42]">
                 <FileText size={16} />
                 Add a note
-              </button>
+              </label>
+
+              <textarea
+                placeholder="Any special instructions for your order..."
+                className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 text-sm text-[#3A2A2A] outline-none placeholder:text-[#7A6262] focus:border-[#1D3C42]"
+              />
             </div>
 
             {showCheckout && cart.length > 0 && (
@@ -171,20 +176,11 @@ export default function CartPage() {
                     placeholder="Special instructions"
                   />
 
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <button className="flex items-center justify-center gap-2 rounded-full bg-[#F08C9B] px-6 py-3 font-semibold text-white hover:bg-[#E77E8D]">
+                  <div className="flex justify-center">
+                    <button className="flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-[#1D3C42] px-8 py-3 font-semibold text-white transition hover:bg-[#163136]">
                       <CreditCard size={18} />
                       Pay with Razorpay
                     </button>
-
-                    <a
-                      href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
-                      target="_blank"
-                      className="flex items-center justify-center gap-2 rounded-full border border-[#F08C9B] px-6 py-3 text-center font-semibold text-[#F08C9B] hover:bg-[#FADCD4]"
-                    >
-                      <MessageCircle size={18} />
-                      Send on WhatsApp
-                    </a>
                   </div>
                 </div>
               </div>
@@ -215,7 +211,7 @@ export default function CartPage() {
               <button
                 onClick={() => setShowCheckout(true)}
                 disabled={cart.length === 0}
-                className="mt-6 block w-full rounded-full bg-[#F08C9B] px-8 py-3 text-center font-semibold text-white hover:bg-[#E77E8D] disabled:cursor-not-allowed disabled:opacity-50"
+                className="mt-6 block w-full rounded-full bg-[#1D3C42] px-8 py-3 text-center font-semibold text-white hover:bg-[#E77E8D] disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Checkout
               </button>

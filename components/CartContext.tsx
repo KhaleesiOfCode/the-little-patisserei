@@ -6,23 +6,8 @@ const CartContext = createContext<any>(null);
 
 export function CartProvider({ children }: any) {
   const [cart, setCart] = useState<any[]>([]);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [showLogin, setShowLogin] = useState(false);
-  const [phone, setPhone] = useState("");
-
-  const requestLogin = () => setShowLogin(true);
-
-  const verifyOtp = () => {
-    setIsLoggedIn(true);
-    setShowLogin(false);
-  };
 
   const addToCart = (product: any) => {
-    if (!isLoggedIn) {
-      setShowLogin(true);
-      return;
-    }
-
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
 
@@ -54,22 +39,7 @@ export function CartProvider({ children }: any) {
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   return (
-    <CartContext.Provider
-      value={{
-        cart,
-        addToCart,
-        removeFromCart,
-        updateQty,
-        total,
-        isLoggedIn,
-        showLogin,
-        setShowLogin,
-        requestLogin,
-        verifyOtp,
-        phone,
-        setPhone,
-      }}
-    >
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, total }}>
       {children}
     </CartContext.Provider>
   );
