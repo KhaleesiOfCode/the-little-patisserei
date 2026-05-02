@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { CartProvider } from "../components/CartContext";
+import RouteLoader from "../components/RouteLoader";
 
 export const metadata: Metadata = {
   title: "The Little Patisserie",
@@ -15,7 +16,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <CartProvider>{children}</CartProvider>
+        <CartProvider>
+          <RouteLoader />
+          {children}
+        </CartProvider>
       </body>
     </html>
   );

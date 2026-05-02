@@ -15,10 +15,13 @@ export default function Navbar() {
           href="/"
           className="flex items-center gap-2 text-xl font-bold text-[#1D3C42]"
         >
-          <span className="grid h-10 w-10 place-items-center rounded-full bg-[#1D3C42] text-[#D4AF37]">
-            <CakeSlice size={21} />
-          </span>
-          The Little Patisserie
+          <img
+              src="/logo.png"
+              alt="The Little Patisserie"
+              className="h-11 w-11 rounded-full object-contain"
+            />
+            <span>The Little Patisserie</span>
+          
         </Link>
 
         <div className="flex items-center gap-6 text-sm font-semibold text-[#1D3C42]">
