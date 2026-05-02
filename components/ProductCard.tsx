@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
@@ -26,6 +26,21 @@ export default function ProductCard({ product }: any) {
   const next = () => setActiveIndex((prev) => (prev + 1) % mediaItems.length);
   const prev = () =>
     setActiveIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
+  useEffect(() => {
+  const handleEsc = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      setIsOpen(false);
+    }
+  };
+
+  if (isOpen) {
+    document.addEventListener("keydown", handleEsc);
+  }
+
+  return () => {
+    document.removeEventListener("keydown", handleEsc);
+  };
+}, [isOpen]);
 
   return (
     <>
@@ -145,7 +160,7 @@ export default function ProductCard({ product }: any) {
       </article>
 
       {isOpen && (
-        <div className="fixed inset-0 z-[100] bg-black/80 px-4 py-6">
+        <div className="fixed inset-0 z-[100] bg-black/80 px-4 py-6" onClick={() => setIsOpen(false)}>
           <button
             onClick={() => setIsOpen(false)}
             className="absolute right-5 top-5 grid h-10 w-10 place-items-center rounded-full bg-white text-[#1D3C42]"
@@ -153,7 +168,7 @@ export default function ProductCard({ product }: any) {
             <X size={22} />
           </button>
 
-          <div className="mx-auto flex h-full max-w-5xl flex-col justify-center">
+          <div className="mx-auto flex h-full max-w-5xl flex-col justify-center" onClick={(e) => e.stopPropagation()}>
             <div className="relative overflow-hidden rounded-[2rem] bg-white p-3">
               <div className="aspect-video overflow-hidden rounded-[1.5rem] bg-[#FADCD4]">
                 {activeMedia?.type === "video" ? (
