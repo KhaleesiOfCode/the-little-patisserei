@@ -3,193 +3,208 @@
 import { useState } from "react";
 import Navbar from "../../components/Navbar";
 
+const steps = ["Flavour", "Size", "Message", "Delivery", "Review"];
+
+const sizeOptions = [
+  { label: "500g", price: 650 },
+  { label: "1kg", price: 1200 },
+  { label: "1.5kg", price: 1700 },
+  { label: "2kg", price: 2200 },
+  { label: "3kg+", price: 3200 },
+];
+
 export default function CustomCakePage() {
+  const [step, setStep] = useState(0);
+
   const [form, setForm] = useState({
     flavour: "",
     size: "",
     message: "",
     occasion: "",
+    designDescription: "",
     date: "",
     time: "",
-    notes: "",
+    address: "",
   });
 
-  const [preview, setPreview] = useState<string | null>(null);
-  const [fileName, setFileName] = useState("");
-  const whatsappMessage = encodeURIComponent(
-    `Hi, I want to order a custom cake.
+  const selectedSize = sizeOptions.find((item) => item.label === form.size);
+  const basePrice = selectedSize?.price || 0;
 
-Flavour: ${form.flavour}
-Size: ${form.size}
-Message on cake: ${form.message}
-Occasion: ${form.occasion}
-Preferred date: ${form.date}
-Preferred time: ${form.time}
-Special notes: ${form.notes}
-
-I will attach the reference design image here.`
-  );
+  const next = () => setStep((s) => Math.min(s + 1, steps.length - 1));
+  const prev = () => setStep((s) => Math.max(s - 1, 0));
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
       <Navbar />
 
-      <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[1fr_0.8fr]">
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8]">
-          <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
-            Custom Cake
-          </p>
-
-          <h1 className="mt-3 text-4xl font-extrabold">
-            Design your celebration cake
+      <section className="mx-auto max-w-3xl px-5 py-12">
+        <div className="mb-10 text-center">
+          <h1 className="text-4xl font-extrabold text-[#1D3C42]">
+            Custom Cake Builder
           </h1>
-
-          <p className="mt-3 text-[#7A6262]">
-            Choose flavour, size, cake message and upload a reference design.
+          <p className="mt-2 text-[#7A6262]">
+            Design your celebration cake step by step
           </p>
+        </div>
 
-          <div className="mt-8 grid gap-4">
+        <div className="mb-10 flex justify-between text-xs font-bold text-[#7A6262]">
+          {steps.map((s, i) => (
+            <div
+              key={s}
+              className={`flex-1 text-center ${
+                i === step ? "text-[#1D3C42]" : ""
+              }`}
+            >
+              {s}
+            </div>
+          ))}
+        </div>
+
+        <div className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8]">
+          {step === 0 && (
             <select
-              className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
               value={form.flavour}
+              className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
               onChange={(e) => setForm({ ...form, flavour: e.target.value })}
             >
-              <option value="">Choose flavour</option>
+              <option value="">Select flavour</option>
               <option>Chocolate Truffle</option>
-              <option>Vanilla Cream</option>
               <option>Red Velvet</option>
+              <option>Vanilla Cream</option>
               <option>Butterscotch</option>
               <option>Mango Cream</option>
               <option>Black Forest</option>
             </select>
+          )}
 
-            <select
-              className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-              value={form.size}
-              onChange={(e) => setForm({ ...form, size: e.target.value })}
-            >
-              <option value="">Choose size</option>
-              <option>500g</option>
-              <option>1kg</option>
-              <option>1.5kg</option>
-              <option>2kg</option>
-              <option>3kg+</option>
-            </select>
-
-            <input
-              className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-              placeholder="Message to write on cake"
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-            />
-
-            <input
-              className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-              placeholder="Occasion, e.g. Birthday, Anniversary"
-              value={form.occasion}
-              onChange={(e) => setForm({ ...form, occasion: e.target.value })}
-            />
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div>
-                <label className="mb-2 block text-sm font-semibold">
-                  Preferred date
-                </label>
-                <input
-                  type="date"
-                  className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-                  value={form.date}
-                  onChange={(e) => setForm({ ...form, date: e.target.value })}
-                />
-              </div>
-
-              <div>
-                <label className="mb-2 block text-sm font-semibold">
-                  Preferred time
-                </label>
-                <input
-                  type="time"
-                  className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-                  value={form.time}
-                  onChange={(e) => setForm({ ...form, time: e.target.value })}
-                />
-              </div>
+          {step === 1 && (
+            <div className="grid gap-3">
+              {sizeOptions.map((item) => (
+                <button
+                  key={item.label}
+                  onClick={() => setForm({ ...form, size: item.label })}
+                  className={`flex items-center justify-between rounded-2xl border px-5 py-4 text-left transition ${
+                    form.size === item.label
+                      ? "border-[#1D3C42] bg-[#1D3C42] text-white"
+                      : "border-[#F4CFC8] bg-[#FFF8E4] text-[#3A2A2A] hover:bg-[#FADCD4]"
+                  }`}
+                >
+                  <span className="font-bold">{item.label}</span>
+                  <span className="font-extrabold">₹{item.price}</span>
+                </button>
+              ))}
             </div>
+          )}
 
-            <div>
-              <label className="mb-2 block text-sm font-semibold">
-                Upload reference design
-              </label>
-              <label className="block cursor-pointer">
-                  <div className="flex items-center justify-center rounded-2xl border-2 border-dashed border-[#D4AF37] bg-[#FFF8E4] px-4 py-6 text-center hover:bg-[#FADCD4]">
-                    <span className="text-sm font-semibold text-[#1D3C42]">
-                      Upload reference design
-                    </span>
-                  </div>
-
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        setPreview(URL.createObjectURL(file));
-                        setFileName(file.name);
-                      }
-                    }}
-                  />
-                </label>
-                {fileName && (
-                  <p className="mt-2 text-sm text-[#7A6262]">
-                    Selected: <span className="font-semibold">{fileName}</span>
-                  </p>
-                )}
-              <p className="mt-2 text-xs text-[#7A6262]">
-                Note: the website prepares the WhatsApp message. Please attach
-                the image manually in WhatsApp after it opens.
-              </p>
-            </div>
-
-            <textarea
-              className="min-h-24 rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#F08C9B]"
-              placeholder="Special instructions"
-              value={form.notes}
-              onChange={(e) => setForm({ ...form, notes: e.target.value })}
-            />
-
-            <a
-              href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
-              target="_blank"
-              className="rounded-full bg-[#1D3C42] px-6 py-3 text-center font-semibold text-white transition hover:bg-[#E77E8D]"
-            >
-              Send Custom Cake Enquiry
-            </a>
-          </div>
-        </div>
-
-        <div className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8]">
-          <h2 className="text-2xl font-extrabold">Preview</h2>
-
-          <div className="mt-6 rounded-[2rem] bg-[#FFF8E4] p-5">
-            {preview ? (
-              <img
-                src={preview}
-                alt="Reference design preview"
-                className="aspect-square w-full rounded-[1.5rem] object-cover"
+          {step === 2 && (
+            <div className="grid gap-4">
+              <input
+                placeholder="Message on cake"
+                value={form.message}
+                className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) => setForm({ ...form, message: e.target.value })}
               />
-            ) : (
-              <div className="grid aspect-square place-items-center rounded-[1.5rem] bg-[#FADCD4] text-center text-[#7A6262]">
-                Reference design preview appears here
-              </div>
-            )}
-          </div>
 
-          <div className="mt-6 space-y-3 text-sm">
-            <p><strong>Flavour:</strong> {form.flavour || "Not selected"}</p>
-            <p><strong>Size:</strong> {form.size || "Not selected"}</p>
-            <p><strong>Message:</strong> {form.message || "Not added"}</p>
-            <p><strong>Occasion:</strong> {form.occasion || "Not added"}</p>
+              <input
+                placeholder="Occasion, e.g. Birthday, Anniversary"
+                value={form.occasion}
+                className="w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) => setForm({ ...form, occasion: e.target.value })}
+              />
+
+              <textarea
+                placeholder="Describe the cake design you want, e.g. pastel theme, flowers, cartoon character, chocolate drip..."
+                value={form.designDescription}
+                className="min-h-28 w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) =>
+                  setForm({ ...form, designDescription: e.target.value })
+                }
+              />
+            </div>
+          )}
+
+          {step === 3 && (
+            <div className="grid gap-4">
+              <input
+                type="date"
+                value={form.date}
+                className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) => setForm({ ...form, date: e.target.value })}
+              />
+
+              <input
+                type="time"
+                value={form.time}
+                className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) => setForm({ ...form, time: e.target.value })}
+              />
+
+              <textarea
+                placeholder="Delivery address"
+                value={form.address}
+                className="min-h-24 rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none focus:border-[#1D3C42]"
+                onChange={(e) => setForm({ ...form, address: e.target.value })}
+              />
+            </div>
+          )}
+
+          {step === 4 && (
+            <div className="space-y-4 text-sm">
+              <p>
+                <b>Flavour:</b> {form.flavour || "Not selected"}
+              </p>
+              <p>
+                <b>Size:</b> {form.size || "Not selected"}
+              </p>
+              <p>
+                <b>Message:</b> {form.message || "Not added"}
+              </p>
+              <p>
+                <b>Occasion:</b> {form.occasion || "Not added"}
+              </p>
+              <p>
+                <b>Design:</b> {form.designDescription || "Not added"}
+              </p>
+              <p>
+                <b>Date:</b> {form.date || "Not selected"}
+              </p>
+              <p>
+                <b>Time:</b> {form.time || "Not selected"}
+              </p>
+              <p>
+                <b>Address:</b> {form.address || "Not added"}
+              </p>
+
+              <div className="rounded-2xl bg-[#FFF8E4] p-5">
+                <p className="text-lg font-extrabold text-[#1D3C42]">
+                  Estimated price: ₹{basePrice}
+                </p>
+                <p className="mt-1 text-xs text-[#7A6262]">
+                  Final price may vary based on detailed design complexity.
+                </p>
+              </div>
+
+              <button className="mt-4 w-full rounded-full bg-[#1D3C42] py-3 font-semibold text-white hover:bg-[#163136]">
+                Proceed to Payment
+              </button>
+            </div>
+          )}
+
+          <div className="mt-8 flex justify-between">
+            {step > 0 && (
+              <button onClick={prev} className="text-sm font-semibold text-[#7A6262]">
+                Back
+              </button>
+            )}
+
+            {step < steps.length - 1 && (
+              <button
+                onClick={next}
+                className="ml-auto rounded-full bg-[#1D3C42] px-6 py-2 font-semibold text-white hover:bg-[#163136]"
+              >
+                Next
+              </button>
+            )}
           </div>
         </div>
       </section>
