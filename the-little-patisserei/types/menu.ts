@@ -69,6 +69,63 @@ export interface CustomCakeForm {
   pin: string
 }
 
+export interface OrderFormData {
+  name: string
+  phone: string
+  address: string
+  city: string
+  state: string
+  pin: string
+  deliveryDate: string
+  deliveryTime: string
+  instructions: string
+}
+
+export interface Order {
+  id: string
+  order_number: string
+  customer_name: string
+  customer_phone: string
+  customer_address: string
+  customer_city: string
+  customer_state: string | null
+  customer_pin: string | null
+  delivery_date: string | null
+  delivery_time: string | null
+  special_instructions: string | null
+  subtotal: number
+  delivery_charge: number
+  total: number
+  payment_method: string
+  payment_status: string
+  order_status: string
+  notes: string | null
+  created_at: string
+  updated_at: string
+  items?: OrderItem[]
+}
+
+export interface OrderItem {
+  id: string
+  order_id: string
+  item_name: string
+  item_price: number
+  quantity: number
+  selected_options: string | null
+  created_at: string
+}
+
+export type OrderStatus = "pending" | "confirmed" | "preparing" | "out_for_delivery" | "delivered" | "cancelled"
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  pending: "Pending",
+  confirmed: "Confirmed",
+  preparing: "Preparing",
+  out_for_delivery: "Out for Delivery",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+}
+
 export const BADGE_KEYWORDS = [
   "Best Seller",
   "Bestseller",

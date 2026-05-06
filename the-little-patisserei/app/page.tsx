@@ -117,7 +117,7 @@ export default function HomePage() {
       <ScrollReveal>
         <section className="bg-white px-6 py-20">
           <div className="mx-auto max-w-7xl">
-            <div className="mb-10 text-center">
+            <div className="mb-12 text-center">
               <p className="text-sm font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
                 Fresh Drops
               </p>
@@ -129,39 +129,124 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="grid gap-6 md:grid-cols-2">
-              {launches.map((item: MenuItem) => (
+            {launches.length > 0 && (
+              <>
                 <Link
                   href="/menu?category=New%20Launches"
-                  key={item.id}
-                  className="grid gap-5 rounded-[2rem] bg-[#FFF8E4] p-5 ring-1 ring-[#F4CFC8] transition hover:-translate-y-1 hover:shadow-lg md:grid-cols-[180px_1fr]"
+                  className="group relative mb-8 block overflow-hidden rounded-[2.5rem] bg-[#1D3C42] md:mb-10"
                 >
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="aspect-[4/3] w-full rounded-[1.5rem] object-cover"
-                  />
+                  <div className="aspect-[2/1] md:aspect-[3/1]">
+                    <img
+                      src={launches[0].image}
+                      alt={launches[0].name}
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#1D3C42]/80 via-[#1D3C42]/40 to-transparent" />
+                  </div>
 
-                  <div className="flex flex-col justify-center">
-                    <span className="mb-3 w-fit rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]">
-                      New Launch
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-10">
+                    <span className="mb-3 inline-block rounded-full bg-[#D4AF37] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#1D3C42]">
+                      Featured Launch
                     </span>
-
-                    <h3 className="text-2xl font-extrabold text-[#3A2A2A]">
-                      {item.name}
+                    <h3 className="text-2xl font-extrabold text-white md:text-4xl">
+                      {launches[0].name}
                     </h3>
-
-                    <p className="mt-2 text-sm leading-6 text-[#7A6262]">
-                      {item.description}
+                    <p className="mt-2 max-w-xl text-sm leading-6 text-white/80 md:text-base">
+                      {launches[0].description}
                     </p>
-
-                    <p className="mt-4 font-extrabold text-[#1D3C42]">
-                      ₹{item.price}
+                    <p className="mt-4 text-2xl font-extrabold text-[#D4AF37]">
+                      ₹{launches[0].price}
                     </p>
                   </div>
                 </Link>
-              ))}
-            </div>
+
+                <div className="columns-1 gap-6 md:columns-2">
+                  {launches.slice(1).map((item, index) => (
+                    <Link
+                      href="/menu?category=New%20Launches"
+                      key={item.id}
+                      className={`group mb-6 block break-inside-avoid overflow-hidden rounded-[2rem] ring-1 ring-[#F4CFC8] transition hover:-translate-y-1 hover:shadow-xl ${
+                        index % 3 === 0
+                          ? "bg-[#1D3C42]"
+                          : index % 3 === 1
+                          ? "bg-white"
+                          : "bg-[#FFF8E4]"
+                      }`}
+                    >
+                      {index % 3 === 0 ? (
+                        <div className="p-6 text-white">
+                          <span className="mb-3 inline-block rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#D4AF37]">
+                            New Launch
+                          </span>
+                          <h3 className="text-xl font-extrabold leading-tight">
+                            {item.name}
+                          </h3>
+                          <p className="mt-3 line-clamp-3 text-sm leading-6 text-white/75">
+                            {item.description}
+                          </p>
+                          <div className="mt-6 flex items-center justify-between">
+                            <span className="text-2xl font-extrabold text-[#D4AF37]">
+                              ₹{item.price}
+                            </span>
+                            <span className="rounded-full bg-white/15 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white/80">
+                              Explore
+                            </span>
+                          </div>
+                        </div>
+                      ) : index % 3 === 1 ? (
+                        <>
+                          <div className="aspect-[4/3] overflow-hidden">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                            />
+                          </div>
+                          <div className="p-5">
+                            <span className="mb-2 inline-block rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]">
+                              New Launch
+                            </span>
+                            <h3 className="text-xl font-extrabold text-[#3A2A2A]">
+                              {item.name}
+                            </h3>
+                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#7A6262]">
+                              {item.description}
+                            </p>
+                            <p className="mt-4 text-lg font-extrabold text-[#1D3C42]">
+                              ₹{item.price}
+                            </p>
+                          </div>
+                        </>
+                      ) : (
+                        <div className="grid gap-0 md:grid-cols-[1fr_auto]">
+                          <div className="p-5">
+                            <span className="mb-2 inline-block rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]">
+                              New Launch
+                            </span>
+                            <h3 className="mt-1 text-xl font-extrabold text-[#3A2A2A]">
+                              {item.name}
+                            </h3>
+                            <p className="mt-2 line-clamp-2 text-sm leading-6 text-[#7A6262]">
+                              {item.description}
+                            </p>
+                            <p className="mt-3 text-lg font-extrabold text-[#1D3C42]">
+                              ₹{item.price}
+                            </p>
+                          </div>
+                          <div className="h-32 w-full md:h-auto md:w-36">
+                            <img
+                              src={item.image}
+                              alt={item.name}
+                              className="h-full w-full object-cover"
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </ScrollReveal>
