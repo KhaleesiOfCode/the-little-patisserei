@@ -1,6 +1,8 @@
 import { supabase } from "./client";
+import type { MenuCategory, MenuItem } from "../../types/menu";
+import { BADGE_KEYWORDS } from "../../types/menu";
 
-export async function getMenuCategories() {
+export async function getMenuCategories(): Promise<MenuCategory[]> {
   const { data, error } = await supabase
     .from("menu_items")
     .select(`
@@ -27,43 +29,41 @@ export async function getMenuCategories() {
     return [];
   }
 
-  const badgeKeywords = [
-    "Best Seller",
-    "Bestseller",
-    "New Launch",
-    "Highly Recommended",
-    "Highly Reordered",
-    "Seasonal",
-    "Signature",
-    "Customer Favourite",
-  ];
+  if (!data || data.length === 0) {
+    return [];
+  }
 
   const normalise = (value: string) => value.trim().toLowerCase();
 
-  const products = data.map((item: any) => {
+  const products: MenuItem[] = (data as any[]).map((item) => {
     const images =
-      item.media
-        ?.filter((m: any) => m.media_type === "image")
-        ?.sort((a: any, b: any) => a.display_order - b.display_order)
-        ?.map((m: any) => m.url) || [];
+      (item.media as any[])
+        ?.filter((m) => m.media_type === "image")
+        ?.sort((a, b) => a.display_order - b.display_order)
+        ?.map((m) => m.url) ?? [];
 
     const video =
-      item.media?.find((m: any) => m.media_type === "video")?.url || "";
+      (item.media as any[])?.find((m) => m.media_type === "video")?.url ?? "";
 
     const prices =
-      item.prices?.sort((a: any, b: any) => a.display_order - b.display_order) ||
-      [];
+      ((item.prices as any[])?.sort(
+        (a, b) => a.display_order - b.display_order
+      ) ?? []).map((p) => ({
+        quantity_label: p.quantity_label,
+        price: Number(p.price),
+        display_order: p.display_order,
+      })) ?? [];
 
-    const keywordTags = item.keywords || [];
-    const ingredientTags = item.ingredient_tags || [];
+    const keywordTags: string[] = item.keywords ?? [];
+    const ingredientTags: string[] = item.ingredient_tags ?? [];
 
-    const keywordBadges = keywordTags.filter((tag: string) =>
-      badgeKeywords.some((badge) => normalise(badge) === normalise(tag))
+    const keywordBadges = keywordTags.filter((tag) =>
+      BADGE_KEYWORDS.some((badge) => normalise(badge) === normalise(tag))
     );
 
     const tasteNotes = keywordTags.filter(
-      (tag: string) =>
-        !badgeKeywords.some((badge) => normalise(badge) === normalise(tag))
+      (tag) =>
+        !BADGE_KEYWORDS.some((badge) => normalise(badge) === normalise(tag))
     );
 
     const badgeTags = [
@@ -75,27 +75,22 @@ export async function getMenuCategories() {
     return {
       id: item.id,
       name: item.name,
-      description: item.description || "",
-      type: item.food_type || "veg",
-
+      description: item.description ?? "",
+      type: (item.food_type as "veg" | "nonveg") ?? "veg",
       keywords: [...new Set(tasteNotes)],
       ingredient_tags: [...new Set(ingredientTags)],
-      shelf_life: item.shelf_life || "",
-
-      image: images[0] || "/cakes/chocolate-cake-1.jpg",
+      shelf_life: item.shelf_life ?? "",
+      image: images[0] ?? "/cakes/chocolate-cake-1.jpg",
       images,
       video,
-
-      price: prices[0]?.price || 0,
+      price: prices[0]?.price ?? 0,
       prices,
-
-      badges: [...new Set(badgeTags)],
-
-      category: item.category?.name || "Others",
+      badges: [...new Set(badgeTags as string[])],
+      category: (item.category as any)?.name ?? "Others",
     };
   });
 
-  const grouped = products.reduce((acc: any[], product: any) => {
+  const grouped = products.reduce<MenuCategory[]>((acc, product) => {
     const existing = acc.find((cat) => cat.name === product.category);
 
     if (existing) {

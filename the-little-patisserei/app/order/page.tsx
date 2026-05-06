@@ -2,6 +2,9 @@
 
 import Navbar from "../../components/Navbar";
 import { useCart } from "../../components/CartContext";
+import RazorpayButton from "../../components/RazorpayButton";
+
+const WHATSAPP_NUMBER = "919488407130";
 
 export default function OrderPage() {
   const { cart, total } = useCart();
@@ -12,7 +15,7 @@ export default function OrderPage() {
   const whatsappMessage = encodeURIComponent(
     `Hi, I would like to place an order:\n\nItems:\n${cart
       .map(
-        (item: any) =>
+        (item) =>
           `- ${item.name} x ${item.qty} = ₹${item.price * item.qty}`
       )
       .join("\n")}\n\nSubtotal: ₹${total}\nDelivery charge: ₹${deliveryCharge}\nTotal: ₹${grandTotal}`
@@ -89,12 +92,10 @@ export default function OrderPage() {
               placeholder="Special instructions"
             />
 
-            <button className="mt-4 rounded-full bg-[#1D3C42] px-6 py-3 font-semibold text-white transition hover:bg-[#E77E8D]">
-              Pay Online with Razorpay
-            </button>
+            <RazorpayButton className="mt-4 bg-[#1D3C42]" label="Pay Online with Razorpay" />
 
             <a
-              href={`https://wa.me/91BAKERNUMBER?text=${whatsappMessage}`}
+              href={`https://wa.me/${WHATSAPP_NUMBER}?text=${whatsappMessage}`}
               target="_blank"
               className="rounded-full border border-[#F08C9B] px-6 py-3 text-center font-semibold text-[#D4AF37] transition hover:bg-[#FADCD4]"
             >
@@ -112,7 +113,7 @@ export default function OrderPage() {
                 Your cart is empty. Please add items from the menu.
               </p>
             ) : (
-              cart.map((item: any) => (
+              cart.map((item) => (
                 <div key={item.id} className="flex justify-between gap-4">
                   <div>
                     <p className="font-semibold">{item.name}</p>

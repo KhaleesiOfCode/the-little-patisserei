@@ -1,9 +1,11 @@
-export const categories = [
+import type { MenuCategory } from "../types/menu"
+
+export const categories: MenuCategory[] = [
   {
     name: "New Launches",
     items: [
       {
-        id: 101,
+        id: "101",
         name: "Mango Cream Bento Cake",
         description: "A soft mini celebration cake with fresh mango cream.",
         price: 499,
@@ -11,10 +13,15 @@ export const categories = [
         image: "/cakes/mango-bento.jpg",
         images: ["/cakes/mango-bento.jpg"],
         video: "",
-        tags: ["New Launch"],
+        badges: ["New Launch"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "New Launches",
       },
       {
-        id: 102,
+        id: "102",
         name: "Chocolate Cupcake Box",
         description: "Assorted chocolate cupcakes packed for gifting.",
         price: 399,
@@ -22,7 +29,12 @@ export const categories = [
         image: "/cakes/cupcake-box.jpg",
         images: ["/cakes/cupcake-box.jpg"],
         video: "",
-        tags: ["New Launch", "Popular"],
+        badges: ["New Launch", "Popular"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "New Launches",
       },
     ],
   },
@@ -31,7 +43,7 @@ export const categories = [
     name: "Cakes",
     items: [
       {
-        id: 1,
+        id: "1",
         name: "Chocolate Truffle Cake",
         description: "Rich chocolate sponge layered with smooth truffle cream.",
         price: 650,
@@ -43,7 +55,12 @@ export const categories = [
           "/cakes/chocolate-cake-3.jpg",
         ],
         video: "/cakes/chocolate-cake-video.mp4",
-        tags: ["Best Seller"],
+        badges: ["Best Seller"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Cakes",
       },
     ],
   },
@@ -52,7 +69,7 @@ export const categories = [
     name: "Pastries",
     items: [
       {
-        id: 2,
+        id: "2",
         name: "Strawberry Cream Pastry",
         description: "Light sponge pastry topped with strawberry cream.",
         price: 140,
@@ -60,7 +77,12 @@ export const categories = [
         image: "/cakes/strawberry-pastry.jpg",
         images: ["/cakes/strawberry-pastry.jpg"],
         video: "",
-        tags: ["Popular"],
+        badges: ["Popular"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Pastries",
       },
     ],
   },
@@ -69,7 +91,7 @@ export const categories = [
     name: "Brownies",
     items: [
       {
-        id: 3,
+        id: "3",
         name: "Fudge Brownie Box",
         description: "Dense chocolate brownies packed for gifting.",
         price: 350,
@@ -77,11 +99,15 @@ export const categories = [
         image: "/cakes/brownie-box.jpg",
         images: ["/cakes/brownie-box.jpg"],
         video: "",
-        tags: [],
+        badges: [],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Brownies",
       },
     ],
   },
-];
+]
 
-export const newLaunches =
-  categories.find((category) => category.name === "New Launches")?.items || [];
+export const newLaunches = categories.find((c) => c.name === "New Launches")?.items ?? []

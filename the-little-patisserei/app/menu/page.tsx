@@ -5,29 +5,50 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
+import { categories as staticCategories } from "../../data/products";
+import type { MenuCategory, MenuItem } from "../../types/menu";
 
 export default function MenuPage() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "All";
 
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [search, setSearch] = useState("");
-  const [foodType, setFoodType] = useState("all");
+  const [foodType, setFoodType] = useState<"all" | "veg" | "nonveg">("all");
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadMenu() {
-      const data = await getMenuCategories();
-      setCategories(data);
-      setLoading(false);
+      try {
+        setError(false);
+        const data = await getMenuCategories();
+        if (cancelled) return;
+
+        if (data.length > 0) {
+          setCategories(data);
+        } else {
+          setCategories(staticCategories);
+        }
+      } catch {
+        if (!cancelled) {
+          setCategories(staticCategories);
+          setError(true);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
 
     loadMenu();
+    return () => { cancelled = true; };
   }, []);
 
   const activeItems = useMemo(() => {
-    let items: any[] = [];
+    let items: MenuItem[] = [];
 
     if (activeCategory === "All") {
       items = categories.flatMap((cat) => cat.items);
@@ -113,6 +134,12 @@ export default function MenuPage() {
             </aside>
 
             <div>
+              {error && (
+                <div className="mb-4 rounded-2xl bg-amber-50 px-5 py-3 text-sm text-amber-800 ring-1 ring-amber-200">
+                  Could not connect to the database. Showing offline menu.
+                </div>
+              )}
+
               <div className="mb-6 rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8]">
                 <div className="grid gap-4 md:grid-cols-[1fr_auto]">
                   <div className="relative">
@@ -134,13 +161,13 @@ export default function MenuPage() {
                         </button>
                       )}
                     </div>
-                  
+
 
                   <div className="flex rounded-full bg-[#FFF8E4] p-1">
                     {[
-                      { label: "All", value: "all" },
-                      { label: "Veg", value: "veg" },
-                      { label: "Non-Veg", value: "nonveg" },
+                      { label: "All", value: "all" as const },
+                      { label: "Veg", value: "veg" as const },
+                      { label: "Non-Veg", value: "nonveg" as const },
                     ].map((filter) => (
                       <button
                         key={filter.value}
@@ -182,7 +209,7 @@ export default function MenuPage() {
                 </div>
               ) : (
                 <div className="grid gap-6">
-                  {activeItems.map((item: any) => (
+                  {activeItems.map((item) => (
                     <ProductCard key={item.id} product={item} />
                   ))}
                 </div>

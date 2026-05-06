@@ -11,17 +11,18 @@ import {
 } from "lucide-react";
 import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
+import type { MenuItem, CartItem } from "../types/menu";
 
-export default function ProductCard({ product }: any) {
+export default function ProductCard({ product }: { product: MenuItem }) {
   const { cart, addToCart, updateQty } = useCart();
 
   const prices = product.prices || [];
 
   const [selectedPrice, setSelectedPrice] = useState(
-    prices[0] || { quantity_label: "Default", price: product.price || 0 }
+    prices[0] || { quantity_label: "Default", price: product.price || 0, display_order: 0 }
   );
 
-  const hasEggChoice = product.ingredient_tags?.some((tag: string) =>
+  const hasEggChoice = product.ingredient_tags?.some((tag) =>
     tag.toLowerCase().includes("egg and eggless")
   );
 
@@ -36,16 +37,17 @@ export default function ProductCard({ product }: any) {
     eggOption || "default"
   }`;
 
-  const cartProduct = {
+  const cartProduct: CartItem = {
     ...product,
     id: cartId,
     originalId: product.id,
     selectedQuantity: selectedPrice.quantity_label,
     selectedEggOption: eggOption,
     price: Number(selectedPrice.price),
+    qty: 1,
   };
 
-  const itemInCart = cart.find((item: any) => item.id === cartId);
+  const itemInCart = cart.find((item) => item.id === cartId);
   const fallbackImage = "/cakes/chocolate-cake-1.jpg";
 
   const compactTags = useMemo(
@@ -61,8 +63,8 @@ export default function ProductCard({ product }: any) {
     ...(product.images?.length
       ? product.images
       : [product.image || fallbackImage]
-    ).map((src: string) => ({ type: "image", src })),
-    ...(product.video ? [{ type: "video", src: product.video }] : []),
+    ).map((src: string) => ({ type: "image" as const, src })),
+    ...(product.video ? [{ type: "video" as const, src: product.video }] : []),
   ];
 
   const activeMedia = mediaItems[activeIndex];
@@ -151,7 +153,7 @@ export default function ProductCard({ product }: any) {
 
             {product.badges?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
-                {product.badges.map((badge: string) => (
+                {product.badges.map((badge) => (
                   <span
                     key={badge}
                     className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]"
@@ -176,7 +178,7 @@ export default function ProductCard({ product }: any) {
 
             {compactTags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {compactTags.map((tag: string) => (
+                {compactTags.map((tag) => (
                   <span
                     key={tag}
                     className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
@@ -242,7 +244,7 @@ export default function ProductCard({ product }: any) {
 
                 {isDropdownOpen && (
                   <div className="absolute bottom-full left-0 z-30 mb-2 w-full overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
-                    {prices.map((p: any) => {
+                    {prices.map((p) => {
                       const isSelected =
                         selectedPrice.quantity_label === p.quantity_label;
 
@@ -341,7 +343,7 @@ export default function ProductCard({ product }: any) {
                   {product.type === "nonveg" ? "Non-Veg" : "Veg"}
                 </span>
 
-                {product.badges?.map((badge: string) => (
+                {product.badges?.map((badge) => (
                   <span
                     key={badge}
                     className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]"
@@ -361,7 +363,7 @@ export default function ProductCard({ product }: any) {
                     Taste Notes
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.keywords.map((tag: string) => (
+                    {product.keywords.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full bg-[#F7F1DF] px-3 py-1 text-xs font-semibold text-[#1D3C42]"
@@ -379,7 +381,7 @@ export default function ProductCard({ product }: any) {
                     Ingredients / Contains
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.ingredient_tags.map((tag: string) => (
+                    {product.ingredient_tags.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"

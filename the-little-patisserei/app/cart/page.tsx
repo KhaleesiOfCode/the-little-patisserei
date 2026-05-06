@@ -2,9 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Trash2, FileText, Lock, MessageCircle, CreditCard } from "lucide-react";
+import { Trash2, FileText, Lock } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import { useCart } from "../../components/CartContext";
+import RazorpayButton from "../../components/RazorpayButton";
 
 export default function CartPage() {
   const { cart, updateQty, removeFromCart, total } = useCart();
@@ -16,7 +17,7 @@ export default function CartPage() {
   const whatsappMessage = encodeURIComponent(
     `Hi, I would like to place an order:\n\nItems:\n${cart
       .map(
-        (item: any) =>
+        (item) =>
           `- ${item.name} x ${item.qty} = ₹${item.price * item.qty}`
       )
       .join("\n")}\n\nSubtotal: ₹${total}\nDelivery charge: ₹${deliveryCharge}\nTotal: ₹${grandTotal}`
@@ -43,7 +44,7 @@ export default function CartPage() {
                   </Link>
                 </div>
               ) : (
-                cart.map((item: any) => (
+                cart.map((item) => (
                   <div
                     key={item.id}
                     className="grid grid-cols-[90px_1fr] gap-5 border-b border-[#F4CFC8] py-5 md:grid-cols-[100px_1fr_auto_auto_auto]"
@@ -59,9 +60,16 @@ export default function CartPage() {
                       <p className="mt-2 text-sm text-[#7A6262]">
                         ₹{item.price}
                       </p>
-                      <p className="mt-1 text-sm text-[#7A6262]">
-                        Size: Regular
-                      </p>
+                      {item.selectedQuantity && (
+                        <p className="mt-1 text-sm text-[#7A6262]">
+                          Size: {item.selectedQuantity}
+                        </p>
+                      )}
+                      {item.selectedEggOption && (
+                        <p className="mt-1 text-sm text-[#7A6262]">
+                          {item.selectedEggOption}
+                        </p>
+                      )}
                     </div>
 
                     <div className="flex h-9 w-fit items-center rounded-full border border-[#F08C9B]">
@@ -156,6 +164,7 @@ export default function CartPage() {
                       </label>
                       <input
                         type="date"
+                        min={new Date().toISOString().split("T")[0]}
                         className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#F08C9B]"
                       />
                     </div>
@@ -177,10 +186,7 @@ export default function CartPage() {
                   />
 
                   <div className="flex justify-center">
-                    <button className="flex w-full max-w-sm items-center justify-center gap-2 rounded-full bg-[#1D3C42] px-8 py-3 font-semibold text-white transition hover:bg-[#163136]">
-                      <CreditCard size={18} />
-                      Pay with Razorpay
-                    </button>
+                    <RazorpayButton className="w-full max-w-sm bg-[#1D3C42]" />
                   </div>
                 </div>
               </div>
