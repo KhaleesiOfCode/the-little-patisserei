@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
 import ScrollReveal from "../components/ScrollReveal";
-import { newLaunches } from "../data/products";
+import { getNewLaunches } from "../lib/supabase/menu";
+import { newLaunches as staticNewLaunches } from "../data/products";
 import type { MenuItem } from "../types/menu";
 
 const galleryItems = [
@@ -26,6 +27,20 @@ const scrollPercent = -(100 / GALLERY_DUPLICATE_COUNT);
 
 export default function HomePage() {
   const [paused, setPaused] = useState(false);
+  const [launches, setLaunches] = useState<MenuItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      const data = await getNewLaunches();
+      if (cancelled) return;
+      setLaunches(data.length > 0 ? data : staticNewLaunches);
+    }
+
+    load();
+    return () => { cancelled = true; };
+  }, []);
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
@@ -115,7 +130,7 @@ export default function HomePage() {
             </div>
 
             <div className="grid gap-6 md:grid-cols-2">
-              {newLaunches.map((item: MenuItem) => (
+              {launches.map((item: MenuItem) => (
                 <Link
                   href="/menu?category=New%20Launches"
                   key={item.id}
