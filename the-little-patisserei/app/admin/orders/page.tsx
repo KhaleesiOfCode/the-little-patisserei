@@ -1,35 +1,60 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getOrders, updateOrderStatus, subscribeToOrders } from "../../../lib/supabase/orders";
+import { getOrders, updateOrderStatus, updateBakerNotes, updateDeliveryFee, updateDeliveryInfo, updateCourierInfo, subscribeToOrders } from "../../../lib/supabase/orders";
 import type { Order, OrderStatus } from "../../../types/menu";
-import { ORDER_STATUS_LABELS } from "../../../types/menu";
-import { CheckCircle, Clock, XCircle } from "lucide-react";
+import { ORDER_STATUS_LABELS, STATUS_COLORS, getNextStatuses } from "../../../types/menu";
+import { Clock, X, FileText, Truck, MessageCircle, DollarSign, Package } from "lucide-react";
 
-const STATUS_FLOW: OrderStatus[] = [
-  "pending",
-  "confirmed",
-  "preparing",
-  "out_for_delivery",
-  "delivered",
+type FilterTab = "new" | "pickup" | "local" | "courier" | "preparing" | "completed" | "cancelled";
+
+const FILTER_TABS: { key: FilterTab; label: string }[] = [
+  { key: "new", label: "New Orders" },
+  { key: "pickup", label: "Pickup" },
+  { key: "local", label: "Local Delivery" },
+  { key: "courier", label: "Courier" },
+  { key: "preparing", label: "Preparing" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
 ];
 
-const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-800 ring-amber-300",
-  confirmed: "bg-blue-100 text-blue-800 ring-blue-300",
-  preparing: "bg-purple-100 text-purple-800 ring-purple-300",
-  out_for_delivery: "bg-orange-100 text-orange-800 ring-orange-300",
-  delivered: "bg-green-100 text-green-800 ring-green-300",
-  cancelled: "bg-red-100 text-red-800 ring-red-300",
-};
-
-
+function filterOrders(orders: Order[], tab: FilterTab): Order[] {
+  switch (tab) {
+    case "new": return orders.filter((o) => o.status === "order_received");
+    case "pickup": return orders.filter((o) => o.delivery_mode === "pickup" && !["delivered", "cancelled", "refunded"].includes(o.status));
+    case "local": return orders.filter((o) => o.delivery_mode === "local_delivery" && !["delivered", "cancelled", "refunded"].includes(o.status));
+    case "courier": return orders.filter((o) => o.delivery_mode === "courier" && !["delivered", "cancelled", "refunded"].includes(o.status));
+    case "preparing": return orders.filter((o) => o.status === "preparing");
+    case "completed": return orders.filter((o) => ["delivered", "refunded"].includes(o.status));
+    case "cancelled": return orders.filter((o) => ["cancelled", "refund_initiated", "date_change_requested"].includes(o.status));
+    default: return orders;
+  }
+}
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<OrderStatus | "all">("all");
+  const [tab, setTab] = useState<FilterTab>("new");
   const [notification, setNotification] = useState<string | null>(null);
+
+  // modals
+  const [editingNotes, setEditingNotes] = useState<string | null>(null);
+  const [notesValue, setNotesValue] = useState("");
+  const [editingFee, setEditingFee] = useState<string | null>(null);
+  const [feeValue, setFeeValue] = useState(0);
+  const [deliveryModal, setDeliveryModal] = useState<Order | null>(null);
+  const [courierModal, setCourierModal] = useState<Order | null>(null);
+
+  const [dProvider, setDProvider] = useState("");
+  const [dPhone, setDPhone] = useState("");
+  const [dUrl, setDUrl] = useState("");
+  const [dNotes, setDNotes] = useState("");
+
+  const [cCompany, setCCompany] = useState("");
+  const [cTracking, setCTracking] = useState("");
+  const [cUrl, setCUrl] = useState("");
+  const [cCharge, setCCharge] = useState(0);
+  const [cNotes, setCNotes] = useState("");
 
   useEffect(() => {
     async function load() {
@@ -37,193 +62,262 @@ export default function AdminOrdersPage() {
       setOrders(data);
       setLoading(false);
     }
-
     load();
-
     const sub = subscribeToOrders((newOrder) => {
       setOrders((prev) => [newOrder, ...prev]);
       setNotification(`New order: ${newOrder.order_number}`);
       setTimeout(() => setNotification(null), 5000);
     });
-
-    return () => {
-      sub.unsubscribe();
-    };
+    return () => { sub.unsubscribe(); };
   }, []);
-
-  const WA_MESSAGES: Record<string, (orderNumber: string, trackingUrl: string) => string> = {
-    confirmed: (on, tu) => `Your order ${on} has been confirmed! ✅ We will start preparing it shortly.\n\nTrack your order here: ${tu}`,
-    preparing: (on, tu) => `Your order ${on} is now being prepared by our bakers! 👨‍🍳\n\nTrack live: ${tu}`,
-    out_for_delivery: (on, tu) => `Your order ${on} is out for delivery! 🚚 Get ready to enjoy!\n\nTrack live: ${tu}`,
-    delivered: (on, tu) => `Your order ${on} has been delivered! 🎉 Thank you for choosing The Little Patisserie.\n\nTrack: ${tu}`,
-  };
 
   const handleStatus = async (id: string, status: OrderStatus) => {
     const ok = await updateOrderStatus(id, status);
     if (!ok) return;
-
     const order = orders.find((o) => o.id === id);
     if (!order) return;
-
-    setOrders((prev) =>
-      prev.map((o) =>
-        o.id === id ? { ...o, order_status: status } : o
-      )
-    );
-
-    const msgFn = WA_MESSAGES[status];
-    if (msgFn) {
-      const origin = window.location.origin;
-      const trackingUrl = `${origin}/track/${order.order_number}`;
-      const msg = msgFn(order.order_number, trackingUrl);
-      const phone = order.customer_phone.replace(/^0+/, "");
-      window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, "_blank");
-    }
+    setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
   };
 
-  const filtered = filter === "all"
-    ? orders
-    : orders.filter((o) => o.order_status === filter);
+  const openDeliveryModal = (order: Order) => {
+    setDeliveryModal(order);
+    setDProvider(order.delivery_provider_name || "");
+    setDPhone(order.delivery_partner_phone || "");
+    setDUrl(order.delivery_tracking_url || "");
+    setDNotes(order.delivery_notes || "");
+  };
+
+  const saveDeliveryInfo = async () => {
+    if (!deliveryModal) return;
+    await updateDeliveryInfo(deliveryModal.id, {
+      provider_name: dProvider, partner_phone: dPhone,
+      tracking_url: dUrl, notes: dNotes,
+    });
+    setOrders((prev) => prev.map((o) => o.id === deliveryModal.id ? {
+      ...o, delivery_provider_name: dProvider, delivery_partner_phone: dPhone,
+      delivery_tracking_url: dUrl, delivery_notes: dNotes,
+    } : o));
+    await handleStatus(deliveryModal.id, "out_for_delivery");
+    setDeliveryModal(null);
+  };
+
+  const openCourierModal = (order: Order) => {
+    setCourierModal(order);
+    setCCompany(order.courier_company || "");
+    setCTracking(order.courier_tracking_number || "");
+    setCUrl(order.courier_tracking_url || "");
+    setCCharge(order.courier_charge ?? 0);
+    setCNotes(order.courier_notes || "");
+  };
+
+  const saveCourierInfo = async () => {
+    if (!courierModal) return;
+    await updateCourierInfo(courierModal.id, {
+      company: cCompany, tracking_number: cTracking,
+      tracking_url: cUrl, charge: cCharge, notes: cNotes,
+    });
+    setOrders((prev) => prev.map((o) => o.id === courierModal.id ? {
+      ...o, courier_company: cCompany, courier_tracking_number: cTracking,
+      courier_tracking_url: cUrl, courier_charge: cCharge, courier_notes: cNotes,
+      delivery_fee: cCharge, delivery_fee_status: cCharge > 0 ? "confirmed" : "pending_confirmation",
+      total: o.subtotal + cCharge,
+    } : o));
+    await handleStatus(courierModal.id, "courier_booked");
+    setCourierModal(null);
+  };
+
+  const filtered = filterOrders(orders, tab);
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
       {notification && (
-        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 animate-bounce rounded-2xl bg-[#1D3C42] px-6 py-3 text-sm font-semibold text-white shadow-xl">
-          🛎️ {notification}
-        </div>
+        <div className="fixed left-1/2 top-4 z-50 -translate-x-1/2 rounded-2xl bg-[#1D3C42] px-6 py-3 text-sm font-semibold text-white shadow-xl shadow-black/20">🛎️ {notification}</div>
       )}
 
       <header className="sticky top-0 z-40 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 px-5 py-4 backdrop-blur-md">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div>
-            <h1 className="text-xl font-extrabold text-[#1D3C42]">
-              Order dashboard
-            </h1>
-            <p className="text-xs text-[#7A6262]">
-              {orders.length} total orders
-            </p>
+            <h1 className="text-xl font-extrabold text-[#1D3C42]">Baker&apos;s dashboard</h1>
+            <p className="text-xs text-[#7A6262]">{orders.length} total · {orders.filter((o) => o.status === "order_received").length} new</p>
           </div>
-
-          <a
-            href="/"
-            className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white"
-          >
-            View site
-          </a>
+          <a href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</a>
         </div>
       </header>
 
       <section className="mx-auto max-w-7xl px-5 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
-          {(["all", ...STATUS_FLOW] as const).map((status) => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={`rounded-full px-4 py-2 text-xs font-bold transition ${
-                filter === status
-                  ? "bg-[#1D3C42] text-white"
-                  : "bg-white text-[#7A6262] ring-1 ring-[#F4CFC8] hover:bg-[#FFF8E4]"
-              }`}
-            >
-              {status === "all" ? "All" : ORDER_STATUS_LABELS[status]}
+          {FILTER_TABS.map((t) => (
+            <button key={t.key} onClick={() => setTab(t.key)}
+              className={`relative rounded-full px-4 py-2 text-xs font-bold transition ${
+                tab === t.key ? "bg-[#1D3C42] text-white" : "bg-white text-[#7A6262] ring-1 ring-[#F4CFC8] hover:bg-[#FFF8E4]"
+              }`}>
+              {t.label}
+              {t.key === "new" && orders.filter((o) => o.status === "order_received").length > 0 && (
+                <span className="absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                  {orders.filter((o) => o.status === "order_received").length}
+                </span>
+              )}
             </button>
           ))}
         </div>
 
         {loading ? (
-          <div className="rounded-[2rem] bg-white p-10 text-center ring-1 ring-[#F4CFC8]">
-            <p className="font-semibold text-[#1D3C42]">Loading orders...</p>
-          </div>
+          <div className="rounded-[2rem] bg-white p-10 text-center ring-1 ring-[#F4CFC8]"><p className="font-semibold text-[#1D3C42]">Loading orders...</p></div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-[2rem] bg-white p-10 text-center ring-1 ring-[#F4CFC8]">
-            <p className="font-semibold text-[#7A6262]">No orders found</p>
-          </div>
+          <div className="rounded-[2rem] bg-white p-10 text-center ring-1 ring-[#F4CFC8]"><p className="font-semibold text-[#7A6262]">No orders in this section</p></div>
         ) : (
-          <div className="grid gap-5">
-            {filtered.map((order) => (
-              <div
-                key={order.id}
-                className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-[#F4CFC8] transition hover:shadow-md"
-              >
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div>
-                    <div className="flex items-center gap-3">
-                      <span className="text-lg font-extrabold text-[#1D3C42]">
-                        {order.order_number}
-                      </span>
-                      <span
-                        className={`rounded-full px-3 py-1 text-xs font-bold ring-1 ${STATUS_COLORS[order.order_status] || STATUS_COLORS.pending}`}
-                      >
-                        {ORDER_STATUS_LABELS[order.order_status as OrderStatus] || order.order_status}
-                      </span>
+          <div className="grid gap-4">
+            {filtered.map((order) => {
+              const nextStatuses = getNextStatuses(order.status as OrderStatus, order.delivery_mode);
+              return (
+                <div key={order.id} className={`rounded-[2rem] bg-white p-5 shadow-sm ring-1 transition hover:shadow-md ${
+                  order.status === "order_received" ? "ring-2 ring-amber-300" : "ring-[#F4CFC8]"
+                }`}>
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="text-lg font-extrabold text-[#1D3C42]">{order.order_number}</span>
+                        <span className={`rounded-full px-3 py-0.5 text-[10px] font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
+                          {ORDER_STATUS_LABELS[order.status as OrderStatus] || order.status}
+                        </span>
+                        <span className="rounded-full bg-[#FFF8E4] px-3 py-0.5 text-[10px] font-bold text-[#7A6262] ring-1 ring-[#F4CFC8]">
+                          {order.delivery_mode === "pickup" ? "Pickup" : order.delivery_mode === "courier" ? "Courier" : "Local Delivery"}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-[#7A6262]">
+                        <span>{order.customer_name} · {order.customer_phone}</span>
+                        <span>{order.city || "—"}{order.pincode ? ` - ${order.pincode}` : ""}</span>
+                        <span className="flex items-center gap-1"><Clock size={12} />{new Date(order.created_at).toLocaleString("en-IN")}</span>
+                      </div>
+                      {order.baker_notes && <p className="mt-2 text-sm italic text-[#7A6262]">📝 {order.baker_notes}</p>}
+                      {order.delivery_zone && order.delivery_mode === "local_delivery" && (
+                        <p className="mt-1 text-xs font-semibold text-green-600">Zone: {order.delivery_zone}</p>
+                      )}
+                      {order.courier_zone && (
+                        <p className="mt-1 text-xs font-semibold text-orange-600">
+                          Courier: {order.courier_zone.replace("_", " ").toUpperCase()}
+                          {order.courier_weight_slab ? ` · ${order.courier_weight_slab}` : ""}
+                          {order.total_courier_weight_grams ? ` · ${order.total_courier_weight_grams}g` : ""}
+                        </p>
+                      )}
+                      {(order.fragile_surcharge ?? 0) > 0 && (
+                        <p className="mt-1 text-xs font-semibold text-purple-600">+₹{order.fragile_surcharge} fragile packaging</p>
+                      )}
+                      {(order.delivery_fee_status === "estimated" || order.delivery_fee_status === "zone") && order.delivery_mode === "local_delivery" && (
+                        <p className="mt-1 text-xs font-semibold text-amber-600">Delivery fee ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
+                      )}
+                      {order.delivery_fee_status === "calculated" && (
+                        <p className="mt-1 text-xs font-semibold text-green-600">Courier ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
+                      )}
+                      {(order.delivery_fee_status === "estimated" || order.delivery_fee_status === "zone") && order.delivery_mode === "local_delivery" && (
+                        <p className="mt-1 text-xs font-semibold text-amber-600">Delivery fee ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
+                      )}
                     </div>
-                    <p className="mt-2 text-sm text-[#7A6262]">
-                      {order.customer_name} · {order.customer_phone}
-                    </p>
-                    <p className="mt-1 text-sm text-[#7A6262]">
-                      {order.customer_address}, {order.customer_city}
-                    </p>
-                    <p className="mt-1 text-xs text-[#7A6262]">
-                      <Clock size={12} className="mr-1 inline" />
-                      {new Date(order.created_at).toLocaleString("en-IN")}
-                    </p>
+                    <div className="text-right">
+                      <p className="text-xl font-extrabold text-[#1D3C42]">₹{order.total}</p>
+                      {(order.delivery_fee ?? 0) > 0 && <p className="text-xs text-[#7A6262]">incl. ₹{order.delivery_fee} delivery</p>}
+                    </div>
                   </div>
 
-                  <div className="text-right">
-                    <p className="text-xl font-extrabold text-[#1D3C42]">
-                      ₹{order.total}
-                    </p>
-                    <p className="text-xs text-[#7A6262]">
-                      {order.payment_status}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#F4CFC8] pt-4">
-                  {STATUS_FLOW.map((status) => {
-                    const isActive = order.order_status === status;
-                    const isPast =
-                      STATUS_FLOW.indexOf(order.order_status as OrderStatus) >=
-                      STATUS_FLOW.indexOf(status);
-
-                    if (status === "delivered" && isPast && !isActive) return null;
-                    if (order.order_status === "cancelled") return null;
-
-                    return (
-                      <button
-                        key={status}
-                        onClick={() => handleStatus(order.id, status)}
-                        disabled={isActive || (isPast && !isActive)}
-                        className={`flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold transition disabled:opacity-40 ${
-                          isActive
-                            ? "bg-[#1D3C42] text-white"
-                            : "bg-[#FFF8E4] text-[#7A6262] hover:bg-[#FADCD4]"
-                        }`}
-                      >
-                        {status === "delivered" ? (
-                          <CheckCircle size={14} />
-                        ) : status === "cancelled" ? (
-                          <XCircle size={14} />
-                        ) : null}
-                        {ORDER_STATUS_LABELS[status]}
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#F4CFC8] pt-4">
+                    {nextStatuses.map((s) => (
+                      <button key={s} onClick={() => {
+                        if (order.delivery_mode === "local_delivery" && s === "out_for_delivery") { openDeliveryModal(order); return; }
+                        if (order.delivery_mode === "courier" && s === "courier_booked") { openCourierModal(order); return; }
+                        handleStatus(order.id, s);
+                      }} className="rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#163136]">
+                        {ORDER_STATUS_LABELS[s]}
                       </button>
-                    );
-                  })}
-
-                  {order.order_status !== "cancelled" && order.order_status !== "delivered" && (
-                    <button
-                      onClick={() => handleStatus(order.id, "cancelled")}
-                      className="ml-auto rounded-full bg-red-50 px-4 py-2 text-xs font-bold text-red-600 transition hover:bg-red-100"
-                    >
-                      Cancel
+                    ))}
+                    <button onClick={() => { setEditingNotes(order.id); setNotesValue(order.baker_notes || ""); }} className="flex items-center gap-1 rounded-full bg-[#FFF8E4] px-4 py-2 text-xs font-bold text-[#7A6262] transition hover:bg-[#FADCD4]">
+                      <FileText size={14} /> Notes
                     </button>
+                  </div>
+
+                  {(order.delivery_provider_name || order.courier_company) && (
+                    <div className="mt-3 rounded-2xl bg-[#FFF8E4] p-3 text-xs">
+                      {order.delivery_provider_name && <p>🚚 {order.delivery_provider_name}{order.delivery_partner_phone ? ` · ${order.delivery_partner_phone}` : ""}</p>}
+                      {order.courier_company && <p>📦 {order.courier_company} · {order.courier_tracking_number || "—"}</p>}
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
+
+      {/* Baker notes modal */}
+      {editingNotes && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setEditingNotes(null)}>
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#1D3C42]">Baker notes</h3><button onClick={() => setEditingNotes(null)}><X size={20} /></button></div>
+            <textarea value={notesValue} onChange={(e) => setNotesValue(e.target.value)} className="mt-4 min-h-28 w-full rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Internal notes..." />
+            <div className="mt-4 flex gap-3">
+              <button onClick={() => setEditingNotes(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={async () => { await updateBakerNotes(editingNotes, notesValue); setOrders((prev) => prev.map((o) => o.id === editingNotes ? { ...o, baker_notes: notesValue } : o)); setEditingNotes(null); }} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delivery fee modal */}
+      {editingFee && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setEditingFee(null)}>
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#1D3C42]">Update delivery fee</h3><button onClick={() => setEditingFee(null)}><X size={20} /></button></div>
+            <div className="mt-4 flex items-center gap-2"><DollarSign size={18} /><input type="number" value={feeValue} onChange={(e) => setFeeValue(Number(e.target.value))} className="flex-1 rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-lg font-extrabold outline-none focus:border-[#1D3C42]" /></div>
+            <div className="mt-4 flex gap-3">
+              <button onClick={() => setEditingFee(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={async () => { await updateDeliveryFee(editingFee, feeValue); setOrders((prev) => prev.map((o) => o.id === editingFee ? { ...o, delivery_fee: feeValue, delivery_fee_status: "manual", total: o.subtotal + feeValue } : o)); setEditingFee(null); }} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Save</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delivery provider modal */}
+      {deliveryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setDeliveryModal(null)}>
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#1D3C42]"><Truck size={18} className="mr-1 inline" /> Book delivery</h3><button onClick={() => setDeliveryModal(null)}><X size={20} /></button></div>
+            <p className="mt-2 text-sm text-[#7A6262]">Enter delivery provider details. Status will be set to Out for Delivery.</p>
+            <div className="mt-4 grid gap-3">
+              <input value={dProvider} onChange={(e) => setDProvider(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Provider/app name e.g. Uber, Porter" />
+              <input value={dPhone} onChange={(e) => setDPhone(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery partner contact (optional)" />
+              <input value={dUrl} onChange={(e) => setDUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL (optional)" />
+              <textarea value={dNotes} onChange={(e) => setDNotes(e.target.value)} className="min-h-16 rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery notes (optional)" />
+            </div>
+            <div className="mt-4 flex gap-3">
+              <button onClick={() => setDeliveryModal(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={saveDeliveryInfo} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Mark Out for Delivery</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Courier modal */}
+      {courierModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setCourierModal(null)}>
+          <div className="w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#1D3C42]"><Package size={18} className="mr-1 inline" /> Add courier details</h3><button onClick={() => setCourierModal(null)}><X size={20} /></button></div>
+            <p className="mt-2 text-sm text-[#7A6262]">Enter courier company and tracking. Status will be set to Courier Booked.</p>
+            <div className="mt-4 grid gap-3">
+              <input value={cCompany} onChange={(e) => setCCompany(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier company name *" />
+              <input value={cTracking} onChange={(e) => setCTracking(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking number *" />
+              <input value={cUrl} onChange={(e) => setCUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL (optional)" />
+              <div className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3">
+                <label className="text-xs font-bold uppercase tracking-wider text-[#7A6262]">Courier charge (₹)</label>
+                <input value={cCharge} onChange={(e) => setCCharge(Number(e.target.value))} type="number" className="mt-1 w-full text-lg font-extrabold outline-none" placeholder="0" />
+              </div>
+              <textarea value={cNotes} onChange={(e) => setCNotes(e.target.value)} className="min-h-16 rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
+            </div>
+            <div className="mt-4 flex gap-3">
+              <button onClick={() => setCourierModal(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={saveCourierInfo} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Mark Courier Booked</button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

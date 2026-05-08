@@ -27,7 +27,6 @@ export default function Navbar() {
         <div className="flex items-center gap-6 text-sm font-semibold text-[#1D3C42]">
           <Link href="/">Home</Link>
           <Link href="/menu">Menu</Link>
-          <Link href="/custom-cake">Custom Cake</Link>
 
           <Link
             href="/cart"

@@ -37,10 +37,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     );
   };
 
+  const clearCart = () => setCart([]);
+
+  const updateCartItem = (id: string, updates: Partial<CartItem>) => {
+    setCart((prev) =>
+      prev.map((item) => (item.id === id ? { ...item, ...updates } : item))
+    );
+  };
+
   const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, total }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQty, updateCartItem, clearCart, total }}>
       {children}
     </CartContext.Provider>
   );

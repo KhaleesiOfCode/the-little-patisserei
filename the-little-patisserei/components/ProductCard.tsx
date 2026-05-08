@@ -12,9 +12,10 @@ import {
 import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
+import LiveDesignStudio from "./LiveDesignStudio";
 
 export default function ProductCard({ product }: { product: MenuItem }) {
-  const { cart, addToCart, updateQty } = useCart();
+  const { cart, addToCart, updateQty, updateCartItem } = useCart();
 
   const prices = product.prices || [];
 
@@ -28,14 +29,22 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
   const [eggOption, setEggOption] = useState(hasEggChoice ? "Eggless" : "");
 
+  const isCelebrationCake = product.category === "Celebration Cakes" || product.badges?.some((b) => b.toLowerCase().includes("celebration"))
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cakeMessage, setCakeMessage] = useState("");
+  const [cakeOccasion, setCakeOccasion] = useState("");
+  const [cakeDesign, setCakeDesign] = useState("");
+  const [customizationOpen, setCustomizationOpen] = useState(false);
 
-  const cartId = `${product.id}-${selectedPrice.quantity_label}-${
+  const baseCartId = `${product.id}-${selectedPrice.quantity_label}-${
     eggOption || "default"
   }`;
+
+  const cartId = baseCartId;
 
   const cartProduct: CartItem = {
     ...product,
@@ -45,6 +54,9 @@ export default function ProductCard({ product }: { product: MenuItem }) {
     selectedEggOption: eggOption,
     price: Number(selectedPrice.price),
     qty: 1,
+    cakeMessage: isCelebrationCake ? cakeMessage : undefined,
+    cakeOccasion: isCelebrationCake ? cakeOccasion : undefined,
+    cakeDesign: isCelebrationCake ? cakeDesign : undefined,
   };
 
   const itemInCart = cart.find((item) => item.id === cartId);
@@ -220,6 +232,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 </div>
               </div>
             )}
+
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -280,8 +293,11 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               {!itemInCart ? (
                 <motion.button
                   whileTap={{ scale: 0.92 }}
-                  onClick={() => addToCart(cartProduct)}
-                  className="rounded-full bg-[#1D3C42] px-7 py-3 text-sm font-bold text-white transition hover:bg-[#163136]"
+                  onClick={() => {
+                    addToCart(cartProduct);
+                    if (isCelebrationCake) setCustomizationOpen(true);
+                  }}
+                  className="rounded-full bg-[#1D3C42] px-7 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136]"
                 >
                   Add
                 </motion.button>
@@ -307,6 +323,39 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 </div>
               )}
             </div>
+
+            {isCelebrationCake && customizationOpen && itemInCart && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-5 space-y-3"
+              >
+                <LiveDesignStudio
+                  cakeMessage={cakeMessage}
+                  setCakeMessage={setCakeMessage}
+                  cakeOccasion={cakeOccasion}
+                  setCakeOccasion={setCakeOccasion}
+                  cakeDesign={cakeDesign}
+                  setCakeDesign={setCakeDesign}
+                  productName={product.name}
+                />
+
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    updateCartItem(baseCartId, {
+                      cakeMessage,
+                      cakeOccasion,
+                      cakeDesign,
+                    });
+                  }}
+                  className="w-full rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-[#D4AF37]/90"
+                >
+                  Save Customization
+                </motion.button>
+              </motion.div>
+            )}
           </div>
         </div>
       </article>
