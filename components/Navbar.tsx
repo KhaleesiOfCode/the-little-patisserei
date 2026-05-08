@@ -6,7 +6,7 @@ import { useCart } from "./CartContext";
 
 export default function Navbar() {
   const { cart } = useCart();
-  const cartCount = cart.reduce((sum: number, item: any) => sum + item.qty, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
 
   return (
     <header className="sticky top-0 z-50 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 backdrop-blur-md">
@@ -21,13 +21,12 @@ export default function Navbar() {
               className="h-11 w-11 rounded-full object-contain"
             />
             <span>The Little Patisserie</span>
-          
+
         </Link>
 
         <div className="flex items-center gap-6 text-sm font-semibold text-[#1D3C42]">
           <Link href="/">Home</Link>
           <Link href="/menu">Menu</Link>
-          <Link href="/custom-cake">Custom Cake</Link>
 
           <Link
             href="/cart"

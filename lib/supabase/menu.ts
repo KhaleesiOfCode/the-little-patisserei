@@ -1,24 +1,105 @@
 import { supabase } from "./client";
+import type { MenuCategory, MenuItem } from "../../types/menu";
+import { BADGE_KEYWORDS } from "../../types/menu";
 
-export async function getMenuCategories() {
+function transformRow(item: any): MenuItem {
+  const images =
+    (item.media as any[])
+      ?.filter((m: any) => m.media_type === "image")
+      ?.sort((a: any, b: any) => a.display_order - b.display_order)
+      ?.map((m: any) => m.url) ?? [];
+
+  const video =
+    (item.media as any[])?.find((m: any) => m.media_type === "video")?.url ?? "";
+
+  const prices =
+    ((item.prices as any[])?.sort(
+      (a: any, b: any) => a.display_order - b.display_order
+    ) ?? []).map((p: any) => ({
+      quantity_label: p.quantity_label,
+      price: Number(p.price),
+      display_order: p.display_order,
+    })) ?? [];
+
+  const keywordTags: string[] = item.keywords ?? [];
+  const ingredientTags: string[] = item.ingredient_tags ?? [];
+
+  const normalise = (value: string) => value.trim().toLowerCase();
+
+  const keywordBadges = keywordTags.filter((tag) =>
+    BADGE_KEYWORDS.some((badge) => normalise(badge) === normalise(tag))
+  );
+
+  const tasteNotes = keywordTags.filter(
+    (tag) =>
+      !BADGE_KEYWORDS.some((badge) => normalise(badge) === normalise(tag))
+  );
+
+  const badgeTags = [
+    item.is_new_launch ? "New Launch" : null,
+    item.is_bestseller ? "Best Seller" : null,
+    ...keywordBadges,
+  ].filter(Boolean);
+
+  return {
+    id: item.id,
+    name: item.name,
+    description: item.description ?? "",
+    type: (item.food_type as "veg" | "nonveg") ?? "veg",
+    keywords: [...new Set(tasteNotes)],
+    ingredient_tags: [...new Set(ingredientTags)],
+    shelf_life: item.shelf_life ?? "",
+    image: images[0] ?? "/cakes/chocolate-cake-1.jpg",
+    images,
+    video,
+    price: prices[0]?.price ?? 0,
+    prices,
+    badges: [...new Set(badgeTags as string[])],
+    category: (item.category as any)?.name ?? "Others",
+  };
+}
+
+const MENU_SELECT = `
+  id,
+  name,
+  description,
+  food_type,
+  keywords,
+  ingredient_tags,
+  shelf_life,
+  is_bestseller,
+  is_new_launch,
+  is_available,
+  display_order,
+  category:menu_categories(name),
+  prices:menu_item_prices(quantity_label, price, display_order),
+  media:menu_item_media(media_type, url, display_order)
+`;
+
+export async function getNewLaunches(): Promise<MenuItem[]> {
   const { data, error } = await supabase
     .from("menu_items")
-    .select(`
-      id,
-      name,
-      description,
-      food_type,
-      keywords,
-      ingredient_tags,
-      shelf_life,
-      is_bestseller,
-      is_new_launch,
-      is_available,
-      display_order,
-      category:menu_categories(name),
-      prices:menu_item_prices(quantity_label, price, display_order),
-      media:menu_item_media(media_type, url, display_order)
-    `)
+    .select(MENU_SELECT)
+    .eq("is_available", true)
+    .eq("is_new_launch", true)
+    .order("display_order", { ascending: true });
+
+  if (error) {
+    console.error("Failed to fetch new launches:", error);
+    return [];
+  }
+
+  if (!data || data.length === 0) {
+    return [];
+  }
+
+  return (data as any[]).map(transformRow);
+}
+
+export async function getMenuCategories(): Promise<MenuCategory[]> {
+  const { data, error } = await supabase
+    .from("menu_items")
+    .select(MENU_SELECT)
     .eq("is_available", true)
     .order("display_order", { ascending: true });
 
@@ -27,75 +108,13 @@ export async function getMenuCategories() {
     return [];
   }
 
-  const badgeKeywords = [
-    "Best Seller",
-    "Bestseller",
-    "New Launch",
-    "Highly Recommended",
-    "Highly Reordered",
-    "Seasonal",
-    "Signature",
-    "Customer Favourite",
-  ];
+  if (!data || data.length === 0) {
+    return [];
+  }
 
-  const normalise = (value: string) => value.trim().toLowerCase();
+  const products: MenuItem[] = (data as any[]).map(transformRow);
 
-  const products = data.map((item: any) => {
-    const images =
-      item.media
-        ?.filter((m: any) => m.media_type === "image")
-        ?.sort((a: any, b: any) => a.display_order - b.display_order)
-        ?.map((m: any) => m.url) || [];
-
-    const video =
-      item.media?.find((m: any) => m.media_type === "video")?.url || "";
-
-    const prices =
-      item.prices?.sort((a: any, b: any) => a.display_order - b.display_order) ||
-      [];
-
-    const keywordTags = item.keywords || [];
-    const ingredientTags = item.ingredient_tags || [];
-
-    const keywordBadges = keywordTags.filter((tag: string) =>
-      badgeKeywords.some((badge) => normalise(badge) === normalise(tag))
-    );
-
-    const tasteNotes = keywordTags.filter(
-      (tag: string) =>
-        !badgeKeywords.some((badge) => normalise(badge) === normalise(tag))
-    );
-
-    const badgeTags = [
-      item.is_new_launch ? "New Launch" : null,
-      item.is_bestseller ? "Best Seller" : null,
-      ...keywordBadges,
-    ].filter(Boolean);
-
-    return {
-      id: item.id,
-      name: item.name,
-      description: item.description || "",
-      type: item.food_type || "veg",
-
-      keywords: [...new Set(tasteNotes)],
-      ingredient_tags: [...new Set(ingredientTags)],
-      shelf_life: item.shelf_life || "",
-
-      image: images[0] || "/cakes/chocolate-cake-1.jpg",
-      images,
-      video,
-
-      price: prices[0]?.price || 0,
-      prices,
-
-      badges: [...new Set(badgeTags)],
-
-      category: item.category?.name || "Others",
-    };
-  });
-
-  const grouped = products.reduce((acc: any[], product: any) => {
+  const grouped = products.reduce<MenuCategory[]>((acc, product) => {
     const existing = acc.find((cat) => cat.name === product.category);
 
     if (existing) {

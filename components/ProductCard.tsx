@@ -11,41 +11,55 @@ import {
 } from "lucide-react";
 import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
+import type { MenuItem, CartItem } from "../types/menu";
+import LiveDesignStudio from "./LiveDesignStudio";
 
-export default function ProductCard({ product }: any) {
-  const { cart, addToCart, updateQty } = useCart();
+export default function ProductCard({ product }: { product: MenuItem }) {
+  const { cart, addToCart, updateQty, updateCartItem } = useCart();
 
   const prices = product.prices || [];
 
   const [selectedPrice, setSelectedPrice] = useState(
-    prices[0] || { quantity_label: "Default", price: product.price || 0 }
+    prices[0] || { quantity_label: "Default", price: product.price || 0, display_order: 0 }
   );
 
-  const hasEggChoice = product.ingredient_tags?.some((tag: string) =>
+  const hasEggChoice = product.ingredient_tags?.some((tag) =>
     tag.toLowerCase().includes("egg and eggless")
   );
 
   const [eggOption, setEggOption] = useState(hasEggChoice ? "Eggless" : "");
 
+  const isCelebrationCake = product.category === "Celebration Cakes" || product.badges?.some((b) => b.toLowerCase().includes("celebration"))
+
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [cakeMessage, setCakeMessage] = useState("");
+  const [cakeOccasion, setCakeOccasion] = useState("");
+  const [cakeDesign, setCakeDesign] = useState("");
+  const [customizationOpen, setCustomizationOpen] = useState(false);
 
-  const cartId = `${product.id}-${selectedPrice.quantity_label}-${
+  const baseCartId = `${product.id}-${selectedPrice.quantity_label}-${
     eggOption || "default"
   }`;
 
-  const cartProduct = {
+  const cartId = baseCartId;
+
+  const cartProduct: CartItem = {
     ...product,
     id: cartId,
     originalId: product.id,
     selectedQuantity: selectedPrice.quantity_label,
     selectedEggOption: eggOption,
     price: Number(selectedPrice.price),
+    qty: 1,
+    cakeMessage: isCelebrationCake ? cakeMessage : undefined,
+    cakeOccasion: isCelebrationCake ? cakeOccasion : undefined,
+    cakeDesign: isCelebrationCake ? cakeDesign : undefined,
   };
 
-  const itemInCart = cart.find((item: any) => item.id === cartId);
+  const itemInCart = cart.find((item) => item.id === cartId);
   const fallbackImage = "/cakes/chocolate-cake-1.jpg";
 
   const compactTags = useMemo(
@@ -61,8 +75,8 @@ export default function ProductCard({ product }: any) {
     ...(product.images?.length
       ? product.images
       : [product.image || fallbackImage]
-    ).map((src: string) => ({ type: "image", src })),
-    ...(product.video ? [{ type: "video", src: product.video }] : []),
+    ).map((src: string) => ({ type: "image" as const, src })),
+    ...(product.video ? [{ type: "video" as const, src: product.video }] : []),
   ];
 
   const activeMedia = mediaItems[activeIndex];
@@ -151,7 +165,7 @@ export default function ProductCard({ product }: any) {
 
             {product.badges?.length > 0 && (
               <div className="mt-2 flex flex-wrap gap-2">
-                {product.badges.map((badge: string) => (
+                {product.badges.map((badge) => (
                   <span
                     key={badge}
                     className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]"
@@ -176,7 +190,7 @@ export default function ProductCard({ product }: any) {
 
             {compactTags.length > 0 && (
               <div className="mt-3 flex flex-wrap gap-2">
-                {compactTags.map((tag: string) => (
+                {compactTags.map((tag) => (
                   <span
                     key={tag}
                     className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
@@ -218,6 +232,7 @@ export default function ProductCard({ product }: any) {
                 </div>
               </div>
             )}
+
           </div>
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
@@ -242,7 +257,7 @@ export default function ProductCard({ product }: any) {
 
                 {isDropdownOpen && (
                   <div className="absolute bottom-full left-0 z-30 mb-2 w-full overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
-                    {prices.map((p: any) => {
+                    {prices.map((p) => {
                       const isSelected =
                         selectedPrice.quantity_label === p.quantity_label;
 
@@ -278,8 +293,11 @@ export default function ProductCard({ product }: any) {
               {!itemInCart ? (
                 <motion.button
                   whileTap={{ scale: 0.92 }}
-                  onClick={() => addToCart(cartProduct)}
-                  className="rounded-full bg-[#1D3C42] px-7 py-3 text-sm font-bold text-white transition hover:bg-[#163136]"
+                  onClick={() => {
+                    addToCart(cartProduct);
+                    if (isCelebrationCake) setCustomizationOpen(true);
+                  }}
+                  className="rounded-full bg-[#1D3C42] px-7 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136]"
                 >
                   Add
                 </motion.button>
@@ -305,6 +323,39 @@ export default function ProductCard({ product }: any) {
                 </div>
               )}
             </div>
+
+            {isCelebrationCake && customizationOpen && itemInCart && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-5 space-y-3"
+              >
+                <LiveDesignStudio
+                  cakeMessage={cakeMessage}
+                  setCakeMessage={setCakeMessage}
+                  cakeOccasion={cakeOccasion}
+                  setCakeOccasion={setCakeOccasion}
+                  cakeDesign={cakeDesign}
+                  setCakeDesign={setCakeDesign}
+                  productName={product.name}
+                />
+
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    updateCartItem(baseCartId, {
+                      cakeMessage,
+                      cakeOccasion,
+                      cakeDesign,
+                    });
+                  }}
+                  className="w-full rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-[#D4AF37]/90"
+                >
+                  Save Customization
+                </motion.button>
+              </motion.div>
+            )}
           </div>
         </div>
       </article>
@@ -341,7 +392,7 @@ export default function ProductCard({ product }: any) {
                   {product.type === "nonveg" ? "Non-Veg" : "Veg"}
                 </span>
 
-                {product.badges?.map((badge: string) => (
+                {product.badges?.map((badge) => (
                   <span
                     key={badge}
                     className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]"
@@ -361,7 +412,7 @@ export default function ProductCard({ product }: any) {
                     Taste Notes
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.keywords.map((tag: string) => (
+                    {product.keywords.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full bg-[#F7F1DF] px-3 py-1 text-xs font-semibold text-[#1D3C42]"
@@ -379,7 +430,7 @@ export default function ProductCard({ product }: any) {
                     Ingredients / Contains
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.ingredient_tags.map((tag: string) => (
+                    {product.ingredient_tags.map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"

@@ -1,9 +1,11 @@
-export const categories = [
+import type { MenuCategory } from "../types/menu"
+
+export const categories: MenuCategory[] = [
   {
     name: "New Launches",
     items: [
       {
-        id: 101,
+        id: "101",
         name: "Mango Cream Bento Cake",
         description: "A soft mini celebration cake with fresh mango cream.",
         price: 499,
@@ -11,10 +13,15 @@ export const categories = [
         image: "/cakes/mango-bento.jpg",
         images: ["/cakes/mango-bento.jpg"],
         video: "",
-        tags: ["New Launch"],
+        badges: ["New Launch"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "New Launches",
       },
       {
-        id: 102,
+        id: "102",
         name: "Chocolate Cupcake Box",
         description: "Assorted chocolate cupcakes packed for gifting.",
         price: 399,
@@ -22,7 +29,12 @@ export const categories = [
         image: "/cakes/cupcake-box.jpg",
         images: ["/cakes/cupcake-box.jpg"],
         video: "",
-        tags: ["New Launch", "Popular"],
+        badges: ["New Launch", "Popular"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "New Launches",
       },
     ],
   },
@@ -31,7 +43,7 @@ export const categories = [
     name: "Cakes",
     items: [
       {
-        id: 1,
+        id: "1",
         name: "Chocolate Truffle Cake",
         description: "Rich chocolate sponge layered with smooth truffle cream.",
         price: 650,
@@ -43,16 +55,86 @@ export const categories = [
           "/cakes/chocolate-cake-3.jpg",
         ],
         video: "/cakes/chocolate-cake-video.mp4",
-        tags: ["Best Seller"],
+        badges: ["Best Seller"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Cakes",
       },
     ],
   },
 
   {
+    name: "Celebration Cakes",
+    items: [
+      {
+        id: "10",
+        name: "Chocolate Truffle Celebration Cake",
+        description: "Rich chocolate sponge layered with smooth truffle cream. Personalise with a message and design of your choice.",
+        price: 650,
+        type: "veg",
+        image: "/cakes/chocolate-cake-1.jpg",
+        images: ["/cakes/chocolate-cake-1.jpg", "/cakes/chocolate-cake-2.jpg", "/cakes/chocolate-cake-3.jpg"],
+        video: "/cakes/chocolate-cake-video.mp4",
+        badges: ["Celebration Cake"],
+        keywords: ["Chocolate", "Truffle"],
+        ingredient_tags: ["Egg and Eggless"],
+        shelf_life: "3 days",
+        prices: [
+          { quantity_label: "500g", price: 650, display_order: 1 },
+          { quantity_label: "1kg", price: 1200, display_order: 2 },
+          { quantity_label: "2kg", price: 2200, display_order: 3 },
+        ],
+        category: "Celebration Cakes",
+      },
+      {
+        id: "11",
+        name: "Red Velvet Celebration Cake",
+        description: "Classic red velvet with cream cheese frosting. Customise with your personal message and theme.",
+        price: 750,
+        type: "veg",
+        image: "/gallery/cake-3.jpg",
+        images: ["/gallery/cake-3.jpg"],
+        video: "",
+        badges: ["Celebration Cake", "Best Seller"],
+        keywords: ["Red Velvet", "Cream Cheese"],
+        ingredient_tags: ["Egg and Eggless"],
+        shelf_life: "3 days",
+        prices: [
+          { quantity_label: "500g", price: 750, display_order: 1 },
+          { quantity_label: "1kg", price: 1400, display_order: 2 },
+          { quantity_label: "2kg", price: 2500, display_order: 3 },
+        ],
+        category: "Celebration Cakes",
+      },
+      {
+        id: "12",
+        name: "Mango Cream Celebration Cake",
+        description: "Light vanilla sponge with fresh mango cream and fruit. Perfect for summer celebrations.",
+        price: 700,
+        type: "veg",
+        image: "/cakes/mango-cake.jpg",
+        images: ["/cakes/mango-cake.jpg"],
+        video: "",
+        badges: ["Celebration Cake", "Seasonal"],
+        keywords: ["Mango", "Vanilla", "Fruity"],
+        ingredient_tags: [],
+        shelf_life: "2 days",
+        prices: [
+          { quantity_label: "500g", price: 700, display_order: 1 },
+          { quantity_label: "1kg", price: 1300, display_order: 2 },
+          { quantity_label: "2kg", price: 2300, display_order: 3 },
+        ],
+        category: "Celebration Cakes",
+      },
+    ],
+  },
+  {
     name: "Pastries",
     items: [
       {
-        id: 2,
+        id: "2",
         name: "Strawberry Cream Pastry",
         description: "Light sponge pastry topped with strawberry cream.",
         price: 140,
@@ -60,7 +142,12 @@ export const categories = [
         image: "/cakes/strawberry-pastry.jpg",
         images: ["/cakes/strawberry-pastry.jpg"],
         video: "",
-        tags: ["Popular"],
+        badges: ["Popular"],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Pastries",
       },
     ],
   },
@@ -69,7 +156,7 @@ export const categories = [
     name: "Brownies",
     items: [
       {
-        id: 3,
+        id: "3",
         name: "Fudge Brownie Box",
         description: "Dense chocolate brownies packed for gifting.",
         price: 350,
@@ -77,11 +164,15 @@ export const categories = [
         image: "/cakes/brownie-box.jpg",
         images: ["/cakes/brownie-box.jpg"],
         video: "",
-        tags: [],
+        badges: [],
+        keywords: [],
+        ingredient_tags: [],
+        shelf_life: "",
+        prices: [],
+        category: "Brownies",
       },
     ],
   },
-];
+]
 
-export const newLaunches =
-  categories.find((category) => category.name === "New Launches")?.items || [];
+export const newLaunches = categories.find((c) => c.name === "New Launches")?.items ?? []
