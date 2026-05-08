@@ -30,110 +30,103 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
       <Navbar />
 
-      <section className="relative min-h-[85vh] overflow-hidden bg-[#FFF8E4]">
-        {/* Subtle background texture */}
+      <section className="relative overflow-hidden bg-[#FFF8E4]">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute right-0 top-0 h-[600px] w-[600px] rounded-full bg-[#D4AF37]/5 blur-3xl" />
           <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-[#F4CFC8]/20 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto grid min-h-[85vh] max-w-7xl items-center gap-12 px-6 md:grid-cols-[1fr_1fr]">
-          {/* Left: Typography */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-            className="max-w-xl py-16 md:py-0"
-          >
-            <motion.p
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.4 }}
-              className="mb-5 text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]"
-            >
-              Freshly baked in Tamil Nadu
-            </motion.p>
-
-            <h1 className="font-serif text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
-              {"Your Daily Dose of Freshness"
-                .split(" ")
-                .map((word, i) => (
-                  <motion.span
-                    key={i}
-                    initial={{ opacity: 0, y: 25 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{
-                      delay: 0.2 + i * 0.08,
-                      duration: 0.5,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
-                    className="mr-3 inline-block"
-                  >
-                    {word}
-                  </motion.span>
-                ))}
-            </h1>
-
-            {/* Gold decorative line */}
+        <div className="relative mx-auto max-w-7xl px-6 pt-12 pb-0 md:pt-16">
+          <div className="grid items-center gap-10 md:grid-cols-[1fr_1.1fr] md:gap-16">
             <motion.div
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: 1 }}
-              transition={{ delay: 0.5, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-7 h-0.5 w-20 origin-left bg-[#D4AF37]" 
-            />
-
-            <motion.p
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.55, duration: 0.5 }}
-              className="mt-7 max-w-md text-base leading-8 text-[#7A6262]"
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
             >
-              A premium bakery experience for handcrafted cakes, pastries,
-              cupcakes and celebration desserts made with love.
-            </motion.p>
-
-            <motion.div
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.5 }}
-              className="mt-9 flex flex-wrap gap-4"
-            >
-              <Link
-                href="/menu"
-                className="rounded-full bg-[#1D3C42] px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#163136] hover:shadow-xl"
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1, duration: 0.4 }}
+                className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]"
               >
-                View Menu
-              </Link>
+                Artisan Bakery &amp; Patisserie
+              </motion.p>
 
+              <h1 className="font-serif text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
+                {"Artisan Cakes, Crafted for Beautiful Celebrations"
+                  .split(" ")
+                  .map((word, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 25 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{
+                        delay: 0.2 + i * 0.08,
+                        duration: 0.5,
+                        ease: [0.22, 1, 0.36, 1],
+                      }}
+                      className="mr-3 inline-block"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+              </h1>
 
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.5, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="mt-6 h-0.5 w-20 origin-left bg-[#D4AF37]"
+              />
+
+              <motion.p
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.55, duration: 0.5 }}
+                className="mt-6 max-w-md text-base leading-8 text-[#7A6262]"
+              >
+                Freshly baked with premium ingredients, elegant flavours, and thoughtful details — made to turn every occasion into a sweet memory.
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.7, duration: 0.5 }}
+                className="mt-8 flex flex-wrap gap-4"
+              >
+                <Link
+                  href="/menu"
+                  className="rounded-full bg-[#1D3C42] px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#163136] hover:shadow-xl"
+                >
+                  Explore Menu
+                </Link>
+                <a
+                  href={`https://wa.me/919488407130?text=${encodeURIComponent("Hi, I'd like to enquire about a custom cake order.")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="rounded-full border border-[#D4AF37] bg-white px-8 py-3.5 text-sm font-bold text-[#1D3C42] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8E4] hover:shadow-lg"
+                >
+                  Order Custom Cake
+                </a>
+              </motion.div>
             </motion.div>
-          </motion.div>
 
-          {/* Right: Product showcase */}
-          <div className="relative flex h-[420px] items-center justify-center md:h-[560px]">
             <motion.div
               initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="relative z-20"
+              className="relative flex items-center justify-center pb-4 md:pb-0"
             >
-              {/* Geometric background shape */}
               <motion.div
-                animate={{
-                  rotate: [0, 3, 0, -3, 0],
-                }}
+                animate={{ rotate: [0, 3, 0, -3, 0] }}
                 transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-6 -top-6 h-[340px] w-[340px] rounded-[3rem] bg-[#1D3C42] md:-left-8 md:-top-8 md:h-[420px] md:w-[420px]"
+                className="absolute -left-4 -top-4 h-[260px] w-[260px] rounded-[3rem] bg-[#1D3C42] md:-left-6 md:-top-6 md:h-[340px] md:w-[340px]"
               />
-
-              {/* Inner accent shape */}
-              <div className="absolute -bottom-4 -right-4 h-[280px] w-[280px] rounded-[2rem] border-2 border-[#D4AF37]/30 md:h-[340px] md:w-[340px]" />
-
-              {/* Floating product image */}
+              <div className="absolute -bottom-3 -right-3 h-[200px] w-[200px] rounded-[2rem] border-2 border-[#D4AF37]/30 md:h-[260px] md:w-[260px]" />
               <motion.img
-                src="/home/cupcake-hero.png"
-                alt="Freshly baked cupcakes"
-                className="relative z-10 w-[280px] object-contain drop-shadow-2xl md:w-[360px]"
+                src="/cakes/chocolate-cake-1.jpg"
+                alt="Artisan chocolate cake"
+                className="relative z-10 h-[240px] w-[240px] rounded-full object-cover shadow-2xl ring-2 ring-[#D4AF37]/20 md:h-[320px] md:w-[320px]"
                 initial={{ opacity: 0, y: 20, rotate: -2 }}
                 animate={{ opacity: 1, y: [0, -10, 0], rotate: 0 }}
                 transition={{
@@ -145,6 +138,19 @@ export default function HomePage() {
             </motion.div>
           </div>
         </div>
+
+        <svg
+          viewBox="0 0 1440 120"
+          fill="none"
+          xmlns="http://www.w3.org/2000/svg"
+          className="relative mt-8 w-full md:mt-12"
+          preserveAspectRatio="none"
+        >
+          <path
+            d="M0 40C240 120 480 120 720 60C960 0 1200 0 1440 40V120H0V40Z"
+            fill="white"
+          />
+        </svg>
       </section>
 
       <NewLaunchesSection />

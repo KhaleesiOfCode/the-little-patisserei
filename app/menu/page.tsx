@@ -5,7 +5,6 @@ import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
-import { categories as staticCategories } from "../../data/products";
 import type { MenuCategory, MenuItem } from "../../types/menu";
 
 export default function MenuPage() {
@@ -30,14 +29,9 @@ export default function MenuPage() {
         const data = await getMenuCategories();
         if (cancelled) return;
 
-        if (data.length > 0) {
-          setCategories(data);
-        } else {
-          setCategories(staticCategories);
-        }
+        setCategories(data);
       } catch {
         if (!cancelled) {
-          setCategories(staticCategories);
           setError(true);
         }
       } finally {

@@ -4,50 +4,91 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { getNewLaunches } from "../lib/supabase/menu";
-import { newLaunches as staticNewLaunches } from "../data/products";
-import type { MenuItem } from "../types/menu";
+import { useCart } from "./CartContext";
+import type { MenuItem, CartItem } from "../types/menu";
 
 const MAX_HOME_ITEMS = 4;
 
-function horizontalCardAnim(index: number) {
+function cardAnim(index: number) {
   return {
-    initial: { opacity: 0, y: 20 },
+    initial: { opacity: 0, y: 15 },
     whileInView: { opacity: 1, y: 0 },
     viewport: { once: true, margin: "-30px" },
-    transition: { duration: 0.5, delay: index * 0.1, ease: [0.22, 1, 0.36, 1] as const },
+    transition: { duration: 0.4, delay: index * 0.08, ease: [0.22, 1, 0.36, 1] as const },
   };
 }
 
-function EditorialCard({ item, index }: { item: MenuItem; index: number }) {
-  return (
-    <motion.div {...horizontalCardAnim(index)}>
-      <Link
-        href={`/menu?product=${item.id}`}
-        className="group flex flex-col gap-0 overflow-hidden rounded-2xl bg-white ring-1 ring-[#E8DDD0] transition-all duration-300 hover:ring-[#D4AF37]/30 sm:flex-row sm:items-stretch"
-      >
-        <div className="aspect-square w-full overflow-hidden bg-[#FAFAF5] sm:h-[170px] sm:w-[170px] shrink-0">
-          <img
-            src={item.image}
-            alt={item.name}
-            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          />
-        </div>
+function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
+  const { cart, addToCart } = useCart();
+  const fallbackImage = "/cakes/chocolate-cake-1.jpg";
+  const hasEggChoice = item.ingredient_tags?.some((tag) =>
+    tag.toLowerCase().includes("egg and eggless")
+  );
+  const basePrice = item.prices?.[0]?.price ?? item.price;
+  const cartId = `${item.id}-${item.prices?.[0]?.quantity_label ?? "default"}-default`;
 
-        <div className="flex flex-1 flex-col justify-center px-5 py-4 sm:py-3">
-          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-[#1D3C42]">
-            {item.badges?.find((b) => b === "New Launch") ? "New Launch" : (item.category || "New Launch")}
+  const cartItem: CartItem = {
+    ...item,
+    id: cartId,
+    originalId: item.id,
+    selectedQuantity: item.prices?.[0]?.quantity_label ?? "Default",
+    selectedEggOption: hasEggChoice ? "Eggless" : "",
+    price: basePrice,
+    qty: 1,
+  };
+
+  const inCart = cart.find((c) => c.id === cartId);
+
+  return (
+    <motion.div {...cardAnim(index)}>
+      <div className="group flex flex-col overflow-hidden rounded-2xl bg-white ring-1 ring-[#E8DDD0] transition-all duration-300 hover:shadow-md hover:ring-[#D4AF37]/30">
+        <Link
+          href={`/menu?product=${item.id}`}
+          className="block overflow-hidden"
+        >
+          <div className="aspect-square overflow-hidden bg-[#FAFAF5]">
+            <img
+              src={item.image || fallbackImage}
+              alt={item.name}
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            />
+          </div>
+        </Link>
+
+        <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1D3C42]">
+            {item.badges?.find((b) => b === "New Launch")
+              ? "New Launch"
+              : item.category || "New Launch"}
           </span>
-          <h3 className="mt-1 font-serif text-lg font-bold leading-snug text-[#1D3C42] group-hover:text-[#D4AF37] transition-colors">
-            {item.name}
-          </h3>
-          <p className="mt-1 text-sm leading-relaxed text-[#7A6262] line-clamp-2">
-            {item.description}
-          </p>
-          <p className="mt-2 font-serif text-base font-bold tracking-wide text-[#D4AF37]">
-            ₹{item.price}
-          </p>
+
+          <Link href={`/menu?product=${item.id}`}>
+            <h3 className="mt-1 font-serif text-base font-bold leading-snug text-[#1D3C42] transition-colors group-hover:text-[#D4AF37]">
+              {item.name}
+            </h3>
+          </Link>
+
+          <div className="mt-auto flex items-center justify-between pt-3">
+            <span className="font-serif text-lg font-bold tracking-wide text-[#D4AF37]">
+              ₹{basePrice}
+            </span>
+
+            <motion.button
+              whileTap={{ scale: 0.92 }}
+              onClick={() => {
+                if (!inCart) addToCart(cartItem);
+              }}
+              className={`rounded-full px-5 py-2 text-xs font-bold transition ${
+                inCart
+                  ? "bg-[#D4AF37]/20 text-[#1D3C42] cursor-default"
+                  : "bg-[#1D3C42] text-white shadow-sm hover:bg-[#163136]"
+              }`}
+            >
+              {inCart ? "Added" : "Add"}
+            </motion.button>
+          </div>
         </div>
-      </Link>
+      </div>
     </motion.div>
   );
 }
@@ -60,7 +101,7 @@ export default function NewLaunchesSection() {
     async function load() {
       const data = await getNewLaunches();
       if (cancelled) return;
-      setLaunches(data.length > 0 ? data.slice(0, MAX_HOME_ITEMS) : staticNewLaunches.slice(0, MAX_HOME_ITEMS));
+      setLaunches(data.slice(0, MAX_HOME_ITEMS));
     }
     load();
     return () => {
@@ -71,9 +112,6 @@ export default function NewLaunchesSection() {
   const displayItems = launches.slice(0, MAX_HOME_ITEMS);
 
   if (displayItems.length === 0) return null;
-
-  const leftCol = displayItems.filter((_, i) => i % 2 === 0);
-  const rightCol = displayItems.filter((_, i) => i % 2 === 1);
 
   return (
     <section className="bg-white px-6 py-20 md:py-24">
@@ -87,36 +125,28 @@ export default function NewLaunchesSection() {
               New Launches
             </h2>
           </div>
-          <Link
-            href="/menu"
-            className="shrink-0 text-sm font-semibold text-[#1D3C42] transition hover:text-[#D4AF37]"
-          >
-            See more new launches &rarr;
-          </Link>
         </div>
 
-        <div className="hidden md:grid md:grid-cols-2 md:gap-x-6 md:gap-y-8">
-          <div className="flex flex-col gap-8">
-            {leftCol.map((item, i) => (
-              <EditorialCard key={item.id} item={item} index={i * 2} />
-            ))}
-          </div>
-          <div className="flex flex-col gap-8">
-            {rightCol.length > 0 ? (
-              rightCol.map((item, i) => (
-                <EditorialCard key={item.id} item={item} index={i * 2 + 1} />
-              ))
-            ) : (
-              <div className="hidden md:block" />
-            )}
-          </div>
-        </div>
-
-        <div className="flex flex-col gap-6 md:hidden">
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
           {displayItems.map((item, i) => (
-            <EditorialCard key={item.id} item={item} index={i} />
+            <LaunchCard key={item.id} item={item} index={i} />
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.3, duration: 0.5 }}
+          className="mt-10 text-center"
+        >
+          <Link
+            href="/menu"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
+          >
+            View All
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

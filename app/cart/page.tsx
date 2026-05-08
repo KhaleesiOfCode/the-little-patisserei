@@ -95,7 +95,23 @@ export default function CartPage() {
   }, [effectiveMode, minDate]);
 
   const update = (field: keyof OrderFormData, value: string) =>
-    setForm((prev) => ({ ...prev, [field]: value }));
+    setForm((prev) => {
+      const next = { ...prev, [field]: value };
+      const isCourier =
+        next.deliveryMode === "local_delivery" &&
+        next.city.trim().toLowerCase() !== "chennai" &&
+        !next.pincode.trim().startsWith("600");
+      if (isCourier) {
+        if (field === "name" && !next.receiverName) next.receiverName = value;
+        if (field === "phone" && !next.receiverPhone) next.receiverPhone = value;
+        if (["addressLine1", "city", "district", "state", "pincode"].includes(field)) {
+          next.courierAddress = [next.addressLine1, next.district, next.state, next.pincode]
+            .filter(Boolean)
+            .join(", ");
+        }
+      }
+      return next;
+    });
 
   const startCheckout = (m: DeliveryMode) => {
     setMode(m);
