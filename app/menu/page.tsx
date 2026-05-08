@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Navbar from "../../components/Navbar";
 import ProductCard from "../../components/ProductCard";
@@ -18,6 +18,8 @@ export default function MenuPage() {
   const [foodType, setFoodType] = useState<"all" | "veg" | "nonveg">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+
+  const scrollDoneRef = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -46,6 +48,17 @@ export default function MenuPage() {
     loadMenu();
     return () => { cancelled = true; };
   }, []);
+
+  useEffect(() => {
+    if (loading || scrollDoneRef.current) return;
+    const productId = searchParams.get("product");
+    if (!productId) return;
+    const el = document.getElementById(`product-${productId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "center" });
+      scrollDoneRef.current = true;
+    }
+  }, [loading, searchParams]);
 
   const activeItems = useMemo(() => {
     let items: MenuItem[] = [];
@@ -210,7 +223,9 @@ export default function MenuPage() {
               ) : (
                 <div className="grid gap-6">
                   {activeItems.map((item) => (
-                    <ProductCard key={item.id} product={item} />
+                    <div key={item.id} id={`product-${item.id}`}>
+                      <ProductCard product={item} />
+                    </div>
                   ))}
                 </div>
               )}

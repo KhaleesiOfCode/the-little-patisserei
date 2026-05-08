@@ -2,6 +2,16 @@ import { supabase } from "./client";
 import type { MenuCategory, MenuItem } from "../../types/menu";
 import { BADGE_KEYWORDS } from "../../types/menu";
 
+function dedupeByName(items: MenuItem[]): MenuItem[] {
+  const seen = new Set<string>();
+  return items.filter((item) => {
+    const key = item.name.toLowerCase().trim();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function transformRow(item: any): MenuItem {
   const images =
     (item.media as any[])
@@ -93,7 +103,7 @@ export async function getNewLaunches(): Promise<MenuItem[]> {
     return [];
   }
 
-  return (data as any[]).map(transformRow);
+  return dedupeByName((data as any[]).map(transformRow));
 }
 
 export async function getMenuCategories(): Promise<MenuCategory[]> {
@@ -112,7 +122,7 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
     return [];
   }
 
-  const products: MenuItem[] = (data as any[]).map(transformRow);
+  const products: MenuItem[] = dedupeByName((data as any[]).map(transformRow));
 
   const grouped = products.reduce<MenuCategory[]>((acc, product) => {
     const existing = acc.find((cat) => cat.name === product.category);

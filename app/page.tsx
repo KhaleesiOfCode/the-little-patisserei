@@ -105,12 +105,7 @@ export default function HomePage() {
                 View Menu
               </Link>
 
-              <Link
-                href="/menu?category=New%20Launches"
-                className="rounded-full border border-[#D4AF37] bg-white px-8 py-3.5 text-sm font-bold text-[#1D3C42] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8E4] hover:shadow-lg"
-              >
-                New Launches
-              </Link>
+
             </motion.div>
           </motion.div>
 
