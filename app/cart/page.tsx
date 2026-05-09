@@ -11,6 +11,11 @@ import type { OrderFormData, DeliveryMode } from "../../types/menu";
 import { getMinDateTime } from "../../types/menu";
 import { getDeliveryZone, getDeliveryFeeMessage } from "../../lib/delivery-zones";
 import { calculateCourierCharge, TAMIL_NADU_DISTRICTS, getCourierMessage } from "../../lib/delivery/courierZones";
+import {
+  sanitizeName, sanitizeCity, sanitizePhone,
+  sanitizeAddress, sanitizePincode, sanitizeEmail,
+  validatePhone, validatePincode,
+} from "../../lib/validation";
 
 export default function CartPage() {
   const router = useRouter();
@@ -96,14 +101,47 @@ export default function CartPage() {
 
   const update = (field: keyof OrderFormData, value: string) =>
     setForm((prev) => {
-      const next = { ...prev, [field]: value };
+      let sanitized = value;
+
+      switch (field) {
+        case "name":
+        case "receiverName":
+          sanitized = sanitizeName(value);
+          break;
+        case "city":
+        case "state":
+        case "district":
+        case "landmark":
+          sanitized = sanitizeCity(value);
+          break;
+        case "phone":
+        case "receiverPhone":
+        case "alternatePhone":
+          sanitized = sanitizePhone(value);
+          break;
+        case "pincode":
+          sanitized = sanitizePincode(value);
+          break;
+        case "addressLine1":
+        case "addressLine2":
+        case "courierAddress":
+        case "courierNotes":
+        case "instructions":
+          sanitized = sanitizeAddress(value);
+          break;
+        case "email":
+          sanitized = sanitizeEmail(value);
+          break;
+      }
+
+      const next = { ...prev, [field]: sanitized };
       const isCourier =
         next.deliveryMode === "local_delivery" &&
         next.city.trim().toLowerCase() !== "chennai" &&
         !next.pincode.trim().startsWith("600");
       if (isCourier) {
-        if (field === "name" && !next.receiverName) next.receiverName = value;
-        if (field === "phone" && !next.receiverPhone) next.receiverPhone = value;
+        if (field === "name" && !next.receiverName) next.receiverName = sanitized;
+        if (field === "phone" && !next.receiverPhone) next.receiverPhone = sanitized;
         if (["addressLine1", "city", "district", "state", "pincode"].includes(field)) {
           next.courierAddress = [next.addressLine1, next.district, next.state, next.pincode]
             .filter(Boolean)
@@ -149,16 +187,19 @@ export default function CartPage() {
 
   const canSubmit = (() => {
     if (!effectiveMode) return false;
-    if (!form.name || !form.phone) return false;
+    if (!form.name || !validatePhone(form.phone)) return false;
     if (effectiveMode === "pickup") return form.pickupDate !== "";
     if (effectiveMode === "courier") {
       if (hasNonCourierItems) return false
       if (courierCalc?.courier_fee_status === "manual_confirmation" || !courierCalc) return false
       return form.addressLine1 && form.city && form.district && form.pincode &&
-        form.receiverName && form.receiverPhone && form.courierAddress && form.confirmCourierRisk;
+        validatePincode(form.pincode) &&
+        form.receiverName && validatePhone(form.receiverPhone) &&
+        form.courierAddress && form.confirmCourierRisk;
     }
     if (effectiveMode === "local_delivery") {
       if (!form.addressLine1 || !form.city || !form.pincode) return false;
+      if (!validatePincode(form.pincode)) return false;
       if (!deliverySupported) return false;
       return form.deliveryDate !== "";
     }
@@ -173,7 +214,7 @@ export default function CartPage() {
           <div className="rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-[#F4CFC8] md:p-8">
             <div className="flex items-center gap-3">
               <Link href="/menu" className="grid h-9 w-9 place-items-center rounded-full bg-[#FFF8E4] text-[#1D3C42] transition hover:bg-[#FADCD4]" aria-label="Back to menu"><ArrowLeft size={18} /></Link>
-              <h1 className="text-2xl font-extrabold">My cart {cart.length > 0 && <span className="text-base font-bold text-[#D4AF37]">({cart.length})</span>}</h1>
+              <h1 className="font-display text-2xl font-bold">My cart {cart.length > 0 && <span className="text-base font-bold text-[#D4AF37]">({cart.length})</span>}</h1>
             </div>
 
             <div className="mt-6">
@@ -235,17 +276,17 @@ export default function CartPage() {
 
             {showCheckout && !mode && cart.length > 0 && (
               <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 text-center ring-1 ring-[#F4CFC8]">
-                <h2 className="text-2xl font-extrabold">Choose how to receive</h2>
+                <h2 className="font-display text-2xl font-bold">Choose how to receive</h2>
                 <p className="mt-2 text-sm text-[#7A6262]">Select pickup or delivery</p>
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <button onClick={() => startCheckout("pickup")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <Package size={32} className="mx-auto text-[#D4AF37]" />
-                    <h3 className="mt-3 text-lg font-extrabold text-[#1D3C42]">Pickup</h3>
+                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Pickup</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Free · Collect from our bakery</p>
                   </button>
                   <button onClick={() => startCheckout("local_delivery")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
-                    <h3 className="mt-3 text-lg font-extrabold text-[#1D3C42]">Delivery</h3>
+                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Delivery</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Chennai or courier</p>
                   </button>
                 </div>
@@ -255,7 +296,7 @@ export default function CartPage() {
             {showCheckout && mode && cart.length > 0 && (
               <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 ring-1 ring-[#F4CFC8]">
                 <div className="flex items-center justify-between">
-                  <h2 className="text-2xl font-extrabold">
+                  <h2 className="font-display text-2xl font-bold">
                     {effectiveMode === "pickup" ? "Pickup details" : "Delivery details"}
                   </h2>
                   <button onClick={() => { setMode(null); setShowCheckout(false); }} className="text-xs font-bold text-[#D4AF37] underline">Change</button>
@@ -359,7 +400,7 @@ export default function CartPage() {
 
           <aside className="lg:sticky lg:top-24">
             <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-[#F4CFC8]">
-              <h2 className="text-xl font-extrabold text-[#1D3C42]">Order summary</h2>
+              <h2 className="font-display text-xl font-bold text-[#1D3C42]">Order summary</h2>
 
               <div className="mt-6 space-y-4">
                 <div className="flex items-center justify-between">
@@ -465,7 +506,7 @@ export default function CartPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setConfirmRemoveId(null)}>
           <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-red-50"><Trash2 size={24} className="text-red-500" /></div>
-            <h3 className="mt-4 text-xl font-extrabold text-[#3A2A2A]">Remove item?</h3>
+            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Remove item?</h3>
             <p className="mt-2 text-sm text-[#7A6262]">This item will be removed from your cart.</p>
             <div className="mt-6 flex gap-3">
               <button onClick={() => setConfirmRemoveId(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold text-[#3A2A2A] transition hover:bg-[#FFF8E4]">Cancel</button>
