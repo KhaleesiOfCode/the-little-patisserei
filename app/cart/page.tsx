@@ -24,6 +24,9 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paid, setPaid] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+  const [showCourierDetails, setShowCourierDetails] = useState(false);
+  const [sameAsDeliveryAddress, setSameAsDeliveryAddress] = useState(true);
+  const [awaitingSubMode, setAwaitingSubMode] = useState(false);
 
   const [mode, setMode] = useState<DeliveryMode | null>(null);
   const [form, setForm] = useState<OrderFormData>({
@@ -56,7 +59,7 @@ export default function CartPage() {
     [form.city, form.pincode, form.landmark],
   );
 
-  const effectiveMode: DeliveryMode | null = mode === "local_delivery" && !zoneInfo.isChennai ? "courier" : mode;
+  const effectiveMode: DeliveryMode | null = mode;
 
   const courierCalc = useMemo(() => {
     if (effectiveMode !== "courier") return null
@@ -139,26 +142,42 @@ export default function CartPage() {
       }
 
       const next = { ...prev, [field]: sanitized };
-      const isCourier =
-        next.deliveryMode === "local_delivery" &&
-        next.city.trim().toLowerCase() !== "chennai" &&
-        !next.pincode.trim().startsWith("600");
-      if (isCourier) {
-        if (field === "name" && !next.receiverName) next.receiverName = sanitized;
-        if (field === "phone" && !next.receiverPhone) next.receiverPhone = sanitized;
-        if (["addressLine1", "city", "district", "state", "pincode"].includes(field)) {
-          next.courierAddress = [next.addressLine1, next.district, next.state, next.pincode]
-            .filter(Boolean)
-            .join(", ");
-        }
-      }
       return next;
     });
 
   const startCheckout = (m: DeliveryMode) => {
+    if (m === "local_delivery") {
+      setAwaitingSubMode(true);
+      setShowCheckout(true);
+      return;
+    }
     setMode(m);
     setForm((prev) => ({ ...prev, deliveryMode: m }));
     setShowCheckout(true);
+    setShowCourierDetails(false);
+    setSameAsDeliveryAddress(true);
+  };
+
+  const selectSubMode = (subMode: "local_delivery" | "courier") => {
+    setMode(subMode);
+    setForm((prev) => ({ ...prev, deliveryMode: subMode }));
+    setAwaitingSubMode(false);
+    setShowCourierDetails(false);
+    setSameAsDeliveryAddress(true);
+  };
+
+  const handleGoToCourierDetails = () => {
+    if (sameAsDeliveryAddress) {
+      setForm((prev) => ({
+        ...prev,
+        receiverName: prev.name,
+        receiverPhone: prev.phone,
+        courierAddress: [prev.addressLine1, prev.addressLine2, prev.district, prev.state, prev.pincode]
+          .filter(Boolean)
+          .join(", "),
+      }));
+    }
+    setShowCourierDetails(true);
   };
 
   const simulatePayment = () =>
@@ -280,7 +299,7 @@ export default function CartPage() {
               </div>
             )}
 
-            {showCheckout && !mode && cart.length > 0 && (
+            {showCheckout && !mode && cart.length > 0 && !awaitingSubMode && (
               <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 text-center ring-1 ring-[#F4CFC8]">
                 <h2 className="font-display text-2xl font-bold">Choose how to receive</h2>
                 <p className="mt-2 text-sm text-[#7A6262]">Select pickup or delivery</p>
@@ -299,13 +318,33 @@ export default function CartPage() {
               </div>
             )}
 
+            {showCheckout && awaitingSubMode && cart.length > 0 && (
+              <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 text-center ring-1 ring-[#F4CFC8]">
+                <h2 className="font-display text-2xl font-bold">Delivery location</h2>
+                <p className="mt-2 text-sm text-[#7A6262]">Choose your delivery type</p>
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <button onClick={() => selectSubMode("local_delivery")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-[#D4AF37]"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Chennai Local</h3>
+                    <p className="mt-1 text-sm text-[#7A6262]">Delivered within Chennai</p>
+                  </button>
+                  <button onClick={() => selectSubMode("courier")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
+                    <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
+                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
+                    <p className="mt-1 text-sm text-[#7A6262]">Courier across India</p>
+                  </button>
+                </div>
+                <button onClick={() => { setAwaitingSubMode(false); setShowCheckout(false); }} className="mt-4 text-xs font-bold text-[#D4AF37] underline">Back</button>
+              </div>
+            )}
+
             {showCheckout && mode && cart.length > 0 && (
               <div className="mt-8 rounded-[2rem] bg-[#FFF8E4] p-6 ring-1 ring-[#F4CFC8]">
                 <div className="flex items-center justify-between">
                   <h2 className="font-display text-2xl font-bold">
                     {effectiveMode === "pickup" ? "Pickup details" : "Delivery details"}
                   </h2>
-                  <button onClick={() => { setMode(null); setShowCheckout(false); }} className="text-xs font-bold text-[#D4AF37] underline">Change</button>
+                  <button onClick={() => { setMode(null); setAwaitingSubMode(false); setShowCheckout(false); }} className="text-xs font-bold text-[#D4AF37] underline">Change</button>
                 </div>
 
                 {effectiveMode === "pickup" && (
@@ -350,11 +389,11 @@ export default function CartPage() {
                 {(effectiveMode === "local_delivery" || effectiveMode === "courier") && (
                   <div className="mt-6 grid gap-4">
                     <div className={`rounded-2xl p-4 text-sm font-semibold ring-1 ${
-                      !zoneInfo.isChennai || effectiveMode === "courier"
+                      effectiveMode === "courier"
                         ? "bg-orange-50 text-orange-800 ring-orange-200"
                         : "bg-green-50 text-green-800 ring-green-200"
                     }`}>
-                      {!zoneInfo.isChennai || effectiveMode === "courier" ? (
+                      {effectiveMode === "courier" ? (
                         <><AlertTriangle size={16} className="mr-1 inline" /> Courier delivery — minimum 48 hours.</>
                       ) : "Chennai local delivery — minimum 24 hours."}
                     </div>
@@ -382,7 +421,7 @@ export default function CartPage() {
                         <input value={form.city} onChange={(e) => update("city", e.target.value)} onBlur={() => blur("city")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.city && !form.city ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="City *" />
                         {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Enter your city</p>}
                       </div>
-                      {(effectiveMode === "courier" || !zoneInfo.isChennai) && (
+                      {(effectiveMode === "courier") && (
                         <div>
                           <select value={form.district} onChange={(e) => update("district", e.target.value)} onBlur={() => blur("district")} className={`rounded-2xl border bg-white px-4 py-3 text-sm outline-none w-full focus:border-[#1D3C42] ${touched.district && !form.district ? "border-red-400" : "border-[#F4CFC8]"}`}>
                             <option value="">District *</option>
@@ -411,7 +450,7 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Preferred delivery date</label>
                         <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Earliest: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({effectiveMode === "courier" || !zoneInfo.isChennai ? "48" : "24"} hrs)</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Earliest: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({effectiveMode === "courier" ? "48" : "24"} hrs)</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Delivery slot</label>
@@ -425,8 +464,25 @@ export default function CartPage() {
                       </div>
                     </div>
 
-                    {(effectiveMode === "courier" || !zoneInfo.isChennai) && (
-                      <CourierFields form={form} update={update} setForm={setForm} touched={touched} blur={blur} />
+                    {(effectiveMode === "courier") && !showCourierDetails && (
+                      <>
+                        <label className="flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-orange-200">
+                          <input type="checkbox" checked={sameAsDeliveryAddress} onChange={(e) => setSameAsDeliveryAddress(e.target.checked)} className="mt-1 h-4 w-4 accent-[#1D3C42]" />
+                          <span className="text-sm text-[#7A6262]">Courier address is same as delivery address</span>
+                        </label>
+                        <button onClick={handleGoToCourierDetails} className="w-full rounded-full bg-orange-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-orange-700">
+                          Courier Details →
+                        </button>
+                      </>
+                    )}
+
+                    {(effectiveMode === "courier") && showCourierDetails && (
+                      <>
+                        <button onClick={() => setShowCourierDetails(false)} className="flex items-center gap-2 text-sm font-bold text-orange-700 transition hover:text-orange-800">
+                          ← Back to delivery details
+                        </button>
+                        <CourierFields form={form} update={update} setForm={setForm} touched={touched} blur={blur} />
+                      </>
                     )}
                   </div>
                 )}
