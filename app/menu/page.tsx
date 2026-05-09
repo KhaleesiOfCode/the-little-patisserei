@@ -27,15 +27,29 @@ export default function MenuPage() {
   const allItems = useMemo(() => categories.flatMap((cat) => cat.items), [categories]);
 
   const availableTags = useMemo(() => {
-    const tags = new Set<string>();
-    allItems.forEach((item) => item.ingredient_tags?.forEach((t) => tags.add(t)));
-    return Array.from(tags).sort();
+    const seen = new Set<string>();
+    const result: string[] = [];
+    allItems.forEach((item) => item.ingredient_tags?.forEach((t) => {
+      const key = t.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        result.push(t.trim());
+      }
+    }));
+    return result.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   }, [allItems]);
 
   const availableBadges = useMemo(() => {
-    const badges = new Set<string>();
-    allItems.forEach((item) => item.badges?.forEach((b) => badges.add(b)));
-    return Array.from(badges).sort();
+    const seen = new Set<string>();
+    const result: string[] = [];
+    allItems.forEach((item) => item.badges?.forEach((b) => {
+      const key = b.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+      if (key && !seen.has(key)) {
+        seen.add(key);
+        result.push(b.trim());
+      }
+    }));
+    return result.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
   }, [allItems]);
 
   const toggleTag = (tag: string) => {
@@ -106,9 +120,9 @@ export default function MenuPage() {
 
       const matchesType = foodType === "all" || item.type === foodType;
 
-      const matchesTags = selectedTags.length === 0 || selectedTags.some((t) => item.ingredient_tags?.includes(t));
+      const matchesTags = selectedTags.length === 0 || selectedTags.some((t) => item.ingredient_tags?.some((it) => it.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === t.toLowerCase().replace(/[^a-z0-9]/g, "")));
 
-      const matchesBadges = selectedBadges.length === 0 || selectedBadges.some((b) => item.badges?.includes(b));
+      const matchesBadges = selectedBadges.length === 0 || selectedBadges.some((b) => item.badges?.some((ib) => ib.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === b.toLowerCase().replace(/[^a-z0-9]/g, "")));
 
       return matchesSearch && matchesType && matchesTags && matchesBadges;
     });

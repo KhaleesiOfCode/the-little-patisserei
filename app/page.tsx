@@ -27,69 +27,144 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <section className="relative overflow-hidden bg-[#FFF8E4]">
+      <section className="relative overflow-hidden bg-[#FFF8E4] pt-4 sm:pt-6 md:pt-8">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute right-0 top-0 h-[600px] w-[600px] rounded-full bg-[#D4AF37]/5 blur-3xl" />
-          <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-[#F4CFC8]/20 blur-3xl" />
+          <div className="absolute -right-20 -top-20 h-[600px] w-[600px] rounded-full bg-[#D4AF37]/5 blur-3xl" />
+          <div className="absolute -bottom-20 left-1/4 h-[400px] w-[400px] rounded-full bg-[#F4CFC8]/20 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-5 pt-10 pb-0 sm:px-6 sm:pt-12 md:pt-16">
-          <div className="grid items-center gap-10 md:grid-cols-[1fr_1.1fr] md:gap-16">
+        <div className="pointer-events-none absolute inset-0 overflow-hidden">
+          <svg className="absolute left-[3%] top-[5%] h-48 w-48 text-[#D4AF37]/15 md:h-56 md:w-56" viewBox="0 0 200 200" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M20 180 C40 130, 30 80, 70 60 C100 45, 120 70, 110 100 C100 130, 70 140, 50 120 C30 100, 40 60, 80 40 C110 25, 150 35, 170 70" strokeLinecap="round" />
+            <circle cx="173" cy="75" r="3" fill="currentColor" stroke="none" />
+          </svg>
+
+          <svg className="absolute left-[12%] top-[50%] h-24 w-24 text-[#D4AF37]/12 md:h-28 md:w-28" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M15 85 C30 65, 25 40, 50 30 C70 22, 80 40, 70 60 C60 75, 40 70, 35 55 C30 40, 45 25, 65 28" strokeLinecap="round" />
+          </svg>
+
+          <svg className="absolute left-[2%] top-[38%] h-20 w-16 text-[#1D3C42]/10 md:h-24 md:w-20" viewBox="0 0 60 80" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M30 75 C15 60, 5 40, 15 20 C22 8, 40 5, 48 15 C55 25, 45 45, 30 55" strokeLinecap="round" />
+            <path d="M30 75 L30 45" strokeLinecap="round" />
+            <path d="M30 55 L22 48" strokeLinecap="round" />
+            <path d="M30 55 L38 48" strokeLinecap="round" />
+          </svg>
+
+          <svg className="absolute right-[5%] bottom-[8%] h-40 w-40 text-[#1D3C42]/8 md:h-48 md:w-48" viewBox="0 0 160 160" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M80 140 C40 120, 20 80, 45 40 C60 15, 95 10, 115 30 C135 50, 125 85, 100 100 C75 115, 50 100, 45 80 C40 60, 60 40, 85 45" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+
+          <svg className="absolute right-[2%] top-[8%] h-24 w-24 text-[#1D3C42]/8 md:h-32 md:w-32" viewBox="0 0 100 100" fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M50 85 C30 70, 15 45, 30 20 C40 5, 65 8, 75 25 C85 42, 70 65, 50 75 C40 80, 30 72, 35 60 C40 48, 55 42, 65 50" strokeLinecap="round" />
+          </svg>
+
+          <svg className="absolute right-[15%] top-[20%] h-28 w-28 text-[#F4CFC8]/50" viewBox="0 0 120 100" fill="currentColor">
+            <circle cx="15" cy="12" r="3" />
+            <circle cx="45" cy="30" r="2" />
+            <circle cx="85" cy="10" r="4" />
+            <circle cx="108" cy="35" r="2.5" />
+            <circle cx="60" cy="22" r="1.5" />
+            <circle cx="30" cy="50" r="2" />
+            <circle cx="95" cy="50" r="2" />
+            <circle cx="70" cy="70" r="1.5" />
+          </svg>
+
+          <svg className="absolute left-[35%] bottom-[3%] h-20 w-28 text-[#F4CFC8]/30" viewBox="0 0 80 60" fill="currentColor">
+            <circle cx="12" cy="8" r="2.5" />
+            <circle cx="35" cy="4" r="2" />
+            <circle cx="60" cy="10" r="3" />
+            <circle cx="25" cy="25" r="2" />
+            <circle cx="55" cy="28" r="1.5" />
+            <circle cx="10" cy="40" r="2" />
+            <circle cx="42" cy="48" r="2" />
+            <circle cx="70" cy="42" r="1.5" />
+          </svg>
+
+          <svg className="absolute left-[28%] top-[12%] h-20 w-20 text-[#D4AF37]/12" viewBox="0 0 80 80" fill="none" stroke="currentColor" strokeWidth="1.2">
+            <path d="M40 10 C45 20, 55 25, 65 30 C55 35, 45 40, 40 50 C35 40, 25 35, 15 30 C25 25, 35 20, 40 10Z" strokeLinecap="round" />
+            <path d="M40 25 C43 30, 48 33, 55 35 C48 37, 43 40, 40 45 C37 40, 32 37, 25 35 C32 33, 37 30, 40 25Z" strokeLinecap="round" />
+          </svg>
+
+          <svg className="absolute left-[55%] top-[3%] h-16 w-16 text-[#D4AF37]/10 md:h-20 md:w-20" viewBox="0 0 60 60" fill="none" stroke="currentColor" strokeWidth="1">
+            <path d="M10 50 C15 35, 5 20, 20 10 C30 5, 45 10, 45 25 C45 40, 30 50, 15 45" strokeLinecap="round" />
+          </svg>
+        </div>
+
+        <div className="relative mx-auto max-w-7xl px-5 pb-0 sm:px-6">
+          <div className="grid items-center gap-4 md:grid-cols-[1fr_1.2fr] md:gap-6 lg:gap-8">
+
             <motion.div
               initial={{ opacity: 0, x: -30 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="order-1"
+            >
+              <div className="relative mx-auto max-w-[300px] md:mx-0 md:max-w-md lg:max-w-lg">
+                <div
+                  className="absolute -left-5 -top-5 h-full w-full bg-[#D4AF37]/10 -rotate-3"
+                  style={{ borderRadius: "45% 55% 35% 65% / 55% 40% 60% 45%" }}
+                />
+                <div className="relative">
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                    className="overflow-hidden shadow-2xl ring-1 ring-[#D4AF37]/10"
+                    style={{ borderRadius: "40% 60% 35% 65% / 50% 40% 60% 50%" }}
+                  >
+                    <img
+                      src="/images/hero-cupcake.jpg"
+                      alt="Artisan cupcake"
+                      className="aspect-square w-full object-cover"
+                    />
+                  </motion.div>
+                </div>
+                <div
+                  className="absolute -bottom-5 -right-5 h-20 w-20 border-2 border-[#D4AF37]/30 md:h-24 md:w-24"
+                  style={{ borderRadius: "50% 40% 60% 40% / 40% 50% 50% 60%" }}
+                />
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+              className="order-2 text-center md:text-left"
             >
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1, duration: 0.4 }}
+                transition={{ delay: 0.15, duration: 0.4 }}
                 className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]"
               >
-                Artisan Bakery &amp; Patisserie
+                The Little Patisserie
               </motion.p>
 
               <h1 className="font-display text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
-                {"Artisan Cakes, Crafted for Beautiful Celebrations"
-                  .split(" ")
-                  .map((word, i) => (
-                    <motion.span
-                      key={i}
-                      initial={{ opacity: 0, y: 25 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{
-                        delay: 0.2 + i * 0.08,
-                        duration: 0.5,
-                        ease: [0.22, 1, 0.36, 1],
-                      }}
-                      className="mr-2 inline-block sm:mr-3"
-                    >
-                      {word}
-                    </motion.span>
-                  ))}
+                Handcrafted Cakes &amp; Sweet Moments
               </h1>
 
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
-                transition={{ delay: 0.5, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-6 h-0.5 w-20 origin-left bg-[#D4AF37]"
+                transition={{ delay: 0.45, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+                className="mx-auto mt-4 h-0.5 w-20 origin-left bg-[#D4AF37] md:mx-0"
               />
 
               <motion.p
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55, duration: 0.5 }}
-                className="mt-6 max-w-md text-sm leading-7 text-[#7A6262] sm:text-base sm:leading-8"
+                className="mx-auto mt-4 max-w-md text-sm leading-6 text-[#7A6262] sm:text-base sm:leading-7 md:mx-0"
               >
-                Freshly baked with premium ingredients, elegant flavours, and thoughtful details — made to turn every occasion into a sweet memory.
+                Freshly baked treats, custom cakes, brownies and cupcakes made with care for every celebration.
               </motion.p>
 
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7, duration: 0.5 }}
-                className="mt-8 flex flex-wrap gap-4"
+                className="mt-6 flex flex-wrap justify-center gap-4 md:justify-start"
               >
                 <Link
                   href="/menu"
@@ -103,36 +178,11 @@ export default function HomePage() {
                   rel="noopener noreferrer"
                   className="rounded-full border border-[#D4AF37] bg-white px-8 py-3.5 text-sm font-bold text-[#1D3C42] shadow-sm transition hover:-translate-y-0.5 hover:bg-[#FFF8E4] hover:shadow-lg"
                 >
-                  Order Custom Cake
+                  Custom Cake Enquiry
                 </a>
               </motion.div>
             </motion.div>
 
-            <motion.div
-              initial={{ opacity: 0, scale: 0.92 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-              className="relative flex items-center justify-center pb-4 md:pb-0"
-            >
-              <motion.div
-                animate={{ rotate: [0, 3, 0, -3, 0] }}
-                transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute -left-4 -top-4 h-[260px] w-[260px] rounded-[3rem] bg-[#1D3C42] md:-left-6 md:-top-6 md:h-[340px] md:w-[340px]"
-              />
-              <div className="absolute -bottom-3 -right-3 h-[200px] w-[200px] rounded-[2rem] border-2 border-[#D4AF37]/30 md:h-[260px] md:w-[260px]" />
-              <motion.img
-                src="/cakes/chocolate-cake-1.jpg"
-                alt="Artisan chocolate cake"
-                className="relative z-10 h-[240px] w-[240px] rounded-full object-cover shadow-2xl ring-2 ring-[#D4AF37]/20 md:h-[320px] md:w-[320px]"
-                initial={{ opacity: 0, y: 20, rotate: -2 }}
-                animate={{ opacity: 1, y: [0, -10, 0], rotate: 0 }}
-                transition={{
-                  opacity: { duration: 0.6, delay: 0.3 },
-                  y: { duration: 5, repeat: Infinity, ease: "easeInOut" },
-                  rotate: { duration: 0.8 },
-                }}
-              />
-            </motion.div>
           </div>
         </div>
 
@@ -140,7 +190,7 @@ export default function HomePage() {
           viewBox="0 0 1440 120"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
-          className="relative mt-8 w-full md:mt-12"
+          className="relative mt-6 w-full md:mt-8"
           preserveAspectRatio="none"
         >
           <path

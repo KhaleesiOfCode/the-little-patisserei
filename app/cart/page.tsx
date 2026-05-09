@@ -106,6 +106,8 @@ export default function CartPage() {
     }
   }, [effectiveMode, minDate]);
 
+  const isChennaiLocal = effectiveMode === "local_delivery" && form.pincode.startsWith("600");
+
   const update = (field: keyof OrderFormData, value: string) =>
     setForm((prev) => {
       let sanitized = value;
@@ -195,7 +197,12 @@ export default function CartPage() {
       productId: item.originalId || item.id,
     }));
     const order = await createOrder(
-      { ...form, deliveryMode: effectiveMode },
+      {
+        ...form,
+        deliveryMode: effectiveMode,
+        city: isChennaiLocal ? "Chennai" : form.city,
+        state: isChennaiLocal ? "Tamil Nadu" : form.state,
+      },
       items,
       total,
       deliveryFee,
@@ -223,9 +230,10 @@ export default function CartPage() {
         form.courierAddress && form.confirmCourierRisk;
     }
     if (effectiveMode === "local_delivery") {
-      if (!form.addressLine1 || !form.city || !form.pincode) return false;
+      if (!form.addressLine1 || !form.pincode) return false;
       if (!validatePincode(form.pincode)) return false;
       if (!deliverySupported) return false;
+      if (!isChennaiLocal && !form.city) return false;
       return form.deliveryDate !== "";
     }
     return false;
@@ -422,6 +430,10 @@ export default function CartPage() {
                     </div>
                     <input value={form.addressLine2} onChange={(e) => update("addressLine2", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Address line 2 (optional)" />
                     <div className="grid gap-4 sm:grid-cols-3">
+                      <div>
+                        <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
+                        {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit South Indian pincode</p>}
+                      </div>
                       {(effectiveMode === "courier") && (
                         <>
                           <div>
@@ -454,21 +466,26 @@ export default function CartPage() {
                           </select>
                           {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Select a city</p>}
                         </div>
+                      ) : isChennaiLocal ? (
+                        <>
+                          <div>
+                            <input value="Chennai" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
+                          </div>
+                          <div>
+                            <input value="Tamil Nadu" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
+                          </div>
+                        </>
                       ) : (
                         <div>
                           <input value={form.city} onChange={(e) => update("city", e.target.value)} onBlur={() => blur("city")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.city && !form.city ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="City *" />
                           {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Enter your city</p>}
                         </div>
                       )}
-                      {effectiveMode !== "courier" && (
+                      {effectiveMode !== "courier" && !isChennaiLocal && (
                         <div>
                           <input value={form.state} onChange={(e) => update("state", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42]" placeholder="State" />
                         </div>
                       )}
-                      <div>
-                        <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
-                        {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit South Indian pincode</p>}
-                      </div>
                     </div>
                     {effectiveMode === "local_delivery" && zoneInfo.isChennai && form.pincode.length >= 6 && (
                       <div className={`rounded-2xl p-4 text-sm font-semibold ring-1 ${
