@@ -2,8 +2,10 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import Link from "next/link";
+import { ChevronDown, ShoppingBag, Trash2 } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
+import { useCart } from "../../components/CartContext";
 import { getMenuCategories } from "../../lib/supabase/menu";
 import type { MenuCategory, MenuItem } from "../../types/menu";
 
@@ -18,6 +20,38 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
+  const { cart, updateQty, removeFromCart, total } = useCart();
+
+  const allItems = useMemo(() => categories.flatMap((cat) => cat.items), [categories]);
+
+  const availableTags = useMemo(() => {
+    const tags = new Set<string>();
+    allItems.forEach((item) => item.ingredient_tags?.forEach((t) => tags.add(t)));
+    return Array.from(tags).sort();
+  }, [allItems]);
+
+  const availableBadges = useMemo(() => {
+    const badges = new Set<string>();
+    allItems.forEach((item) => item.badges?.forEach((b) => badges.add(b)));
+    return Array.from(badges).sort();
+  }, [allItems]);
+
+  const toggleTag = (tag: string) => {
+    setSelectedTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
+  };
+
+  const toggleBadge = (badge: string) => {
+    setSelectedBadges((prev) => prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge]);
+  };
+
+  const clearFilters = () => {
+    setSelectedTags([]);
+    setSelectedBadges([]);
+  };
+
+  const hasActiveFilters = selectedTags.length > 0 || selectedBadges.length > 0;
 
   const scrollDoneRef = useRef(false);
 
@@ -72,9 +106,13 @@ export default function MenuPage() {
 
       const matchesType = foodType === "all" || item.type === foodType;
 
-      return matchesSearch && matchesType;
+      const matchesTags = selectedTags.length === 0 || selectedTags.some((t) => item.ingredient_tags?.includes(t));
+
+      const matchesBadges = selectedBadges.length === 0 || selectedBadges.some((b) => item.badges?.includes(b));
+
+      return matchesSearch && matchesType && matchesTags && matchesBadges;
     });
-  }, [categories, activeCategory, search, foodType]);
+  }, [categories, activeCategory, search, foodType, selectedTags, selectedBadges]);
 
   const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
 
@@ -143,6 +181,98 @@ export default function MenuPage() {
                   </button>
                 ))}
               </div>
+
+              {(availableTags.length > 0 || availableBadges.length > 0) && (
+                <div className="mt-6 border-t border-[#F4CFC8] pt-6">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Filters</h3>
+                    {hasActiveFilters && (
+                      <button onClick={clearFilters} className="text-[10px] font-semibold text-[#D4AF37] underline transition hover:text-[#1D3C42]">
+                        Clear
+                      </button>
+                    )}
+                  </div>
+
+                  {availableTags.length > 0 && (
+                    <div className="mt-4">
+                      <p className="mb-2 text-left text-[11px] font-semibold text-[#7A6262]">Dietary</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {availableTags.map((tag) => (
+                          <button
+                            key={tag}
+                            onClick={() => toggleTag(tag)}
+                            className={`rounded-full px-3 py-1 text-left text-[10px] font-bold uppercase tracking-wider transition ${
+                              selectedTags.includes(tag)
+                                ? "bg-[#1D3C42] text-white shadow-sm"
+                                : "bg-[#FFF8E4] text-[#7A6262] ring-1 ring-[#F4CFC8] hover:ring-[#D4AF37] hover:text-[#1D3C42]"
+                            }`}
+                          >
+                            {tag}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {availableBadges.length > 0 && (
+                    <div className="mt-4">
+                      <p className="mb-2 text-left text-[11px] font-semibold text-[#7A6262]">Popular</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {availableBadges.map((badge) => (
+                          <button
+                            key={badge}
+                            onClick={() => toggleBadge(badge)}
+                            className={`rounded-full px-3 py-1 text-left text-[10px] font-bold uppercase tracking-wider transition ${
+                              selectedBadges.includes(badge)
+                                ? "bg-[#1D3C42] text-white shadow-sm"
+                                : "bg-[#FFF8E4] text-[#7A6262] ring-1 ring-[#F4CFC8] hover:ring-[#D4AF37] hover:text-[#1D3C42]"
+                            }`}
+                          >
+                            {badge}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {cart.length > 0 && (
+                <div className="mt-6 border-t border-[#F4CFC8] pt-6">
+                  <div className="flex items-center gap-2">
+                    <ShoppingBag size={16} className="text-[#D4AF37]" />
+                    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Cart ({cart.length})</h3>
+                  </div>
+                  <div className="mt-3 space-y-2">
+                    {cart.map((item) => (
+                      <div key={item.id} className="flex items-center justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-xs font-semibold text-[#1D3C42]">{item.name}</p>
+                          <div className="flex items-center gap-2 text-[10px] text-[#7A6262]">
+                            <button onClick={() => updateQty(item.id, item.qty - 1)} className="font-bold hover:text-[#1D3C42]">−</button>
+                            <span>{item.qty}</span>
+                            <button onClick={() => updateQty(item.id, item.qty + 1)} className="font-bold hover:text-[#1D3C42]">+</button>
+                            <span>· ₹{item.price * item.qty}</span>
+                          </div>
+                        </div>
+                        <button onClick={() => removeFromCart(item.id)} className="shrink-0 text-[#D4AF37] hover:text-red-500">
+                          <Trash2 size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-[#F4CFC8] pt-3">
+                    <span className="text-xs font-bold text-[#1D3C42]">Total</span>
+                    <span className="text-sm font-extrabold text-[#1D3C42]">₹{total}</span>
+                  </div>
+                  <Link
+                    href="/cart"
+                    className="mt-3 flex w-full items-center justify-center gap-1 rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136]"
+                  >
+                    View Cart
+                  </Link>
+                </div>
+              )}
             </aside>
 
             <div>
@@ -220,12 +350,14 @@ export default function MenuPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-6">
-                  {activeItems.map((item) => (
-                    <div key={item.id} id={`product-${item.id}`}>
-                      <ProductCard product={item} />
-                    </div>
-                  ))}
+                <div className="min-h-[60vh]">
+                  <div className="grid gap-6">
+                    {activeItems.map((item) => (
+                      <div key={item.id} id={`product-${item.id}`}>
+                        <ProductCard product={item} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>

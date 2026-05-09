@@ -141,7 +141,10 @@ export default function AdminOrdersPage() {
             <h1 className="text-xl font-extrabold text-[#1D3C42]">Baker&apos;s dashboard</h1>
             <p className="text-xs text-[#7A6262]">{orders.length} total · {orders.filter((o) => o.status === "order_received").length} new</p>
           </div>
-          <a href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</a>
+          <div className="flex items-center gap-2">
+            <a href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</a>
+            <button onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }} className="rounded-full border border-[#F4CFC8] bg-white px-4 py-2 text-xs font-semibold text-[#7A6262] hover:text-red-500">Logout</button>
+          </div>
         </div>
       </header>
 
@@ -175,7 +178,7 @@ export default function AdminOrdersPage() {
                   order.status === "order_received" ? "ring-2 ring-amber-300" : "ring-[#F4CFC8]"
                 }`}>
                   <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="text-lg font-extrabold text-[#1D3C42]">{order.order_number}</span>
                         <span className={`rounded-full px-3 py-0.5 text-[10px] font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
@@ -185,38 +188,55 @@ export default function AdminOrdersPage() {
                           {order.delivery_mode === "pickup" ? "Pickup" : order.delivery_mode === "courier" ? "Courier" : "Local Delivery"}
                         </span>
                       </div>
-                      <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-[#7A6262]">
-                        <span>{order.customer_name} · {order.customer_phone}</span>
-                        <span>{order.city || "—"}{order.pincode ? ` - ${order.pincode}` : ""}</span>
-                        <span className="flex items-center gap-1"><Clock size={12} />{new Date(order.created_at).toLocaleString("en-IN")}</span>
+
+                      <div className="mt-3 grid gap-x-8 gap-y-1.5 text-sm md:grid-cols-2">
+                        <div>
+                          <p className="font-semibold text-[#1D3C42]">{order.customer_name}</p>
+                          <p className="text-[#7A6262]">{order.customer_phone}{order.customer_email ? ` · ${order.customer_email}` : ""}</p>
+                        </div>
+                        <div className="text-xs text-[#7A6262]">
+                          <span className="flex items-center gap-1"><Clock size={11} />{new Date(order.created_at).toLocaleString("en-IN")}</span>
+                        </div>
                       </div>
-                      {order.baker_notes && <p className="mt-2 text-sm italic text-[#7A6262]">📝 {order.baker_notes}</p>}
-                      {order.delivery_zone && order.delivery_mode === "local_delivery" && (
-                        <p className="mt-1 text-xs font-semibold text-green-600">Zone: {order.delivery_zone}</p>
+
+                      {order.delivery_mode !== "pickup" && (
+                        <div className="mt-3 rounded-2xl bg-[#FFF8E4] p-3 text-xs leading-5 text-[#7A6262]">
+                          <p className="font-semibold text-[#1D3C42]">Delivery address</p>
+                          <p>{order.address_line_1}{order.address_line_2 ? `, ${order.address_line_2}` : ""}</p>
+                          <p>{order.city}{order.district ? `, ${order.district}` : ""}{order.state ? `, ${order.state}` : ""} · {order.pincode}</p>
+                          {order.landmark && <p>Landmark: {order.landmark}</p>}
+                          {order.preferred_delivery_date && <p>Date: {new Date(order.preferred_delivery_date).toLocaleDateString("en-IN")}{order.preferred_delivery_slot ? ` · ${order.preferred_delivery_slot}` : ""}</p>}
+                        </div>
                       )}
-                      {order.courier_zone && (
-                        <p className="mt-1 text-xs font-semibold text-orange-600">
-                          Courier: {order.courier_zone.replace("_", " ").toUpperCase()}
-                          {order.courier_weight_slab ? ` · ${order.courier_weight_slab}` : ""}
-                          {order.total_courier_weight_grams ? ` · ${order.total_courier_weight_grams}g` : ""}
-                        </p>
+
+                      {order.delivery_mode === "courier" && (order.receiver_name || order.full_courier_address) && (
+                        <div className="mt-2 rounded-2xl bg-orange-50 p-3 text-xs leading-5 text-[#7A6262]">
+                          <p className="font-semibold text-orange-800">Courier receiver</p>
+                          <p>{order.receiver_name}{order.receiver_phone ? ` · ${order.receiver_phone}` : ""}{order.alternate_phone ? ` · Alt: ${order.alternate_phone}` : ""}</p>
+                          <p>{order.full_courier_address}</p>
+                          {order.courier_notes && <p className="mt-1 italic">📝 {order.courier_notes}</p>}
+                        </div>
                       )}
-                      {(order.fragile_surcharge ?? 0) > 0 && (
-                        <p className="mt-1 text-xs font-semibold text-purple-600">+₹{order.fragile_surcharge} fragile packaging</p>
+
+                      {order.items && order.items.length > 0 && (
+                        <div className="mt-3 space-y-1 text-xs text-[#7A6262]">
+                          <p className="font-semibold text-[#1D3C42]">Items</p>
+                          {order.items.map((item: any) => (
+                            <p key={item.id}>×{item.quantity} {item.item_name}{item.selected_options ? ` (${item.selected_options})` : ""} · ₹{item.line_total}</p>
+                          ))}
+                        </div>
                       )}
-                      {(order.delivery_fee_status === "estimated" || order.delivery_fee_status === "zone") && order.delivery_mode === "local_delivery" && (
-                        <p className="mt-1 text-xs font-semibold text-amber-600">Delivery fee ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
-                      )}
-                      {order.delivery_fee_status === "calculated" && (
-                        <p className="mt-1 text-xs font-semibold text-green-600">Courier ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
-                      )}
-                      {(order.delivery_fee_status === "estimated" || order.delivery_fee_status === "zone") && order.delivery_mode === "local_delivery" && (
-                        <p className="mt-1 text-xs font-semibold text-amber-600">Delivery fee ₹{order.delivery_fee} · <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="underline">Update</button></p>
-                      )}
+
+                      {order.notes && <p className="mt-2 text-xs italic text-[#7A6262]">📝 Order note: {order.notes}</p>}
+                      {order.baker_notes && <p className="mt-1 text-xs italic text-[#1D3C42]">📝 Baker: {order.baker_notes}</p>}
                     </div>
-                    <div className="text-right">
+
+                    <div className="text-right shrink-0">
                       <p className="text-xl font-extrabold text-[#1D3C42]">₹{order.total}</p>
-                      {(order.delivery_fee ?? 0) > 0 && <p className="text-xs text-[#7A6262]">incl. ₹{order.delivery_fee} delivery</p>}
+                      <p className="text-xs text-[#7A6262]">Subtotal ₹{order.subtotal}</p>
+                      {(order.delivery_fee ?? 0) > 0 && <p className="text-xs text-[#7A6262]">Delivery ₹{order.delivery_fee}</p>}
+                      {(order.fragile_surcharge ?? 0) > 0 && <p className="text-xs text-purple-600">Fragile +₹{order.fragile_surcharge}</p>}
+                      <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="mt-1 text-[10px] font-bold text-[#D4AF37] underline">Edit fee</button>
                     </div>
                   </div>
 
@@ -237,8 +257,8 @@ export default function AdminOrdersPage() {
 
                   {(order.delivery_provider_name || order.courier_company) && (
                     <div className="mt-3 rounded-2xl bg-[#FFF8E4] p-3 text-xs">
-                      {order.delivery_provider_name && <p>🚚 {order.delivery_provider_name}{order.delivery_partner_phone ? ` · ${order.delivery_partner_phone}` : ""}</p>}
-                      {order.courier_company && <p>📦 {order.courier_company} · {order.courier_tracking_number || "—"}</p>}
+                      {order.delivery_provider_name && <p>🚚 {order.delivery_provider_name}{order.delivery_partner_phone ? ` · ${order.delivery_partner_phone}` : ""}{order.delivery_tracking_url ? <> · <a href={order.delivery_tracking_url} target="_blank" rel="noopener noreferrer" className="underline">Track</a></> : ""}</p>}
+                      {order.courier_company && <p>📦 {order.courier_company} · {order.courier_tracking_number || "—"}{order.courier_tracking_url ? <> · <a href={order.courier_tracking_url} target="_blank" rel="noopener noreferrer" className="underline">Track</a></> : ""}</p>}
                     </div>
                   )}
                 </div>

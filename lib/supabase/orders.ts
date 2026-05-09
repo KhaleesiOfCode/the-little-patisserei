@@ -118,10 +118,13 @@ export async function createOrder(
 export async function getOrders(): Promise<Order[]> {
   const { data, error } = await supabase
     .from("orders")
-    .select("*")
+    .select("*, order_items(*)")
     .order("created_at", { ascending: false });
   if (error) return [];
-  return data as Order[];
+  return (data || []).map((o: any) => ({
+    ...o,
+    items: (o.order_items || []) as OrderItem[],
+  })) as Order[];
 }
 
 export async function getOrderById(id: string): Promise<Order | null> {

@@ -252,7 +252,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
           </div>
 
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2 sm:mt-4 sm:gap-3">
-            {prices.length > 0 && (
+            {prices.length > 1 ? (
               <div className="relative min-w-0 sm:min-w-[220px]" ref={dropdownRef}>
                 <button
                   type="button"
@@ -299,7 +299,14 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                   </div>
                 )}
               </div>
-            )}
+            ) : prices.length === 1 ? (
+              <div className="flex min-w-0 items-center rounded-full border border-[#D4AF37] bg-[#FFF8E4] px-3 py-1.5 text-xs font-extrabold text-[#1D3C42] sm:min-w-[220px] sm:px-5 sm:py-3 sm:text-sm">
+                <span className="truncate">
+                  {selectedPrice.quantity_label} · ₹
+                  {Number(selectedPrice.price)}
+                </span>
+              </div>
+            ) : null}
 
             <div className="flex items-center gap-2 sm:gap-3">
               <p className="text-base font-black text-[#1D3C42] sm:text-xl">
