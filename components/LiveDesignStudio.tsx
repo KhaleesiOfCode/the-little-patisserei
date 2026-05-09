@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 interface LiveDesignStudioProps {
   cakeMessage: string;
@@ -65,78 +65,7 @@ export default function LiveDesignStudio({
         </div>
       </motion.div>
 
-      <div className="grid gap-5 md:grid-cols-[1fr_1.4fr]">
-        {/* ---- Cake Preview ---- */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="flex items-center justify-center py-2"
-        >
-          <div className="relative h-44 w-44">
-            {/* Cake stand */}
-            <div className="absolute bottom-2 left-1/2 h-4 w-28 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#D4AF37]/50 to-[#D4AF37] shadow" />
-            <div className="absolute bottom-4 left-1/2 h-8 w-2.5 -translate-x-1/2 rounded-full bg-[#D4AF37]/30" />
-
-            {/* Cake body */}
-            <motion.div
-              animate={{ y: [0, -3, 0] }}
-              transition={{
-                duration: 5,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-              className="absolute bottom-6 left-1/2 h-28 w-40 -translate-x-1/2 rounded-b-full rounded-t-[40%] bg-gradient-to-b from-[#FADCD4] to-[#F4CFC8] shadow-lg"
-            >
-              {/* Message rendered on cake */}
-              <div className="flex h-full items-center justify-center p-4">
-                <p className="max-h-16 overflow-hidden text-center text-xs font-bold leading-snug text-[#1D3C42]">
-                  {cakeMessage || (
-                    <span className="text-[#7A6262]/40 italic">
-                      Your message
-                    </span>
-                  )}
-                </p>
-              </div>
-
-              {/* Gold ribbon stripe */}
-              <div className="absolute -top-1 left-0 right-0 h-3 rounded-t-[40%] bg-gradient-to-r from-[#D4AF37]/30 via-[#D4AF37] to-[#D4AF37]/30" />
-            </motion.div>
-
-            {/* Occasion badge */}
-            <AnimatePresence>
-              {cakeOccasion && (
-                <motion.div
-                  initial={{ scale: 0, y: -20, opacity: 0 }}
-                  animate={{ scale: 1, y: 0, opacity: 1 }}
-                  exit={{ scale: 0, y: -20, opacity: 0 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 350,
-                    damping: 15,
-                  }}
-                  className="absolute -right-3 -top-3 z-10"
-                >
-                  <span className="inline-block whitespace-nowrap rounded-full bg-[#1D3C42] px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-white shadow-lg">
-                    {cakeOccasion}
-                  </span>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* Subtle gold shimmer */}
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-              className="pointer-events-none absolute inset-0 rounded-full opacity-0"
-            >
-              <div className="absolute left-1/2 top-0 h-full w-6 -translate-x-1/2 bg-gradient-to-b from-transparent via-[#D4AF37]/8 to-transparent" />
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* ---- Form Fields ---- */}
-        <div className="space-y-3.5">
+      <div className="space-y-3.5">
           {/* Message */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
@@ -253,7 +182,6 @@ export default function LiveDesignStudio({
               </span>
             </div>
           </motion.div>
-        </div>
       </div>
     </motion.div>
   );

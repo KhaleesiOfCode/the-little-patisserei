@@ -14,6 +14,8 @@ import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
 
+const WHATSAPP_NUMBER = "919488407130";
+
 export default function ProductCard({ product }: { product: MenuItem }) {
   const { cart, addToCart, updateQty, updateCartItem } = useCart();
 
@@ -55,9 +57,6 @@ export default function ProductCard({ product }: { product: MenuItem }) {
     selectedEggOption: eggOption,
     price: Number(selectedPrice.price),
     qty: 1,
-    cakeMessage: isCelebrationCake ? cakeMessage : undefined,
-    cakeOccasion: isCelebrationCake ? cakeOccasion : undefined,
-    cakeDesign: isCelebrationCake ? cakeDesign : undefined,
   };
 
   const itemInCart = cart.find((item) => item.id === cartId);
@@ -311,12 +310,15 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={() => {
-                    addToCart(cartProduct);
-                    if (isCelebrationCake) setCustomizationOpen(true);
+                    if (isCelebrationCake) {
+                      setCustomizationOpen(true);
+                    } else {
+                      addToCart(cartProduct);
+                    }
                   }}
                   className="rounded-full bg-[#1D3C42] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3 sm:text-sm"
                 >
-                  Add
+                  {isCelebrationCake ? "Customize" : "Add"}
                 </motion.button>
               ) : (
                 <div className="flex items-center rounded-full border border-[#1D3C42]">
@@ -341,7 +343,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               )}
             </div>
 
-            {isCelebrationCake && customizationOpen && itemInCart && (
+            {isCelebrationCake && customizationOpen && (
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -359,17 +361,21 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 />
 
                 <motion.button
-                  whileTap={{ scale: 0.95 }}
+                  whileTap={cakeMessage || cakeOccasion ? { scale: 0.95 } : {}}
                   onClick={() => {
-                    updateCartItem(baseCartId, {
-                      cakeMessage,
-                      cakeOccasion,
-                      cakeDesign,
-                    });
+                    if (!cakeMessage && !cakeOccasion) return;
+                    const msg = encodeURIComponent(
+                      `Hi, I'd like to enquire about the ${product.name} (${selectedPrice.quantity_label} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
+                    );
+                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
                   }}
-                  className="w-full rounded-full bg-[#D4AF37] px-6 py-3 text-sm font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-[#D4AF37]/90"
+                  className={`w-full rounded-full px-6 py-3 text-sm font-extrabold shadow-sm transition ${
+                    cakeMessage || cakeOccasion
+                      ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90 cursor-pointer"
+                      : "bg-[#D4AF37]/40 text-[#1D3C42]/50 cursor-not-allowed"
+                  }`}
                 >
-                  Save Customization
+                  Enquire on WhatsApp
                 </motion.button>
               </motion.div>
             )}
