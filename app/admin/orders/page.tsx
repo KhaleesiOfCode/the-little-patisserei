@@ -219,11 +219,24 @@ export default function AdminOrdersPage() {
                       )}
 
                       {order.items && order.items.length > 0 && (
-                        <div className="mt-3 space-y-1 text-xs text-[#7A6262]">
-                          <p className="font-semibold text-[#1D3C42]">Items</p>
-                          {order.items.map((item: any) => (
-                            <p key={item.id}>×{item.quantity} {item.item_name}{item.selected_options ? ` (${item.selected_options})` : ""} · ₹{item.line_total}</p>
-                          ))}
+                        <div className="mt-4">
+                          <p className="mb-2 text-sm font-extrabold text-[#1D3C42]">Items</p>
+                          <div className="divide-y divide-[#F4CFC8] rounded-2xl border border-[#F4CFC8] bg-white">
+                            {order.items.map((item: any, i: number) => (
+                              <div key={item.id || i} className="flex items-center gap-3 px-4 py-3">
+                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1D3C42] text-sm font-extrabold text-white">
+                                  {item.quantity}
+                                </span>
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-sm font-bold text-[#1D3C42]">{item.item_name}</p>
+                                  {item.selected_options && (
+                                    <p className="mt-0.5 text-xs text-[#7A6262]">{item.selected_options}</p>
+                                  )}
+                                </div>
+                                <span className="shrink-0 text-sm font-extrabold text-[#D4AF37]">₹{item.line_total}</span>
+                              </div>
+                            ))}
+                          </div>
                         </div>
                       )}
 

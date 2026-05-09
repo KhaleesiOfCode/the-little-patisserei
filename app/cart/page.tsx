@@ -169,16 +169,16 @@ export default function CartPage() {
   };
 
   const handleGoToCourierDetails = () => {
-    if (sameAsDeliveryAddress) {
-      setForm((prev) => ({
-        ...prev,
-        receiverName: prev.name,
-        receiverPhone: prev.phone,
-        courierAddress: [prev.addressLine1, prev.addressLine2, prev.district, prev.state, prev.pincode]
-          .filter(Boolean)
-          .join(", "),
-      }));
-    }
+    setForm((prev) => ({
+      ...prev,
+      receiverName: sameAsDeliveryAddress ? prev.name : "",
+      receiverPhone: sameAsDeliveryAddress ? prev.phone : "",
+      courierAddress: sameAsDeliveryAddress
+        ? [prev.addressLine1, prev.addressLine2, prev.district, prev.state, prev.pincode]
+            .filter(Boolean)
+            .join(", ")
+        : "",
+    }));
     setShowCourierDetails(true);
   };
 
@@ -430,10 +430,12 @@ export default function CartPage() {
                     </div>
                     <input value={form.addressLine2} onChange={(e) => update("addressLine2", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Address line 2 (optional)" />
                     <div className="grid gap-4 sm:grid-cols-3">
-                      <div>
-                        <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
-                        {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit South Indian pincode</p>}
-                      </div>
+                      {effectiveMode !== "courier" && (
+                        <div>
+                          <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
+                          {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit South Indian pincode</p>}
+                        </div>
+                      )}
                       {(effectiveMode === "courier") && (
                         <>
                           <div>
@@ -484,6 +486,12 @@ export default function CartPage() {
                       {effectiveMode !== "courier" && !isChennaiLocal && (
                         <div>
                           <input value={form.state} onChange={(e) => update("state", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42]" placeholder="State" />
+                        </div>
+                      )}
+                      {effectiveMode === "courier" && (
+                        <div className="sm:col-span-3">
+                          <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
+                          {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit South Indian pincode</p>}
                         </div>
                       )}
                     </div>
