@@ -14,7 +14,7 @@ import { calculateCourierCharge, TAMIL_NADU_DISTRICTS, getCourierMessage } from 
 import {
   sanitizeName, sanitizeCity, sanitizePhone,
   sanitizeAddress, sanitizePincode, sanitizeEmail,
-  validatePhone, validatePincode,
+  validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
 
 export default function CartPage() {
@@ -85,6 +85,10 @@ export default function CartPage() {
     const d = getMinDateTime(effectiveMode || "local_delivery");
     return d.toISOString().split("T")[0];
   }, [effectiveMode]);
+
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const blur = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
 
   const deliveryCharge = deliveryFee;
   const grandTotal = total + deliveryCharge + fragileSurcharge;
@@ -185,9 +189,11 @@ export default function CartPage() {
     if (order) { clearCart(); router.push(`/order/confirmation?id=${order.id}`); }
   };
 
+  const emailValid = !form.email || validateEmail(form.email);
+
   const canSubmit = (() => {
     if (!effectiveMode) return false;
-    if (!form.name || !validatePhone(form.phone)) return false;
+    if (!form.name || !validatePhone(form.phone) || !emailValid) return false;
     if (effectiveMode === "pickup") return form.pickupDate !== "";
     if (effectiveMode === "courier") {
       if (hasNonCourierItems) return false
@@ -308,10 +314,19 @@ export default function CartPage() {
                       Pickup from our bakery. Minimum 24 hours prep time.
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <input value={form.name} onChange={(e) => update("name", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Full name *" />
-                      <input value={form.phone} onChange={(e) => update("phone", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Mobile number *" />
+                      <div>
+                        <input value={form.name} onChange={(e) => update("name", e.target.value)} onBlur={() => blur("name")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.name && !form.name ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Full name *" />
+                        {touched.name && !form.name && <p className="mt-1 text-xs text-red-500">Enter your full name</p>}
+                      </div>
+                      <div>
+                        <input value={form.phone} onChange={(e) => update("phone", e.target.value)} onBlur={() => blur("phone")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.phone && !validatePhone(form.phone) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Mobile number *" />
+                        {touched.phone && !validatePhone(form.phone) && <p className="mt-1 text-xs text-red-500">Enter a valid 10-digit mobile number</p>}
+                      </div>
                     </div>
-                    <input value={form.email} onChange={(e) => update("email", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Email (optional)" />
+                    <div>
+                      <input value={form.email} onChange={(e) => update("email", e.target.value)} onBlur={() => blur("email")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.email && form.email && !validateEmail(form.email) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Email (optional)" />
+                      {touched.email && form.email && !validateEmail(form.email) && <p className="mt-1 text-xs text-red-500">Enter a valid email address</p>}
+                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup date *</label>
@@ -344,24 +359,45 @@ export default function CartPage() {
                       ) : "Chennai local delivery — minimum 24 hours."}
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
-                      <input value={form.name} onChange={(e) => update("name", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Full name *" />
-                      <input value={form.phone} onChange={(e) => update("phone", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Mobile number *" />
+                      <div>
+                        <input value={form.name} onChange={(e) => update("name", e.target.value)} onBlur={() => blur("name")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.name && !form.name ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Full name *" />
+                        {touched.name && !form.name && <p className="mt-1 text-xs text-red-500">Enter your full name</p>}
+                      </div>
+                      <div>
+                        <input value={form.phone} onChange={(e) => update("phone", e.target.value)} onBlur={() => blur("phone")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.phone && !validatePhone(form.phone) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Mobile number *" />
+                        {touched.phone && !validatePhone(form.phone) && <p className="mt-1 text-xs text-red-500">Enter a valid 10-digit mobile number</p>}
+                      </div>
                     </div>
-                    <input value={form.email} onChange={(e) => update("email", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Email (optional)" />
-                    <input value={form.addressLine1} onChange={(e) => update("addressLine1", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Address line 1 *" />
+                    <div>
+                      <input value={form.email} onChange={(e) => update("email", e.target.value)} onBlur={() => blur("email")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.email && form.email && !validateEmail(form.email) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Email (optional)" />
+                      {touched.email && form.email && !validateEmail(form.email) && <p className="mt-1 text-xs text-red-500">Enter a valid email address</p>}
+                    </div>
+                    <div>
+                      <input value={form.addressLine1} onChange={(e) => update("addressLine1", e.target.value)} onBlur={() => blur("addressLine1")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.addressLine1 && !form.addressLine1 ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Address line 1 *" />
+                      {touched.addressLine1 && !form.addressLine1 && <p className="mt-1 text-xs text-red-500">Enter your address</p>}
+                    </div>
                     <input value={form.addressLine2} onChange={(e) => update("addressLine2", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Address line 2 (optional)" />
                     <div className="grid gap-4 sm:grid-cols-3">
-                      <input value={form.city} onChange={(e) => update("city", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="City *" />
+                      <div>
+                        <input value={form.city} onChange={(e) => update("city", e.target.value)} onBlur={() => blur("city")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.city && !form.city ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="City *" />
+                        {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Enter your city</p>}
+                      </div>
                       {(effectiveMode === "courier" || !zoneInfo.isChennai) && (
-                        <select value={form.district} onChange={(e) => update("district", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]">
-                          <option value="">District *</option>
-                          {TAMIL_NADU_DISTRICTS.filter((d) => d !== "Chennai").map((d) => (
-                            <option key={d} value={d}>{d}</option>
-                          ))}
-                        </select>
+                        <div>
+                          <select value={form.district} onChange={(e) => update("district", e.target.value)} onBlur={() => blur("district")} className={`rounded-2xl border bg-white px-4 py-3 text-sm outline-none w-full focus:border-[#1D3C42] ${touched.district && !form.district ? "border-red-400" : "border-[#F4CFC8]"}`}>
+                            <option value="">District *</option>
+                            {TAMIL_NADU_DISTRICTS.filter((d) => d !== "Chennai").map((d) => (
+                              <option key={d} value={d}>{d}</option>
+                            ))}
+                          </select>
+                          {touched.district && !form.district && <p className="mt-1 text-xs text-red-500">Select a district</p>}
+                        </div>
                       )}
                       <input value={form.state} onChange={(e) => update("state", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="State" />
-                      <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Pincode *" />
+                      <div>
+                        <input value={form.pincode} onChange={(e) => update("pincode", e.target.value)} onBlur={() => blur("pincode")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.pincode && !validatePincode(form.pincode) ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Pincode *" />
+                        {touched.pincode && !validatePincode(form.pincode) && <p className="mt-1 text-xs text-red-500">Enter a valid 6-digit pincode</p>}
+                      </div>
                     </div>
                     {effectiveMode === "local_delivery" && zoneInfo.isChennai && form.pincode.length >= 6 && (
                       <div className={`rounded-2xl p-4 text-sm font-semibold ring-1 ${
@@ -390,7 +426,7 @@ export default function CartPage() {
                     </div>
 
                     {(effectiveMode === "courier" || !zoneInfo.isChennai) && (
-                      <CourierFields form={form} update={update} setForm={setForm} />
+                      <CourierFields form={form} update={update} setForm={setForm} touched={touched} blur={blur} />
                     )}
                   </div>
                 )}
@@ -521,18 +557,27 @@ export default function CartPage() {
 
 function TruckIcon(props: any) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M5 15H3V5a1 1 0 0 1 1-1h11v11" /><path d="M19 15h-1V9l-3-3H7v3" /><path d="M10 17h4" /></svg> }
 
-function CourierFields({ form, update, setForm }: { form: OrderFormData; update: (field: keyof OrderFormData, value: string) => void; setForm: (cb: (prev: OrderFormData) => OrderFormData) => void }) {
+function CourierFields({ form, update, setForm, touched, blur }: { form: OrderFormData; update: (field: keyof OrderFormData, value: string) => void; setForm: (cb: (prev: OrderFormData) => OrderFormData) => void; touched: Record<string, boolean>; blur: (field: string) => void }) {
   return (
     <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
       <p className="text-sm font-semibold text-orange-800"><AlertTriangle size={16} className="mr-1 inline" /> Courier orders require at least 48 hours. Delicate products may need special handling.</p>
       <div className="mt-5 grid gap-4 border-t border-orange-200 pt-5">
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-orange-700">Receiver details</h3>
         <div className="grid gap-4 sm:grid-cols-2">
-          <input value={form.receiverName} onChange={(e) => update("receiverName", e.target.value)} className="rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Receiver name *" />
-          <input value={form.receiverPhone} onChange={(e) => update("receiverPhone", e.target.value)} className="rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Receiver phone *" />
+          <div>
+            <input value={form.receiverName} onChange={(e) => update("receiverName", e.target.value)} onBlur={() => blur("receiverName")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.receiverName && !form.receiverName ? "border-red-400" : "border-orange-200"}`} placeholder="Receiver name *" />
+            {touched.receiverName && !form.receiverName && <p className="mt-1 text-xs text-red-500">Enter receiver name</p>}
+          </div>
+          <div>
+            <input value={form.receiverPhone} onChange={(e) => update("receiverPhone", e.target.value)} onBlur={() => blur("receiverPhone")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.receiverPhone && !validatePhone(form.receiverPhone) ? "border-red-400" : "border-orange-200"}`} placeholder="Receiver phone *" />
+            {touched.receiverPhone && !validatePhone(form.receiverPhone) && <p className="mt-1 text-xs text-red-500">Enter a valid 10-digit mobile number</p>}
+          </div>
         </div>
         <input value={form.alternatePhone} onChange={(e) => update("alternatePhone", e.target.value)} className="rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Alternate phone (optional)" />
-        <textarea value={form.courierAddress} onChange={(e) => update("courierAddress", e.target.value)} className="min-h-20 rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Full courier address *" />
+        <div>
+          <textarea value={form.courierAddress} onChange={(e) => update("courierAddress", e.target.value)} onBlur={() => blur("courierAddress")} className={`min-h-20 rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.courierAddress && !form.courierAddress ? "border-red-400" : "border-orange-200"}`} placeholder="Full courier address *" />
+          {touched.courierAddress && !form.courierAddress && <p className="mt-1 text-xs text-red-500">Enter courier address</p>}
+        </div>
         <textarea value={form.courierNotes} onChange={(e) => update("courierNotes", e.target.value)} className="min-h-16 rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
         <label className="flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-orange-200">
           <input type="checkbox" checked={form.confirmCourierRisk} onChange={(e) => setForm((prev: any) => ({ ...prev, confirmCourierRisk: e.target.checked }))} className="mt-1 h-4 w-4 accent-[#1D3C42]" />
