@@ -1,6 +1,16 @@
 import { supabase } from "./client";
 import type { MenuCategory, MenuItem } from "../../types/menu";
 import { BADGE_KEYWORDS } from "../../types/menu";
+import { categories as fallbackCategories } from "../../data/products";
+
+const fallbackImages: Record<string, string[]> = {}
+for (const cat of fallbackCategories) {
+  for (const item of cat.items) {
+    if (item.images?.length) {
+      fallbackImages[item.name.toLowerCase().trim()] = item.images
+    }
+  }
+}
 
 function dedupeByName(items: MenuItem[]): MenuItem[] {
   const seen = new Set<string>();
@@ -13,11 +23,15 @@ function dedupeByName(items: MenuItem[]): MenuItem[] {
 }
 
 function transformRow(item: any): MenuItem {
-  const images =
+  const mediaImages =
     (item.media as any[])
       ?.filter((m: any) => m.media_type === "image")
       ?.sort((a: any, b: any) => a.display_order - b.display_order)
       ?.map((m: any) => m.url) ?? [];
+
+  const staticFallback = fallbackImages[item.name?.toLowerCase().trim()] ?? [];
+
+  const images = mediaImages.length > 0 && mediaImages.length >= staticFallback.length ? mediaImages : staticFallback;
 
   const video =
     (item.media as any[])?.find((m: any) => m.media_type === "video")?.url ?? "";

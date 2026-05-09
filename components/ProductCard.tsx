@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X,
   ChevronLeft,
@@ -32,6 +32,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
   const isCelebrationCake = product.category === "Celebration Cakes" || product.badges?.some((b) => b.toLowerCase().includes("celebration"))
 
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -87,17 +88,32 @@ export default function ProductCard({ product }: { product: MenuItem }) {
     setActiveIndex((prev) => (prev - 1 + mediaItems.length) % mediaItems.length);
 
   useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
+    if (!isDropdownOpen) return;
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [isDropdownOpen]);
+
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         setIsGalleryOpen(false);
         setIsDetailsOpen(false);
         setIsDropdownOpen(false);
       }
+      if (isGalleryOpen && mediaItems.length > 1) {
+        if (e.key === "ArrowRight") next();
+        if (e.key === "ArrowLeft") prev();
+      }
     };
 
-    document.addEventListener("keydown", handleEsc);
-    return () => document.removeEventListener("keydown", handleEsc);
-  }, []);
+    document.addEventListener("keydown", handleKey);
+    return () => document.removeEventListener("keydown", handleKey);
+  }, [isGalleryOpen, isDetailsOpen, mediaItems.length]);
 
   return (
     <>
@@ -108,7 +124,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             setActiveIndex(0);
             setIsGalleryOpen(true);
           }}
-          className="relative h-[180px] overflow-hidden rounded-[1.5rem] bg-[#FADCD4] text-left md:h-[190px]"
+          className="relative aspect-square overflow-hidden rounded-[1.5rem] bg-[#FADCD4] text-left"
         >
           <img
             src={mediaItems[0]?.src || fallbackImage}
@@ -147,7 +163,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                   />
                 </span>
 
-                <h3 className="text-xl font-extrabold leading-tight text-[#3A2A2A] md:text-2xl">
+                <h3 className="font-serif text-xl font-bold leading-tight text-[#3A2A2A] md:text-2xl">
                   {product.name}
                 </h3>
               </div>
@@ -237,7 +253,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             {prices.length > 0 && (
-              <div className="relative min-w-[220px]">
+              <div className="relative min-w-[220px]" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
