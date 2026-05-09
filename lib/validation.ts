@@ -8,11 +8,7 @@ export function sanitizeCity(value: string): string {
 
 export function sanitizePhone(value: string): string {
   const digits = value.replace(/\D/g, "");
-  const last10 = digits.slice(-10);
-  if (last10.length > 0) {
-    return "+91" + last10;
-  }
-  return last10;
+  return digits.slice(0, 10);
 }
 
 export function sanitizePincode(value: string): string {
@@ -33,11 +29,11 @@ export function validateRequired(value: string): boolean {
 
 export function validatePhone(phone: string): boolean {
   const digits = phone.replace(/\D/g, "");
-  return digits.length === 12 && digits.startsWith("91");
+  return digits.length === 10;
 }
 
 export function validatePincode(pincode: string): boolean {
-  return /^\d{6}$/.test(pincode);
+  return /^[56]\d{5}$/.test(pincode);
 }
 
 export function validateEmail(email: string): boolean {

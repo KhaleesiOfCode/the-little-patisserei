@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "../components/CartContext";
+import Navbar from "../components/Navbar";
 import RouteLoader from "../components/RouteLoader";
 import ErrorBoundary from "../components/ErrorBoundary";
 import SessionProvider from "../components/SessionProvider";
@@ -34,8 +35,11 @@ export default function RootLayout({
         <CartProvider>
           <SessionProvider />
           <RouteLoader />
+          <Navbar />
           <ErrorBoundary>
-            {children}
+            <div className="pt-[68px] sm:pt-[76px]">
+              {children}
+            </div>
           </ErrorBoundary>
         </CartProvider>
       </body>

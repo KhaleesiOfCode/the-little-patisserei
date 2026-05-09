@@ -1,3 +1,5 @@
+import { getZoneForDistrict } from "./southIndiaData"
+
 export interface WeightSlab {
   key: string
   maxGrams: number
@@ -7,11 +9,10 @@ export interface WeightSlab {
 export interface CourierZone {
   key: string
   label: string
-  districts: string[]
   pricing: Record<string, number>
 }
 
-export type CourierZoneKey = "zone_a" | "zone_b" | "zone_c" | "unknown"
+export type CourierZoneKey = "zone_a" | "zone_b" | "zone_c" | "zone_d" | "zone_e" | "unknown"
 
 export const WEIGHT_SLABS: WeightSlab[] = [
   { key: "mini", maxGrams: 500, label: "up to 0.5 kg" },
@@ -20,41 +21,43 @@ export const WEIGHT_SLABS: WeightSlab[] = [
   { key: "large", maxGrams: 5000, label: "up to 5 kg" },
 ]
 
+export const ZONE_PRICING: Record<string, Record<string, number>> = {
+  zone_a: { mini: 120, small: 180, medium: 280, large: 450 },
+  zone_b: { mini: 150, small: 250, medium: 380, large: 600 },
+  zone_c: { mini: 180, small: 320, medium: 480, large: 750 },
+  zone_d: { mini: 250, small: 400, medium: 600, large: 950 },
+  zone_e: { mini: 320, small: 500, medium: 780, large: 1200 },
+}
+
 export const COURIER_ZONES: Record<CourierZoneKey, CourierZone> = {
   zone_a: {
     key: "zone_a",
     label: "Zone A — Nearby districts",
-    districts: [
-      "Chengalpattu", "Kanchipuram", "Tiruvallur", "Vellore",
-      "Villupuram", "Puducherry", "Ranipet", "Tirupathur",
-    ],
     pricing: { mini: 120, small: 180, medium: 280, large: 450 },
   },
   zone_b: {
     key: "zone_b",
     label: "Zone B — Mid-distance",
-    districts: [
-      "Trichy", "Tiruchirappalli", "Salem", "Erode", "Coimbatore",
-      "Tiruppur", "Namakkal", "Karur", "Cuddalore", "Thanjavur",
-      "Dharmapuri", "Krishnagiri", "Ariyalur", "Perambalur",
-      "Nagapattinam", "Tiruvarur", "Mayiladuthurai",
-    ],
     pricing: { mini: 150, small: 250, medium: 380, large: 600 },
   },
   zone_c: {
     key: "zone_c",
-    label: "Zone C — Long-distance Tamil Nadu",
-    districts: [
-      "Madurai", "Tirunelveli", "Thoothukudi", "Kanyakumari",
-      "Nagercoil", "Ramanathapuram", "Sivagangai", "Virudhunagar",
-      "Dindigul", "Theni", "Tenkasi",
-    ],
+    label: "Zone C — Long-distance",
     pricing: { mini: 180, small: 320, medium: 480, large: 750 },
+  },
+  zone_d: {
+    key: "zone_d",
+    label: "Zone D — Extended South India",
+    pricing: { mini: 250, small: 400, medium: 600, large: 950 },
+  },
+  zone_e: {
+    key: "zone_e",
+    label: "Zone E — Far South India",
+    pricing: { mini: 320, small: 500, medium: 780, large: 1200 },
   },
   unknown: {
     key: "unknown",
-    label: "Outside Tamil Nadu",
-    districts: [],
+    label: "Outside serviceable area",
     pricing: {},
   },
 }
@@ -107,20 +110,57 @@ export function normalizeDistrict(input: string): string {
     "mayiladuthurai": "Mayiladuthurai",
     "ranipet": "Ranipet",
     "tirupathur": "Tirupathur",
+    "tiruvannamalai": "Tiruvannamalai",
+    "pudukkottai": "Pudukkottai",
+    "kallakurichi": "Kallakurichi",
+    "nilgiris": "Nilgiris",
+    "bangalore": "Bengaluru Urban",
+    "bengaluru": "Bengaluru Urban",
+    "mysore": "Mysuru",
+    "mangalore": "Dakshina Kannada",
+    "mangaluru": "Dakshina Kannada",
+    "hubli": "Dharwad",
+    "belgaum": "Belagavi",
+    "gulbarga": "Kalaburagi",
+    "bijapur": "Vijayapura",
+    "bellary": "Ballari",
+    "shimoga": "Shivamogga",
+    "tumkur": "Tumakuru",
+    "trivandrum": "Thiruvananthapuram",
+    "thiruvananthapuram": "Thiruvananthapuram",
+    "kochi": "Ernakulam",
+    "ernakulam": "Ernakulam",
+    "calicut": "Kozhikode",
+    "kozhikode": "Kozhikode",
+    "trichur": "Thrissur",
+    "thrissur": "Thrissur",
+    "alleppey": "Alappuzha",
+    "alappuzha": "Alappuzha",
+    "vijayawada": "Krishna",
+    "guntur": "Guntur",
+    "visakhapatnam": "Visakhapatnam",
+    "vizag": "Visakhapatnam",
+    "kadapa": "YSR",
+    "vizianagaram": "Vizianagaram",
+    "kurnool": "Kurnool",
+    "nellore": "Nellore",
+    "chittoor": "Chittoor",
+    "tirupati": "Tirupati",
+    "hyderabad": "Hyderabad",
+    "warangal": "Warangal",
+    "nizamabad": "Nizamabad",
+    "karimnagar": "Karimnagar",
+    "khammam": "Khammam",
   }
   const key = input.trim().toLowerCase()
   return map[key] || input.trim()
 }
 
-export function getCourierZone(districtOrCity: string): CourierZone {
-  const normalized = normalizeDistrict(districtOrCity)
-
-  for (const key of ["zone_a", "zone_b", "zone_c"] as CourierZoneKey[]) {
-    if (COURIER_ZONES[key].districts.some((d) => d.toLowerCase() === normalized.toLowerCase())) {
-      return COURIER_ZONES[key]
-    }
+export function getCourierZone(stateName: string, districtName: string): CourierZone {
+  const zoneKey = getZoneForDistrict(stateName, districtName)
+  if (zoneKey !== "unknown" && COURIER_ZONES[zoneKey as CourierZoneKey]) {
+    return COURIER_ZONES[zoneKey as CourierZoneKey]
   }
-
   return COURIER_ZONES.unknown
 }
 
@@ -160,6 +200,7 @@ export interface CourierCalcResult {
 export function calculateCourierCharge(
   items: { quantityLabel?: string; courierWeightGrams?: number | null; courierFragile?: boolean | null }[],
   quantities: number[],
+  destinationState: string,
   destinationDistrict: string,
 ): CourierCalcResult {
   if (!destinationDistrict || destinationDistrict.trim() === "") {
@@ -171,11 +212,24 @@ export function calculateCourierCharge(
       courier_charge: null,
       fragile_surcharge: 0,
       courier_fee_status: "manual_confirmation",
-      message: "Please enter your district to estimate courier charges.",
+      message: "Please select your state and district to estimate courier charges.",
     }
   }
 
-  const zone = getCourierZone(destinationDistrict)
+  if (!destinationState || destinationState.trim() === "") {
+    return {
+      delivery_mode: "courier",
+      courier_zone: null,
+      total_courier_weight_grams: 0,
+      courier_weight_slab: "",
+      courier_charge: null,
+      fragile_surcharge: 0,
+      courier_fee_status: "manual_confirmation",
+      message: "Please select your state to estimate courier charges.",
+    }
+  }
+
+  const zone = getCourierZone(destinationState, destinationDistrict)
   let totalWeight = 0
   let hasFragile = false
 
@@ -214,7 +268,8 @@ export function calculateCourierCharge(
     }
   }
 
-  const baseCharge = zone.pricing[slab.key] || 0
+  const zonePricing = ZONE_PRICING[zone.key] || {}
+  const baseCharge = zonePricing[slab.key] || 0
   const totalCharge = baseCharge + fragileSurcharge
 
   return {
@@ -225,27 +280,10 @@ export function calculateCourierCharge(
     courier_charge: totalCharge,
     fragile_surcharge: fragileSurcharge,
     courier_fee_status: "calculated",
-    message: `Courier charge estimated at ₹${totalCharge} (${slab.label}${hasFragile ? ` + ₹150 fragile packaging` : ""}). Final charge may be adjusted after booking.`,
+    message: `Courier charge estimated at ₹${totalCharge} (${slab.label}${hasFragile ? ` + ₹150 fragile packaging` : ""}).`,
   }
 }
 
-export const TAMIL_NADU_DISTRICTS = [
-  "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore", "Cuddalore",
-  "Dharmapuri", "Dindigul", "Erode", "Kallakurichi", "Kanchipuram",
-  "Kanyakumari", "Karur", "Krishnagiri", "Madurai", "Mayiladuthurai",
-  "Nagapattinam", "Namakkal", "Nilgiris", "Perambalur", "Puducherry",
-  "Pudukkottai", "Ramanathapuram", "Ranipet", "Salem", "Sivagangai",
-  "Tenkasi", "Thanjavur", "Theni", "Thoothukudi", "Tiruchirappalli",
-  "Tirunelveli", "Tirupathur", "Tiruppur", "Tiruvallur", "Tiruvannamalai",
-  "Tiruvarur", "Vellore", "Villupuram", "Virudhunagar",
-]
-
-export function getCourierMessage(
-  result: CourierCalcResult,
-  isTamilNadu: boolean,
-): string {
-  if (!isTamilNadu) {
-    return "Delivery charges will be confirmed separately for your location."
-  }
+export function getCourierMessage(result: CourierCalcResult): string {
   return result.message
 }

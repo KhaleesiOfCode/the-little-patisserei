@@ -117,7 +117,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
   return (
     <>
-      <article className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[230px_1fr] md:gap-5">
+      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[230px_1fr] md:gap-5">
         <button
           type="button"
           onClick={() => {
@@ -237,7 +237,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                       key={option}
                       type="button"
                       onClick={() => setEggOption(option)}
-                      className={`rounded-full px-4 py-2 text-xs font-extrabold transition ${
+                      className={`rounded-full px-3 py-1.5 text-[11px] font-extrabold transition sm:px-4 sm:py-2 sm:text-xs ${
                         eggOption === option
                           ? "bg-[#1D3C42] text-white shadow-sm"
                           : "text-[#1D3C42] hover:bg-white"
@@ -302,8 +302,8 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               </div>
             )}
 
-            <div className="flex items-center gap-3">
-              <p className="text-xl font-black text-[#1D3C42]">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <p className="text-base font-black text-[#1D3C42] sm:text-xl">
                 ₹{Number(selectedPrice.price)}
               </p>
 
@@ -314,7 +314,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                     addToCart(cartProduct);
                     if (isCelebrationCake) setCustomizationOpen(true);
                   }}
-                  className="rounded-full bg-[#1D3C42] px-7 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136]"
+                  className="rounded-full bg-[#1D3C42] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3 sm:text-sm"
                 >
                   Add
                 </motion.button>
@@ -322,18 +322,18 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 <div className="flex items-center rounded-full border border-[#1D3C42]">
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty - 1)}
-                    className="px-4 py-2 text-[#1D3C42]"
+                    className="px-3 py-1.5 text-[#1D3C42] sm:px-4 sm:py-2"
                   >
                     −
                   </button>
 
-                  <span className="px-4 py-2 text-sm font-bold text-[#3A2A2A]">
+                  <span className="px-3 py-1.5 text-xs font-bold text-[#3A2A2A] sm:px-4 sm:py-2 sm:text-sm">
                     {itemInCart.qty}
                   </span>
 
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty + 1)}
-                    className="px-4 py-2 text-[#1D3C42]"
+                    className="px-3 py-1.5 text-[#1D3C42] sm:px-4 sm:py-2"
                   >
                     +
                   </button>

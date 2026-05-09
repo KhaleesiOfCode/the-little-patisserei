@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
-import Navbar from "../../components/Navbar";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
 import type { MenuCategory, MenuItem } from "../../types/menu";
@@ -81,11 +80,9 @@ export default function MenuPage() {
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <Navbar />
-
       <section className="mx-auto max-w-7xl px-5 py-10">
         <div className="mb-8">
-          <h1 className="font-display text-4xl font-bold text-[#1D3C42]">Our Menu</h1>
+          <h1 className="font-display text-3xl font-bold text-[#1D3C42] sm:text-4xl">Our Menu</h1>
           <p className="mt-3 text-[#7A6262]">
             Browse cakes, pastries, brownies and fresh bakery favourites.
           </p>

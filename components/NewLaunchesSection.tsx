@@ -55,7 +55,7 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
           </div>
         </Link>
 
-        <div className="flex flex-1 flex-col px-4 pb-4 pt-3">
+        <div className="flex flex-1 flex-col px-3 pb-3 pt-2 sm:px-4 sm:pb-4 sm:pt-3">
           <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#1D3C42]">
             {item.badges?.find((b) => b === "New Launch")
               ? "New Launch"
@@ -63,13 +63,13 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
           </span>
 
           <Link href={`/menu?product=${item.id}`}>
-            <h3 className="mt-1 font-display text-base font-bold leading-snug text-[#1D3C42] transition-colors group-hover:text-[#D4AF37]">
+            <h3 className="mt-1 font-display text-sm font-bold leading-snug text-[#1D3C42] transition-colors group-hover:text-[#D4AF37] sm:text-base">
               {item.name}
             </h3>
           </Link>
 
-          <div className="mt-auto flex items-center justify-between pt-3">
-            <span className="font-serif text-lg font-bold tracking-wide text-[#D4AF37]">
+          <div className="mt-auto flex items-center justify-between pt-2 sm:pt-3">
+            <span className="font-serif text-base font-bold tracking-wide text-[#D4AF37] sm:text-lg">
               ₹{basePrice}
             </span>
 
@@ -114,20 +114,20 @@ export default function NewLaunchesSection() {
   if (displayItems.length === 0) return null;
 
   return (
-    <section className="bg-white px-6 py-20 md:py-24">
+    <section className="bg-white px-5 py-12 sm:px-6 sm:py-20 md:py-24">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end">
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
               Fresh from the oven
             </p>
-            <h2 className="mt-2 font-serif text-3xl font-bold tracking-tight text-[#1D3C42] md:text-4xl">
+            <h2 className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#1D3C42] sm:text-3xl md:text-4xl">
               New Launches
             </h2>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 sm:gap-5 md:grid-cols-3 lg:grid-cols-4">
           {displayItems.map((item, i) => (
             <LaunchCard key={item.id} item={item} index={i} />
           ))}
@@ -142,7 +142,7 @@ export default function NewLaunchesSection() {
         >
           <Link
             href="/menu"
-            className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-6 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md sm:px-8 sm:py-3 sm:text-sm"
           >
             View All
           </Link>

@@ -3,7 +3,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import Navbar from "../components/Navbar";
 import ScrollReveal from "../components/ScrollReveal";
 import NewLaunchesSection from "../components/NewLaunchesSection";
 
@@ -28,15 +27,13 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <Navbar />
-
       <section className="relative overflow-hidden bg-[#FFF8E4]">
         <div className="pointer-events-none absolute inset-0">
           <div className="absolute right-0 top-0 h-[600px] w-[600px] rounded-full bg-[#D4AF37]/5 blur-3xl" />
           <div className="absolute bottom-0 left-0 h-[400px] w-[400px] rounded-full bg-[#F4CFC8]/20 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-7xl px-6 pt-12 pb-0 md:pt-16">
+        <div className="relative mx-auto max-w-7xl px-5 pt-10 pb-0 sm:px-6 sm:pt-12 md:pt-16">
           <div className="grid items-center gap-10 md:grid-cols-[1fr_1.1fr] md:gap-16">
             <motion.div
               initial={{ opacity: 0, x: -30 }}
@@ -65,7 +62,7 @@ export default function HomePage() {
                         duration: 0.5,
                         ease: [0.22, 1, 0.36, 1],
                       }}
-                      className="mr-3 inline-block"
+                      className="mr-2 inline-block sm:mr-3"
                     >
                       {word}
                     </motion.span>
@@ -83,7 +80,7 @@ export default function HomePage() {
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.55, duration: 0.5 }}
-                className="mt-6 max-w-md text-base leading-8 text-[#7A6262]"
+                className="mt-6 max-w-md text-sm leading-7 text-[#7A6262] sm:text-base sm:leading-8"
               >
                 Freshly baked with premium ingredients, elegant flavours, and thoughtful details — made to turn every occasion into a sweet memory.
               </motion.p>
@@ -156,10 +153,10 @@ export default function HomePage() {
       <NewLaunchesSection />
 
       <ScrollReveal>
-        <section className="bg-[#FFF8E4] px-6 py-20">
+        <section className="bg-[#FFF8E4] px-5 py-12 sm:px-6 sm:py-20">
           <div className="mx-auto max-w-7xl overflow-hidden">
             <div className="mb-10 text-center">
-              <h2 className="text-4xl font-extrabold text-[#1D3C42]">
+              <h2 className="text-3xl font-extrabold text-[#1D3C42] sm:text-4xl">
                 Cakes crafted for our customers
               </h2>
               <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-[#D4AF37]" />
@@ -204,8 +201,8 @@ export default function HomePage() {
       </ScrollReveal>
 
       <ScrollReveal>
-        <section className="bg-[#1D3C42] px-6 py-16 text-center text-white">
-          <h2 className="text-4xl font-extrabold">
+        <section className="bg-[#1D3C42] px-5 py-12 text-center text-white sm:px-6 sm:py-16">
+          <h2 className="text-3xl font-extrabold sm:text-4xl">
             Ready to order something sweet?
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/80">
@@ -215,7 +212,7 @@ export default function HomePage() {
 
           <Link
             href="/menu"
-            className="mt-8 inline-block rounded-full bg-[#D4AF37] px-8 py-3 font-bold text-[#1D3C42]"
+            className="mt-6 inline-block rounded-full bg-[#D4AF37] px-6 py-2.5 text-sm font-bold text-[#1D3C42] sm:mt-8 sm:px-8 sm:py-3"
           >
             Explore Menu
           </Link>

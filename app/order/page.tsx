@@ -1,6 +1,5 @@
 "use client";
 
-import Navbar from "../../components/Navbar";
 import { useCart } from "../../components/CartContext";
 import RazorpayButton from "../../components/RazorpayButton";
 
@@ -23,8 +22,6 @@ export default function OrderPage() {
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <Navbar />
-
       <section className="mx-auto grid max-w-6xl gap-8 px-5 py-14 lg:grid-cols-[1.1fr_0.9fr]">
         <div className="rounded-[2rem] bg-white p-8 shadow-sm ring-1 ring-[#F4CFC8]">
           <h1 className="text-3xl font-extrabold">Checkout</h1>

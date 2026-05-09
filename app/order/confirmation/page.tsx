@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Clock, MapPin, Package, ShoppingBag, ExternalLink } from "lucide-react";
-import Navbar from "../../../components/Navbar";
 import { getOrderById } from "../../../lib/supabase/orders";
 import type { Order, OrderStatus, DeliveryMode } from "../../../types/menu";
 import { ORDER_STATUS_LABELS, getStatusFlow } from "../../../types/menu";
@@ -44,7 +43,6 @@ export default function OrderConfirmationPage() {
 
   if (loading) return (
     <main className="min-h-screen bg-[#FFF8E4]">
-      <Navbar />
       <div className="flex items-center justify-center pt-32">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#1D3C42] border-t-transparent" />
       </div>
@@ -53,7 +51,6 @@ export default function OrderConfirmationPage() {
 
   if (!order) return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <Navbar />
       <section className="mx-auto max-w-lg px-5 py-20 text-center">
         <ShoppingBag size={56} className="mx-auto text-[#D4AF37]/40" />
         <h1 className="mt-6 text-3xl font-extrabold text-[#1D3C42]">Order not found</h1>
@@ -65,7 +62,6 @@ export default function OrderConfirmationPage() {
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
-      <Navbar />
       <section className="mx-auto max-w-2xl px-4 py-10 md:px-5 md:py-14">
         {/* Success header */}
         <div className="rounded-[2rem] bg-white p-6 shadow-sm ring-1 ring-[#F4CFC8] md:p-8">

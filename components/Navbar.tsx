@@ -11,7 +11,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 backdrop-blur-md">
+    <header className="fixed inset-x-0 top-0 z-50 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 backdrop-blur-md">
       <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
         <Link
           href="/"
