@@ -124,13 +124,10 @@ export function getMinDateTime(mode: DeliveryMode): Date {
 export type OrderStatus =
   | "order_received"
   | "baker_confirmed"
-  | "preparing"
   | "ready_for_pickup"
   | "picked_up"
-  | "ready_for_delivery"
   | "out_for_delivery"
   | "courier_booked"
-  | "in_transit"
   | "delivered"
   | "date_change_requested"
   | "cancelled"
@@ -140,13 +137,10 @@ export type OrderStatus =
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
   order_received: "Order Received",
   baker_confirmed: "Baker Confirmed",
-  preparing: "Preparing",
   ready_for_pickup: "Ready for Pickup",
   picked_up: "Picked Up",
-  ready_for_delivery: "Ready for Delivery",
   out_for_delivery: "Out for Delivery",
   courier_booked: "Courier Booked",
-  in_transit: "In Transit",
   delivered: "Delivered",
   date_change_requested: "Date Change Requested",
   cancelled: "Cancelled",
@@ -159,11 +153,11 @@ export const STATUS_FLOW_PICKUP: OrderStatus[] = [
 ]
 
 export const STATUS_FLOW_LOCAL: OrderStatus[] = [
-  "order_received", "baker_confirmed", "ready_for_delivery", "out_for_delivery", "delivered",
+  "order_received", "baker_confirmed", "out_for_delivery", "delivered",
 ]
 
 export const STATUS_FLOW_COURIER: OrderStatus[] = [
-  "order_received", "baker_confirmed", "courier_booked", "in_transit", "delivered",
+  "order_received", "baker_confirmed", "courier_booked", "delivered",
 ]
 
 export function getStatusFlow(mode: DeliveryMode | null | undefined): OrderStatus[] {
@@ -178,7 +172,9 @@ export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null 
       order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
       baker_confirmed: ["ready_for_pickup", "date_change_requested", "cancelled"],
       ready_for_pickup: ["picked_up"],
-      picked_up: ["delivered"],
+      date_change_requested: ["baker_confirmed", "cancelled"],
+      cancelled: ["refund_initiated"],
+      refund_initiated: ["refunded"],
     }
     return m[current] || []
   }
@@ -186,8 +182,7 @@ export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null 
     const m: Record<string, OrderStatus[]> = {
       order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
       baker_confirmed: ["courier_booked", "date_change_requested", "cancelled"],
-      courier_booked: ["in_transit"],
-      in_transit: ["delivered"],
+      courier_booked: ["delivered"],
       date_change_requested: ["baker_confirmed", "cancelled"],
       cancelled: ["refund_initiated"],
       refund_initiated: ["refunded"],
@@ -196,8 +191,7 @@ export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null 
   }
   const m: Record<string, OrderStatus[]> = {
     order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
-    baker_confirmed: ["ready_for_delivery", "date_change_requested", "cancelled"],
-    ready_for_delivery: ["out_for_delivery"],
+    baker_confirmed: ["out_for_delivery", "date_change_requested", "cancelled"],
     out_for_delivery: ["delivered"],
     date_change_requested: ["baker_confirmed", "cancelled"],
     cancelled: ["refund_initiated"],
@@ -236,13 +230,10 @@ export interface OrderFormData {
 export const STATUS_COLORS: Record<string, string> = {
   order_received: "bg-amber-100 text-amber-800 ring-amber-300",
   baker_confirmed: "bg-blue-100 text-blue-800 ring-blue-300",
-  preparing: "bg-purple-100 text-purple-800 ring-purple-300",
   ready_for_pickup: "bg-teal-100 text-teal-800 ring-teal-300",
   picked_up: "bg-green-100 text-green-800 ring-green-300",
-  ready_for_delivery: "bg-sky-100 text-sky-800 ring-sky-300",
   out_for_delivery: "bg-orange-100 text-orange-800 ring-orange-300",
   courier_booked: "bg-indigo-100 text-indigo-800 ring-indigo-300",
-  in_transit: "bg-violet-100 text-violet-800 ring-violet-300",
   delivered: "bg-green-100 text-green-800 ring-green-300",
   date_change_requested: "bg-yellow-100 text-yellow-800 ring-yellow-300",
   cancelled: "bg-red-100 text-red-800 ring-red-300",
@@ -252,13 +243,10 @@ export const STATUS_COLORS: Record<string, string> = {
 
 export const STATUS_WA_MESSAGES: Record<string, (orderNumber: string, trackingUrl: string) => string> = {
   baker_confirmed: (on, tu) => `Your order ${on} has been confirmed by our baker! ✅\n\nTrack: ${tu}`,
-  preparing: (on, tu) => `Your order ${on} is now being prepared! 👨‍🍳\n\nTrack: ${tu}`,
   ready_for_pickup: (on, tu) => `Your order ${on} is ready for pickup! 📦🎉\n\nTrack: ${tu}`,
   picked_up: (on, tu) => `Your order ${on} has been picked up! Thank you! 🎉\n\nTrack: ${tu}`,
-  ready_for_delivery: (on, tu) => `Your order ${on} is ready for delivery! We will dispatch shortly.\n\nTrack: ${tu}`,
   out_for_delivery: (on, tu) => `Your order ${on} is out for delivery! 🚚\n\nTrack: ${tu}`,
   courier_booked: (on, tu) => `Your order ${on} has been handed to the courier! 📦🚚\n\nTrack: ${tu}`,
-  in_transit: (on, tu) => `Your order ${on} is in transit! 🚚\n\nTrack: ${tu}`,
   delivered: (on, tu) => `Your order ${on} has been delivered! 🎉 Thank you!\n\nTrack: ${tu}`,
   date_change_requested: (on, tu) => `We need to discuss a date change for order ${on}. Please contact us.\n\nTrack: ${tu}`,
   refund_initiated: (on, tu) => `A refund has been initiated for order ${on}. 💰\n\nTrack: ${tu}`,

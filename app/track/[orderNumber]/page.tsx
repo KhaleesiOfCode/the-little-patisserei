@@ -11,13 +11,10 @@ import { ORDER_STATUS_LABELS, getStatusFlow, STATUS_COLORS } from "../../../type
 const statusIcons: Record<string, string> = {
   order_received: "📥",
   baker_confirmed: "✅",
-  preparing: "👨‍🍳",
   ready_for_pickup: "📦",
   picked_up: "✅📦",
-  ready_for_delivery: "📦",
   out_for_delivery: "🚚",
   courier_booked: "📦🚚",
-  in_transit: "🚚",
   delivered: "🎉",
   date_change_requested: "📅",
   cancelled: "❌",

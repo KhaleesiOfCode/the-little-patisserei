@@ -5,15 +5,15 @@ import { getOrders, updateOrderStatus, updateBakerNotes, updateDeliveryFee, upda
 import type { Order, OrderStatus } from "../../../types/menu";
 import { ORDER_STATUS_LABELS, STATUS_COLORS, getNextStatuses } from "../../../types/menu";
 import { Clock, X, FileText, Truck, MessageCircle, DollarSign, Package } from "lucide-react";
+import { playNotificationSound, initAudioOnUserGesture } from "../../../lib/notification-sound";
 
-type FilterTab = "new" | "pickup" | "local" | "courier" | "preparing" | "completed" | "cancelled";
+type FilterTab = "new" | "pickup" | "local" | "courier" | "completed" | "cancelled";
 
 const FILTER_TABS: { key: FilterTab; label: string }[] = [
   { key: "new", label: "New Orders" },
   { key: "pickup", label: "Pickup" },
   { key: "local", label: "Local Delivery" },
   { key: "courier", label: "Courier" },
-  { key: "preparing", label: "Preparing" },
   { key: "completed", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
@@ -21,11 +21,10 @@ const FILTER_TABS: { key: FilterTab; label: string }[] = [
 function filterOrders(orders: Order[], tab: FilterTab): Order[] {
   switch (tab) {
     case "new": return orders.filter((o) => o.status === "order_received");
-    case "pickup": return orders.filter((o) => o.delivery_mode === "pickup" && !["delivered", "cancelled", "refunded"].includes(o.status));
+    case "pickup": return orders.filter((o) => o.delivery_mode === "pickup" && !["picked_up", "cancelled", "refunded"].includes(o.status));
     case "local": return orders.filter((o) => o.delivery_mode === "local_delivery" && !["delivered", "cancelled", "refunded"].includes(o.status));
     case "courier": return orders.filter((o) => o.delivery_mode === "courier" && !["delivered", "cancelled", "refunded"].includes(o.status));
-    case "preparing": return orders.filter((o) => o.status === "preparing");
-    case "completed": return orders.filter((o) => ["delivered", "refunded"].includes(o.status));
+    case "completed": return orders.filter((o) => ["delivered", "picked_up", "refunded"].includes(o.status));
     case "cancelled": return orders.filter((o) => ["cancelled", "refund_initiated", "date_change_requested"].includes(o.status));
     default: return orders;
   }
@@ -63,9 +62,11 @@ export default function AdminOrdersPage() {
       setLoading(false);
     }
     load();
+    document.addEventListener("click", initAudioOnUserGesture, { once: true });
     const sub = subscribeToOrders((newOrder) => {
       setOrders((prev) => [newOrder, ...prev]);
       setNotification(`New order: ${newOrder.order_number}`);
+      playNotificationSound();
       setTimeout(() => setNotification(null), 5000);
     });
     return () => { sub.unsubscribe(); };

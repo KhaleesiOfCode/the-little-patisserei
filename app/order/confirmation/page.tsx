@@ -10,9 +10,9 @@ import type { Order, OrderStatus, DeliveryMode } from "../../../types/menu";
 import { ORDER_STATUS_LABELS, getStatusFlow } from "../../../types/menu";
 
 const statusIcons: Record<string, string> = {
-  order_received: "📥", baker_confirmed: "✅", preparing: "👨‍🍳",
-  ready_for_pickup: "📦", picked_up: "✅📦", ready_for_delivery: "📦",
-  out_for_delivery: "🚚", courier_booked: "📦🚚", in_transit: "🚚",
+  order_received: "📥", baker_confirmed: "✅",
+  ready_for_pickup: "📦", picked_up: "✅📦",
+  out_for_delivery: "🚚", courier_booked: "📦🚚",
   delivered: "🎉", date_change_requested: "📅", cancelled: "❌",
   refund_initiated: "💰", refunded: "✅💰",
 };
