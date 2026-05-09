@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { supabase } from "../../../lib/supabase/client";
 import { getOrders, updateOrderStatus, updateBakerNotes, updateDeliveryFee, updateDeliveryInfo, updateCourierInfo, subscribeToOrders } from "../../../lib/supabase/orders";
 import type { Order, OrderStatus } from "../../../types/menu";
 import { ORDER_STATUS_LABELS, STATUS_COLORS, getNextStatuses } from "../../../types/menu";
 import { Clock, X, FileText, Truck, MessageCircle, DollarSign, Package } from "lucide-react";
-import { playNotificationSound, initAudioOnUserGesture } from "../../../lib/notification-sound";
+import { playNotificationSound, playAlertSound, initAudioOnUserGesture } from "../../../lib/notification-sound";
 
 type FilterTab = "new" | "pickup" | "local" | "courier" | "completed" | "cancelled";
 
@@ -63,13 +64,29 @@ export default function AdminOrdersPage() {
     }
     load();
     document.addEventListener("click", initAudioOnUserGesture, { once: true });
-    const sub = subscribeToOrders((newOrder) => {
+
+    const newSub = subscribeToOrders((newOrder) => {
       setOrders((prev) => [newOrder, ...prev]);
       setNotification(`New order: ${newOrder.order_number}`);
       playNotificationSound();
       setTimeout(() => setNotification(null), 5000);
     });
-    return () => { sub.unsubscribe(); };
+
+    const updateSub = supabase
+      .channel("orders-updates")
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
+        const updated = payload.new as any;
+        const changedStatus = updated.status;
+        if (changedStatus === "cancelled" || changedStatus === "date_change_requested") {
+          setOrders((prev) => prev.map((o) => o.id === updated.id ? { ...o, ...updated } : o));
+          setNotification(`${changedStatus === "cancelled" ? "Cancellation" : "Date change"} for ${updated.order_number}`);
+          playAlertSound();
+          setTimeout(() => setNotification(null), 5000);
+        }
+      })
+      .subscribe();
+
+    return () => { newSub.unsubscribe(); updateSub.unsubscribe(); };
   }, []);
 
   const handleStatus = async (id: string, status: OrderStatus) => {
@@ -174,104 +191,109 @@ export default function AdminOrdersPage() {
             {filtered.map((order) => {
               const nextStatuses = getNextStatuses(order.status as OrderStatus, order.delivery_mode);
               return (
-                <div key={order.id} className={`rounded-[2rem] bg-white p-5 shadow-sm ring-1 transition hover:shadow-md ${
+                <div key={order.id} className={`rounded-[2rem] bg-white p-6 shadow-sm ring-1 transition hover:shadow-md ${
                   order.status === "order_received" ? "ring-2 ring-amber-300" : "ring-[#F4CFC8]"
                 }`}>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="text-lg font-extrabold text-[#1D3C42]">{order.order_number}</span>
-                        <span className={`rounded-full px-3 py-0.5 text-[10px] font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
+                      <div className="flex flex-wrap items-center gap-3">
+                        <span className="text-xl font-extrabold text-[#1D3C42]">{order.order_number}</span>
+                        <span className={`rounded-full px-4 py-1 text-xs font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
                           {ORDER_STATUS_LABELS[order.status as OrderStatus] || order.status}
                         </span>
-                        <span className="rounded-full bg-[#FFF8E4] px-3 py-0.5 text-[10px] font-bold text-[#7A6262] ring-1 ring-[#F4CFC8]">
+                        <span className={`rounded-full px-4 py-1 text-xs font-bold ring-1 ${
+                          order.delivery_mode === "pickup" ? "bg-green-100 text-green-800 ring-green-300" :
+                          order.delivery_mode === "courier" ? "bg-orange-100 text-orange-800 ring-orange-300" :
+                          "bg-blue-100 text-blue-800 ring-blue-300"
+                        }`}>
                           {order.delivery_mode === "pickup" ? "Pickup" : order.delivery_mode === "courier" ? "Courier" : "Local Delivery"}
                         </span>
                       </div>
 
-                      <div className="mt-3 grid gap-x-8 gap-y-1.5 text-sm md:grid-cols-2">
+                      <div className="mt-4 grid gap-x-8 gap-y-2 md:grid-cols-2">
                         <div>
-                          <p className="font-semibold text-[#1D3C42]">{order.customer_name}</p>
-                          <p className="text-[#7A6262]">{order.customer_phone}{order.customer_email ? ` · ${order.customer_email}` : ""}</p>
+                          <p className="text-base font-bold text-[#1D3C42]">{order.customer_name}</p>
+                          <p className="text-sm text-[#7A6262]">{order.customer_phone}{order.customer_email ? ` · ${order.customer_email}` : ""}</p>
                         </div>
-                        <div className="text-xs text-[#7A6262]">
-                          <span className="flex items-center gap-1"><Clock size={11} />{new Date(order.created_at).toLocaleString("en-IN")}</span>
+                        <div className="text-sm text-[#7A6262]">
+                          <span className="flex items-center gap-1.5"><Clock size={14} />{new Date(order.created_at).toLocaleString("en-IN")}</span>
                         </div>
                       </div>
 
                       {order.delivery_mode !== "pickup" && (
-                        <div className="mt-3 rounded-2xl bg-[#FFF8E4] p-3 text-xs leading-5 text-[#7A6262]">
-                          <p className="font-semibold text-[#1D3C42]">Delivery address</p>
-                          <p>{order.address_line_1}{order.address_line_2 ? `, ${order.address_line_2}` : ""}</p>
-                          <p>{order.city}{order.district ? `, ${order.district}` : ""}{order.state ? `, ${order.state}` : ""} · {order.pincode}</p>
-                          {order.landmark && <p>Landmark: {order.landmark}</p>}
-                          {order.preferred_delivery_date && <p>Date: {new Date(order.preferred_delivery_date).toLocaleDateString("en-IN")}{order.preferred_delivery_slot ? ` · ${order.preferred_delivery_slot}` : ""}</p>}
+                        <div className="mt-4 rounded-2xl bg-[#FFF8E4] p-4 text-sm leading-6 text-[#7A6262]">
+                          <p className="mb-1 text-sm font-extrabold text-[#1D3C42]">Delivery address</p>
+                          <p className="text-[#3A2A2A]">{order.address_line_1}{order.address_line_2 ? `, ${order.address_line_2}` : ""}</p>
+                          <p className="text-[#3A2A2A]">{order.city}{order.district ? `, ${order.district}` : ""}{order.state ? `, ${order.state}` : ""} · {order.pincode}</p>
+                          {order.landmark && <p className="mt-1 font-medium text-[#7A6262]">📍 {order.landmark}</p>}
+                          {order.preferred_delivery_date && <p className="mt-2 flex items-center gap-1.5 text-[#7A6262]"><Clock size={13} />{new Date(order.preferred_delivery_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}{order.preferred_delivery_slot ? ` · ${order.preferred_delivery_slot}` : ""}</p>}
                         </div>
                       )}
 
                       {order.delivery_mode === "courier" && (order.receiver_name || order.full_courier_address) && (
-                        <div className="mt-2 rounded-2xl bg-orange-50 p-3 text-xs leading-5 text-[#7A6262]">
-                          <p className="font-semibold text-orange-800">Courier receiver</p>
-                          <p>{order.receiver_name}{order.receiver_phone ? ` · ${order.receiver_phone}` : ""}{order.alternate_phone ? ` · Alt: ${order.alternate_phone}` : ""}</p>
-                          <p>{order.full_courier_address}</p>
-                          {order.courier_notes && <p className="mt-1 italic">📝 {order.courier_notes}</p>}
+                        <div className="mt-3 rounded-2xl bg-orange-50 p-4 text-sm leading-6 text-[#7A6262]">
+                          <p className="mb-1 text-sm font-extrabold text-orange-800">Courier receiver</p>
+                          <p className="font-semibold text-orange-900">{order.receiver_name}{order.receiver_phone ? ` · ${order.receiver_phone}` : ""}</p>
+                          {order.alternate_phone && <p className="text-orange-700">Alt: {order.alternate_phone}</p>}
+                          <p className="mt-1 text-[#3A2A2A]">{order.full_courier_address}</p>
+                          {order.courier_notes && <p className="mt-2 italic text-orange-700">📝 {order.courier_notes}</p>}
                         </div>
                       )}
 
                       {order.items && order.items.length > 0 && (
-                        <div className="mt-4">
-                          <p className="mb-2 text-sm font-extrabold text-[#1D3C42]">Items</p>
+                        <div className="mt-5">
+                          <p className="mb-3 text-sm font-extrabold text-[#1D3C42]">Items ({order.items.reduce((s: number, i: any) => s + i.quantity, 0)})</p>
                           <div className="divide-y divide-[#F4CFC8] rounded-2xl border border-[#F4CFC8] bg-white">
                             {order.items.map((item: any, i: number) => (
-                              <div key={item.id || i} className="flex items-center gap-3 px-4 py-3">
-                                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#1D3C42] text-sm font-extrabold text-white">
-                                  {item.quantity}
+                              <div key={item.id || i} className="flex items-center gap-4 px-5 py-4">
+                                <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1D3C42] text-sm font-extrabold text-white">
+                                  ×{item.quantity}
                                 </span>
                                 <div className="min-w-0 flex-1">
-                                  <p className="text-sm font-bold text-[#1D3C42]">{item.item_name}</p>
+                                  <p className="text-base font-bold text-[#1D3C42]">{item.item_name}</p>
                                   {item.selected_options && (
-                                    <p className="mt-0.5 text-xs text-[#7A6262]">{item.selected_options}</p>
+                                    <p className="mt-0.5 text-sm text-[#7A6262]">{item.selected_options}</p>
                                   )}
                                 </div>
-                                <span className="shrink-0 text-sm font-extrabold text-[#D4AF37]">₹{item.line_total}</span>
+                                <span className="shrink-0 text-base font-extrabold text-[#D4AF37]">₹{item.line_total}</span>
                               </div>
                             ))}
                           </div>
                         </div>
                       )}
 
-                      {order.notes && <p className="mt-2 text-xs italic text-[#7A6262]">📝 Order note: {order.notes}</p>}
-                      {order.baker_notes && <p className="mt-1 text-xs italic text-[#1D3C42]">📝 Baker: {order.baker_notes}</p>}
+                      {order.notes && <p className="mt-3 text-sm text-[#7A6262]">📝 Order note: {order.notes}</p>}
+                      {order.baker_notes && <p className="mt-1.5 text-sm text-[#1D3C42]">📝 Baker: {order.baker_notes}</p>}
                     </div>
 
-                    <div className="text-right shrink-0">
-                      <p className="text-xl font-extrabold text-[#1D3C42]">₹{order.total}</p>
-                      <p className="text-xs text-[#7A6262]">Subtotal ₹{order.subtotal}</p>
-                      {(order.delivery_fee ?? 0) > 0 && <p className="text-xs text-[#7A6262]">Delivery ₹{order.delivery_fee}</p>}
-                      {(order.fragile_surcharge ?? 0) > 0 && <p className="text-xs text-purple-600">Fragile +₹{order.fragile_surcharge}</p>}
-                      <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="mt-1 text-[10px] font-bold text-[#D4AF37] underline">Edit fee</button>
+                    <div className="shrink-0 rounded-2xl bg-[#FFF8E4] p-5 text-right">
+                      <p className="text-2xl font-extrabold text-[#1D3C42]">₹{order.total}</p>
+                      <p className="mt-1 text-sm text-[#7A6262]">Subtotal ₹{order.subtotal}</p>
+                      {(order.delivery_fee ?? 0) > 0 && <p className="text-sm text-[#7A6262]">Delivery ₹{order.delivery_fee}</p>}
+                      {(order.fragile_surcharge ?? 0) > 0 && <p className="text-sm font-semibold text-purple-600">Fragile +₹{order.fragile_surcharge}</p>}
+                      <button onClick={() => { setEditingFee(order.id); setFeeValue(order.delivery_fee ?? 0); }} className="mt-2 text-xs font-bold text-[#D4AF37] underline transition hover:text-[#1D3C42]">Edit fee</button>
                     </div>
                   </div>
 
-                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-[#F4CFC8] pt-4">
+                  <div className="mt-5 flex flex-wrap items-center gap-3 border-t border-[#F4CFC8] pt-5">
                     {nextStatuses.map((s) => (
                       <button key={s} onClick={() => {
                         if (order.delivery_mode === "local_delivery" && s === "out_for_delivery") { openDeliveryModal(order); return; }
                         if (order.delivery_mode === "courier" && s === "courier_booked") { openCourierModal(order); return; }
                         handleStatus(order.id, s);
-                      }} className="rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white transition hover:bg-[#163136]">
+                      }} className="rounded-full bg-[#1D3C42] px-5 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md">
                         {ORDER_STATUS_LABELS[s]}
                       </button>
                     ))}
-                    <button onClick={() => { setEditingNotes(order.id); setNotesValue(order.baker_notes || ""); }} className="flex items-center gap-1 rounded-full bg-[#FFF8E4] px-4 py-2 text-xs font-bold text-[#7A6262] transition hover:bg-[#FADCD4]">
-                      <FileText size={14} /> Notes
+                    <button onClick={() => { setEditingNotes(order.id); setNotesValue(order.baker_notes || ""); }} className="flex items-center gap-1.5 rounded-full bg-[#FFF8E4] px-5 py-2.5 text-sm font-bold text-[#7A6262] ring-1 ring-[#F4CFC8] transition hover:bg-[#FADCD4]">
+                      <FileText size={15} /> Notes
                     </button>
                   </div>
 
                   {(order.delivery_provider_name || order.courier_company) && (
-                    <div className="mt-3 rounded-2xl bg-[#FFF8E4] p-3 text-xs">
-                      {order.delivery_provider_name && <p>🚚 {order.delivery_provider_name}{order.delivery_partner_phone ? ` · ${order.delivery_partner_phone}` : ""}{order.delivery_tracking_url ? <> · <a href={order.delivery_tracking_url} target="_blank" rel="noopener noreferrer" className="underline">Track</a></> : ""}</p>}
-                      {order.courier_company && <p>📦 {order.courier_company} · {order.courier_tracking_number || "—"}{order.courier_tracking_url ? <> · <a href={order.courier_tracking_url} target="_blank" rel="noopener noreferrer" className="underline">Track</a></> : ""}</p>}
+                    <div className="mt-4 rounded-2xl bg-[#FFF8E4] p-4 text-sm leading-6">
+                      {order.delivery_provider_name && <p className="font-medium text-[#1D3C42]">🚚 {order.delivery_provider_name}{order.delivery_partner_phone ? ` · ${order.delivery_partner_phone}` : ""}{order.delivery_tracking_url ? <> · <a href={order.delivery_tracking_url} target="_blank" rel="noopener noreferrer" className="font-bold underline text-[#D4AF37]">Track</a></> : ""}</p>}
+                      {order.courier_company && <p className="mt-1 font-medium text-[#1D3C42]">📦 {order.courier_company} · {order.courier_tracking_number || "—"}{order.courier_tracking_url ? <> · <a href={order.courier_tracking_url} target="_blank" rel="noopener noreferrer" className="font-bold underline text-[#D4AF37]">Track</a></> : ""}</p>}
                     </div>
                   )}
                 </div>
@@ -316,14 +338,14 @@ export default function AdminOrdersPage() {
             <div className="flex items-center justify-between"><h3 className="text-lg font-extrabold text-[#1D3C42]"><Truck size={18} className="mr-1 inline" /> Book delivery</h3><button onClick={() => setDeliveryModal(null)}><X size={20} /></button></div>
             <p className="mt-2 text-sm text-[#7A6262]">Enter delivery provider details. Status will be set to Out for Delivery.</p>
             <div className="mt-4 grid gap-3">
-              <input value={dProvider} onChange={(e) => setDProvider(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Provider/app name e.g. Uber, Porter" />
+              <input value={dProvider} onChange={(e) => setDProvider(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Provider/app name *" />
               <input value={dPhone} onChange={(e) => setDPhone(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery partner contact (optional)" />
-              <input value={dUrl} onChange={(e) => setDUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL (optional)" />
+              <input value={dUrl} onChange={(e) => setDUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL *" />
               <textarea value={dNotes} onChange={(e) => setDNotes(e.target.value)} className="min-h-16 rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery notes (optional)" />
             </div>
             <div className="mt-4 flex gap-3">
               <button onClick={() => setDeliveryModal(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
-              <button onClick={saveDeliveryInfo} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Mark Out for Delivery</button>
+              <button onClick={saveDeliveryInfo} disabled={!dProvider || !dUrl} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Out for Delivery</button>
             </div>
           </div>
         </div>
@@ -338,7 +360,7 @@ export default function AdminOrdersPage() {
             <div className="mt-4 grid gap-3">
               <input value={cCompany} onChange={(e) => setCCompany(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier company name *" />
               <input value={cTracking} onChange={(e) => setCTracking(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking number *" />
-              <input value={cUrl} onChange={(e) => setCUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL (optional)" />
+              <input value={cUrl} onChange={(e) => setCUrl(e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL *" />
               <div className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3">
                 <label className="text-xs font-bold uppercase tracking-wider text-[#7A6262]">Courier charge (₹)</label>
                 <input value={cCharge} onChange={(e) => setCCharge(Number(e.target.value))} type="number" className="mt-1 w-full text-lg font-extrabold outline-none" placeholder="0" />
@@ -347,7 +369,7 @@ export default function AdminOrdersPage() {
             </div>
             <div className="mt-4 flex gap-3">
               <button onClick={() => setCourierModal(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
-              <button onClick={saveCourierInfo} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white">Mark Courier Booked</button>
+              <button onClick={saveCourierInfo} disabled={!cCompany || !cTracking || !cUrl} className="flex-1 rounded-full bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Courier Booked</button>
             </div>
           </div>
         </div>

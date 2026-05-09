@@ -220,7 +220,7 @@ export default function CartPage() {
   const canSubmit = (() => {
     if (!effectiveMode) return false;
     if (!form.name || !validatePhone(form.phone) || !emailValid) return false;
-    if (effectiveMode === "pickup") return form.pickupDate !== "";
+    if (effectiveMode === "pickup") return form.pickupDate !== "" && emailValid;
     if (effectiveMode === "courier") {
       if (hasNonCourierItems) return false
       if (courierCalc?.courier_fee_status === "manual_confirmation" || !courierCalc) return false
@@ -357,7 +357,7 @@ export default function CartPage() {
                 {effectiveMode === "pickup" && (
                   <div className="mt-6 grid gap-4">
                     <div className="rounded-2xl bg-green-50 p-4 text-sm font-semibold text-green-800 ring-1 ring-green-200">
-                      Pickup from our bakery. Minimum 24 hours prep time.
+                      Pickup from our bakery. Ready by {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} (24 hrs prep)
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
@@ -380,7 +380,7 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup date *</label>
                         <input type="date" value={form.pickupDate} onChange={(e) => update("pickupDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Earliest: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} (24 hrs)</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} (24 hrs prep)</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup time</label>
@@ -507,7 +507,7 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Preferred delivery date</label>
                         <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Earliest: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({effectiveMode === "courier" ? "48" : "24"} hrs)</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({effectiveMode === "courier" ? "48 hrs prep" : "24 hrs prep"})</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Delivery slot</label>

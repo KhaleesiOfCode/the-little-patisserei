@@ -201,6 +201,36 @@ export async function updateCourierInfo(
   return !error;
 }
 
+export async function requestDateChange(id: string, newDate: string, newSlot: string): Promise<boolean> {
+  const { data: order } = await supabase.from("orders").select("notes, baker_notes").eq("id", id).single();
+  const existing = (order as any)?.notes || "";
+  const note = `[${new Date().toISOString().slice(0, 10)}] Date change requested → ${newDate} ${newSlot ? `(${newSlot})` : ""}`;
+  const updatedNotes = existing ? `${existing}\n${note}` : note;
+  const { error } = await supabase
+    .from("orders").update({
+      status: "date_change_requested",
+      notes: updatedNotes,
+      baker_notes: `Customer requested date change to ${newDate} ${newSlot ? `(${newSlot})` : ""}`,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id);
+  return !error;
+}
+
+export async function cancelOrderByUser(id: string, reason: string): Promise<boolean> {
+  const { data: order } = await supabase.from("orders").select("notes, baker_notes").eq("id", id).single();
+  const existing = (order as any)?.notes || "";
+  const note = `[${new Date().toISOString().slice(0, 10)}] Cancelled by customer: ${reason}`;
+  const updatedNotes = existing ? `${existing}\n${note}` : note;
+  const { error } = await supabase
+    .from("orders").update({
+      status: "cancelled",
+      notes: updatedNotes,
+      baker_notes: `CANCELLED BY CUSTOMER: ${reason}`,
+      updated_at: new Date().toISOString(),
+    }).eq("id", id);
+  return !error;
+}
+
 export async function updateBakerNotes(id: string, bakerNotes: string): Promise<boolean> {
   const { error } = await supabase
     .from("orders").update({ baker_notes: bakerNotes, updated_at: new Date().toISOString() }).eq("id", id);
