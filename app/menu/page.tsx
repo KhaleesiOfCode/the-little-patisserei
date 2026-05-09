@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { ChevronDown } from "lucide-react";
 import Navbar from "../../components/Navbar";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
@@ -17,6 +18,7 @@ export default function MenuPage() {
   const [foodType, setFoodType] = useState<"all" | "veg" | "nonveg">("all");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
 
   const scrollDoneRef = useRef(false);
 
@@ -83,7 +85,7 @@ export default function MenuPage() {
 
       <section className="mx-auto max-w-7xl px-5 py-10">
         <div className="mb-8">
-          <h1 className="text-4xl font-extrabold text-[#1D3C42]">Our Menu</h1>
+          <h1 className="font-display text-4xl font-bold text-[#1D3C42]">Our Menu</h1>
           <p className="mt-3 text-[#7A6262]">
             Browse cakes, pastries, brownies and fresh bakery favourites.
           </p>
@@ -96,13 +98,19 @@ export default function MenuPage() {
         ) : (
           <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
             <aside className="h-fit rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8] lg:sticky lg:top-24">
-              <h2 className="mb-4 px-3 text-sm font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
-                Categories
-              </h2>
+              <button
+                onClick={() => setCategoriesOpen(!categoriesOpen)}
+                className="flex w-full items-center justify-between lg:cursor-default"
+              >
+                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                  Categories
+                </h2>
+                <ChevronDown size={16} className={`text-[#D4AF37] transition lg:hidden ${categoriesOpen ? "rotate-180" : ""}`} />
+              </button>
 
-              <div className="space-y-2">
+              <div className={`mt-4 space-y-2 ${categoriesOpen ? "block" : "hidden"} lg:block`}>
                 <button
-                  onClick={() => setActiveCategory("All")}
+                  onClick={() => { setActiveCategory("All"); setCategoriesOpen(false); }}
                   className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
                     activeCategory === "All"
                       ? "bg-[#1D3C42] text-white shadow-md"
@@ -118,7 +126,7 @@ export default function MenuPage() {
                 {categories.map((category) => (
                   <button
                     key={category.name}
-                    onClick={() => setActiveCategory(category.name)}
+                    onClick={() => { setActiveCategory(category.name); setCategoriesOpen(false); }}
                     className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
                       activeCategory === category.name
                         ? "bg-[#1D3C42] text-white shadow-md"
@@ -197,7 +205,7 @@ export default function MenuPage() {
                   <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#D4AF37]">
                     {activeCategory === "All" ? "All Items" : activeCategory}
                   </p>
-                  <h2 className="mt-2 text-3xl font-extrabold text-[#1D3C42]">
+                  <h2 className="mt-2 font-serif text-3xl font-bold text-[#1D3C42]">
                     {activeCategory}
                   </h2>
                 </div>

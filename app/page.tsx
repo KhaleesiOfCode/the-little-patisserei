@@ -52,7 +52,7 @@ export default function HomePage() {
                 Artisan Bakery &amp; Patisserie
               </motion.p>
 
-              <h1 className="font-serif text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
+              <h1 className="font-display text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
                 {"Artisan Cakes, Crafted for Beautiful Celebrations"
                   .split(" ")
                   .map((word, i) => (
@@ -171,7 +171,7 @@ export default function HomePage() {
               onMouseLeave={() => setPaused(false)}
             >
               <motion.div
-                className="flex gap-10"
+                className="flex gap-4 sm:gap-10"
                 animate={paused ? { x: `0%` } : { x: ["0%", `${scrollPercent}%`] }}
                 transition={{
                   duration: paused ? 0.3 : 25,
@@ -182,7 +182,7 @@ export default function HomePage() {
                 {duplicatedGallery.map((item, index) => (
                   <div
                     key={`${item.name}-${index}`}
-                    className="group relative h-44 w-64 shrink-0 overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-[#F4CFC8]"
+                    className="group relative h-36 w-48 shrink-0 overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-[#F4CFC8] sm:h-44 sm:w-64"
                   >
                     <img
                       src={item.img}

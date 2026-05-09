@@ -331,7 +331,7 @@ export default function CartPage() {
                   <button onClick={() => selectSubMode("courier")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
-                    <p className="mt-1 text-sm text-[#7A6262]">Courier across India</p>
+                    <p className="mt-1 text-sm text-[#7A6262]">Courier across Tamilnadu</p>
                   </button>
                 </div>
                 <button onClick={() => { setAwaitingSubMode(false); setShowCheckout(false); }} className="mt-4 text-xs font-bold text-[#D4AF37] underline">Back</button>

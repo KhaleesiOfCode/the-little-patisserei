@@ -117,14 +117,14 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
   return (
     <>
-      <article className="grid gap-5 rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl md:grid-cols-[230px_1fr]">
+      <article className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[230px_1fr] md:gap-5">
         <button
           type="button"
           onClick={() => {
             setActiveIndex(0);
             setIsGalleryOpen(true);
           }}
-          className="relative aspect-square overflow-hidden rounded-[1.5rem] bg-[#FADCD4] text-left"
+          className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#FADCD4] text-left sm:aspect-square sm:rounded-[1.5rem]"
         >
           <img
             src={mediaItems[0]?.src || fallbackImage}
@@ -163,7 +163,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                   />
                 </span>
 
-                <h3 className="font-serif text-xl font-bold leading-tight text-[#3A2A2A] md:text-2xl">
+                <h3 className="font-serif text-sm font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
                   {product.name}
                 </h3>
               </div>
@@ -192,20 +192,20 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               </div>
             )}
 
-            <p className="mt-3 max-w-4xl overflow-hidden text-sm leading-6 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical]">
+            <p className="mt-1 max-w-4xl overflow-hidden text-xs leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:mt-3 sm:text-sm sm:leading-6">
               {product.description}
             </p>
 
             <button
               type="button"
               onClick={() => setIsDetailsOpen(true)}
-              className="mt-1 text-sm font-bold text-[#1D3C42] underline-offset-4 hover:underline"
+              className="mt-0 text-xs font-bold text-[#1D3C42] underline-offset-4 hover:underline sm:mt-1 sm:text-sm"
             >
               View more
             </button>
 
             {compactTags.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-1 flex flex-wrap gap-1 sm:mt-3 sm:gap-2">
                 {compactTags.map((tag) => (
                   <span
                     key={tag}
@@ -218,14 +218,15 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             )}
 
             {product.shelf_life && (
-              <p className="mt-3 flex items-center gap-2 text-xs font-semibold text-[#7A6262]">
-                <Clock size={14} />
+              <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-[#7A6262] sm:mt-3 sm:gap-2 sm:text-xs">
+                <Clock size={12} className="sm:hidden" />
+                <Clock size={14} className="hidden sm:block" />
                 Shelf life: {product.shelf_life}
               </p>
             )}
 
             {hasEggChoice && (
-              <div className="mt-3 flex flex-wrap items-center gap-2">
+              <div className="mt-1 flex flex-wrap items-center gap-1 sm:mt-3 sm:gap-2">
                 <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
                   Choose option
                 </span>
@@ -251,21 +252,21 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
           </div>
 
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 sm:mt-4 sm:gap-3">
             {prices.length > 0 && (
-              <div className="relative min-w-[220px]" ref={dropdownRef}>
+              <div className="relative min-w-0 sm:min-w-[220px]" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex w-full items-center justify-between rounded-full border border-[#D4AF37] bg-[#FFF8E4] px-5 py-3 text-sm font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-white"
+                  className="flex w-full items-center justify-between rounded-full border border-[#D4AF37] bg-[#FFF8E4] px-3 py-1.5 text-xs font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-white sm:px-5 sm:py-3 sm:text-sm"
                 >
-                  <span>
+                  <span className="truncate">
                     {selectedPrice.quantity_label} · ₹
                     {Number(selectedPrice.price)}
                   </span>
                   <ChevronDown
-                    size={18}
-                    className={`transition ${
+                    size={14}
+                    className={`shrink-0 transition sm:size-[18px] ${
                       isDropdownOpen ? "rotate-180" : ""
                     }`}
                   />

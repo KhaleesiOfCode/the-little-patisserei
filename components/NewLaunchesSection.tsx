@@ -63,7 +63,7 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
           </span>
 
           <Link href={`/menu?product=${item.id}`}>
-            <h3 className="mt-1 font-serif text-base font-bold leading-snug text-[#1D3C42] transition-colors group-hover:text-[#D4AF37]">
+            <h3 className="mt-1 font-display text-base font-bold leading-snug text-[#1D3C42] transition-colors group-hover:text-[#D4AF37]">
               {item.name}
             </h3>
           </Link>
