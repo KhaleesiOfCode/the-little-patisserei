@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import ScrollReveal from "../components/ScrollReveal";
@@ -15,15 +14,7 @@ const galleryItems = [
   { img: "/gallery/cake-6.jpg", name: "Anniversary Cake" },
 ];
 
-const GALLERY_DUPLICATE_COUNT = 3;
-
-const duplicatedGallery = Array.from({ length: GALLERY_DUPLICATE_COUNT })
-  .flatMap(() => galleryItems);
-
-const scrollPercent = -(100 / GALLERY_DUPLICATE_COUNT);
-
 export default function HomePage() {
-  const [paused, setPaused] = useState(false);
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
@@ -217,43 +208,44 @@ export default function HomePage() {
               </div>
             </div>
 
-            <div
-              className="relative overflow-hidden before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-16 before:bg-gradient-to-r before:from-[#FFF8E4] before:to-transparent before:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:z-10 after:w-16 after:bg-gradient-to-l after:from-[#FFF8E4] after:to-transparent after:content-['']"
-              onMouseEnter={() => setPaused(true)}
-              onMouseLeave={() => setPaused(false)}
-            >
-              <motion.div
-                className="flex gap-6 sm:gap-12"
-                animate={paused ? { x: `0%` } : { x: ["0%", `${scrollPercent}%`] }}
-                transition={{
-                  duration: paused ? 0.3 : 25,
-                  repeat: paused ? 0 : Infinity,
-                  ease: "linear",
-                }}
-              >
-                {duplicatedGallery.map((item, index) => (
-                  <div
-                    key={`${item.name}-${index}`}
-                    className="group relative w-48 shrink-0 sm:w-64"
-                  >
-                    <div className="relative overflow-hidden rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:ring-[#D4AF37]/50">
-                      <div className="aspect-[4/3] overflow-hidden rounded-xl">
+            <div className="mx-auto max-w-5xl">
+              <div className="flex flex-wrap justify-center gap-6 sm:gap-8">
+                {galleryItems.slice(0, 3).map((item) => (
+                  <div key={item.name} className="group w-48 sm:w-56">
+                    <div className="overflow-hidden rounded-2xl bg-white p-3 shadow-md ring-1 ring-[#F4CFC8] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:ring-[#D4AF37]/50">
+                      <div className="aspect-square overflow-hidden rounded-xl">
                         <img
                           src={item.img}
                           alt={item.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
                         />
                       </div>
                     </div>
-                    <div className="mt-3 text-center">
-                      <h3 className="text-sm font-bold text-[#1D3C42] transition-colors group-hover:text-[#D4AF37] sm:text-base">
-                        {item.name}
-                      </h3>
-                      <div className="mx-auto mt-1.5 h-0.5 w-0 rounded-full bg-[#D4AF37] transition-all duration-300 group-hover:w-8" />
-                    </div>
+                    <p className="mt-3 text-center text-sm font-bold text-[#1D3C42] transition-colors group-hover:text-[#D4AF37] sm:text-base">
+                      {item.name}
+                    </p>
                   </div>
                 ))}
-              </motion.div>
+              </div>
+
+              <div className="mt-6 flex flex-wrap justify-center gap-6 sm:mt-8 sm:gap-8 sm:translate-x-[7rem]">
+                {galleryItems.slice(3, 6).map((item) => (
+                  <div key={item.name} className="group w-48 sm:w-56">
+                    <div className="overflow-hidden rounded-2xl bg-white p-3 shadow-md ring-1 ring-[#F4CFC8] transition-all duration-300 group-hover:-translate-y-1 group-hover:shadow-xl group-hover:ring-[#D4AF37]/50">
+                      <div className="aspect-square overflow-hidden rounded-xl">
+                        <img
+                          src={item.img}
+                          alt={item.name}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                        />
+                      </div>
+                    </div>
+                    <p className="mt-3 text-center text-sm font-bold text-[#1D3C42] transition-colors group-hover:text-[#D4AF37] sm:text-base">
+                      {item.name}
+                    </p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </section>
