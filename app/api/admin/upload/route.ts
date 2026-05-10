@@ -2,6 +2,15 @@ import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { adminSupabase } from "@/lib/supabase/admin-client";
 
+const BUCKET = "menu-images";
+
+async function ensureBucket(): Promise<string | null> {
+  const { data: buckets } = await adminSupabase.storage.listBuckets();
+  if (buckets?.some((b) => b.name === BUCKET)) return null;
+  const { error } = await adminSupabase.storage.createBucket(BUCKET, { public: true });
+  return error?.message || null;
+}
+
 export async function POST(request: Request) {
   const session = await getSession();
   if (!session) {
@@ -17,23 +26,29 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing file or menuItemId" }, { status: 400 });
     }
 
+    const bucketErr = await ensureBucket();
+    if (bucketErr) {
+      console.error("Bucket setup error:", bucketErr);
+      return NextResponse.json({ error: bucketErr }, { status: 500 });
+    }
+
     const ext = file.name.split(".").pop() || "jpg";
     const filePath = `${menuItemId}/${Date.now()}.${ext}`;
 
-    const { data, error } = await adminSupabase.storage
-      .from("menu-images")
-      .upload(filePath, file);
+    const storage = adminSupabase.storage.from(BUCKET);
+
+    const { data, error } = await storage.upload(filePath, file);
 
     if (error) {
+      console.error("Upload error:", error);
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    const { data: urlData } = adminSupabase.storage
-      .from("menu-images")
-      .getPublicUrl(data.path);
+    const { data: urlData } = storage.getPublicUrl(data.path);
 
     return NextResponse.json({ url: urlData.publicUrl });
-  } catch {
-    return NextResponse.json({ error: "Upload failed" }, { status: 500 });
+  } catch (err) {
+    console.error("Upload exception:", err);
+    return NextResponse.json({ error: String(err) }, { status: 500 });
   }
 }

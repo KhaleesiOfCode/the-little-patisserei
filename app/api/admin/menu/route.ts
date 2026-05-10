@@ -82,6 +82,7 @@ export async function POST(request: Request) {
       .single();
 
     if (insertError || !item) {
+      console.error("Menu insert error:", insertError);
       return NextResponse.json({ error: insertError?.message || "Insert failed" }, { status: 500 });
     }
 

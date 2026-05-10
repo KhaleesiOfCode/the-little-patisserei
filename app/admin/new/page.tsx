@@ -97,7 +97,33 @@ export default function AdminNewProductPage() {
     setSaving(true);
     setNotification(null);
 
-    // First create the product with basic info
+    // Upload images FIRST so we can include URLs in the product creation
+    let uploadedUrls: string[] = [];
+    let uploadErrors = 0;
+
+    if (imageFiles.length > 0) {
+      setUploading(true);
+      for (const file of imageFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("menuItemId", "temp");
+
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadRes.ok) {
+          const { url } = await uploadRes.json();
+          uploadedUrls.push(url);
+        } else {
+          uploadErrors++;
+        }
+      }
+      setUploading(false);
+    }
+
+    // Create product with all data including image URLs in one POST
     const payload: Record<string, unknown> = {
       name: name.trim(),
       description,
@@ -115,6 +141,7 @@ export default function AdminNewProductPage() {
       courier_fragile: courierFragile,
       courier_category: courierCategory || null,
       prices: prices.filter((p) => p.quantity_label.trim()),
+      image_urls: uploadedUrls,
     };
 
     const res = await fetch("/api/admin/menu", {
@@ -130,49 +157,11 @@ export default function AdminNewProductPage() {
       return;
     }
 
-    const product = await res.json();
-
-      // Upload images
-    if (imageFiles.length > 0) {
-      setUploading(true);
-      const urls: string[] = [];
-      let uploadErrors = 0;
-
-      for (const file of imageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("menuItemId", product.id);
-
-        const uploadRes = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (uploadRes.ok) {
-          const { url } = await uploadRes.json();
-          urls.push(url);
-        } else {
-          uploadErrors++;
-        }
-      }
-
-      // Link images to product
-      if (urls.length > 0) {
-        await fetch("/api/admin/menu", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: product.id, image_urls: urls }),
-        });
-      }
-
-      setUploading(false);
-
-      if (uploadErrors > 0) {
-        setNotification(`${uploadErrors} image(s) failed to upload. Product was created.`);
-        setTimeout(() => setNotification(null), 5000);
-        setSaving(false);
-        return;
-      }
+    if (uploadErrors > 0) {
+      setNotification(`${uploadErrors} image(s) failed to upload. Product was created without those images.`);
+      setTimeout(() => setNotification(null), 5000);
+      setSaving(false);
+      return;
     }
 
     router.push("/admin/menu");
