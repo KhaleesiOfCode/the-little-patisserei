@@ -104,9 +104,10 @@ export default function NewLaunchesSection() {
       setLaunches(data.slice(0, MAX_HOME_ITEMS));
     }
     load();
-    return () => {
-      cancelled = true;
-    };
+    const interval = setInterval(load, 30000);
+    const onFocus = () => { if (!cancelled) load(); };
+    window.addEventListener("focus", onFocus);
+    return () => { cancelled = true; clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, []);
 
   const displayItems = launches.slice(0, MAX_HOME_ITEMS);

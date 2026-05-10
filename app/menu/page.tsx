@@ -77,19 +77,19 @@ export default function MenuPage() {
         setError(false);
         const data = await getMenuCategories();
         if (cancelled) return;
-
         setCategories(data);
       } catch {
-        if (!cancelled) {
-          setError(true);
-        }
+        if (!cancelled) setError(true);
       } finally {
         if (!cancelled) setLoading(false);
       }
     }
 
     loadMenu();
-    return () => { cancelled = true; };
+    const interval = setInterval(loadMenu, 30000);
+    const onFocus = () => { if (!cancelled) loadMenu(); };
+    window.addEventListener("focus", onFocus);
+    return () => { cancelled = true; clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, []);
 
   useEffect(() => {

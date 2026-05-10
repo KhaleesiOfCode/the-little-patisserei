@@ -64,7 +64,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
   const compactTags = useMemo(
     () =>
-      [...(product.keywords || []), ...(product.ingredient_tags || [])].slice(
+      [...new Set([...(product.keywords || []), ...(product.ingredient_tags || [])])].slice(
         0,
         3
       ),
@@ -205,9 +205,9 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
             {compactTags.length > 0 && (
               <div className="mt-1 flex flex-wrap gap-1 sm:mt-3 sm:gap-2">
-                {compactTags.map((tag) => (
+                {compactTags.map((tag, idx) => (
                   <span
-                    key={tag}
+                    key={`${tag}-${idx}`}
                     className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
                   >
                     {tag}
