@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase/client";
 import { getOrders, updateOrderStatus, updateBakerNotes, updateDeliveryFee, updateDeliveryInfo, updateCourierInfo, subscribeToOrders } from "../../../lib/supabase/orders";
-import type { Order, OrderStatus } from "../../../types/menu";
+import type { Order, OrderItem, OrderStatus } from "../../../types/menu";
 import { ORDER_STATUS_LABELS, STATUS_COLORS, getNextStatuses } from "../../../types/menu";
-import { Clock, X, FileText, Truck, MessageCircle, DollarSign, Package } from "lucide-react";
+import Link from "next/link";
+import { Clock, X, FileText, Truck, DollarSign, Package } from "lucide-react";
 import { playNotificationSound, playAlertSound, initAudioOnUserGesture } from "../../../lib/notification-sound";
 
 type FilterTab = "new" | "pickup" | "local" | "courier" | "completed" | "cancelled";
@@ -75,7 +76,7 @@ export default function AdminOrdersPage() {
     const updateSub = supabase
       .channel("orders-updates")
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
-        const updated = payload.new as any;
+        const updated = payload.new as Order;
         const changedStatus = updated.status;
         if (changedStatus === "cancelled" || changedStatus === "date_change_requested") {
           setOrders((prev) => prev.map((o) => o.id === updated.id ? { ...o, ...updated } : o));
@@ -159,7 +160,7 @@ export default function AdminOrdersPage() {
             <p className="text-xs text-[#7A6262]">{orders.length} total · {orders.filter((o) => o.status === "order_received").length} new</p>
           </div>
           <div className="flex items-center gap-2">
-            <a href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</a>
+            <Link href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</Link>
             <button onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }} className="rounded-full border border-[#F4CFC8] bg-white px-4 py-2 text-xs font-semibold text-[#7A6262] hover:text-red-500">Logout</button>
           </div>
         </div>
@@ -242,9 +243,9 @@ export default function AdminOrdersPage() {
 
                       {order.items && order.items.length > 0 && (
                         <div className="mt-5">
-                          <p className="mb-3 text-sm font-extrabold text-[#1D3C42]">Items ({order.items.reduce((s: number, i: any) => s + i.quantity, 0)})</p>
+                          <p className="mb-3 text-sm font-extrabold text-[#1D3C42]">Items ({order.items.reduce((s: number, i: OrderItem) => s + i.quantity, 0)})</p>
                           <div className="divide-y divide-[#F4CFC8] rounded-2xl border border-[#F4CFC8] bg-white">
-                            {order.items.map((item: any, i: number) => (
+                            {order.items.map((item: OrderItem, i: number) => (
                               <div key={item.id || i} className="flex items-center gap-4 px-5 py-4">
                                 <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#1D3C42] text-sm font-extrabold text-white">
                                   ×{item.quantity}

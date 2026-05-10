@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, startTransition } from "react";
 import { CreditCard } from "lucide-react";
 import { useCart } from "./CartContext";
 
@@ -10,9 +10,27 @@ interface RazorpayButtonProps {
   disabled?: boolean;
 }
 
+interface RazorpayOptions {
+  key: string;
+  amount: number;
+  currency: string;
+  name: string;
+  description: string;
+  image: string;
+  handler: () => void;
+  modal: { ondismiss: () => void };
+  prefill: { contact: string };
+  theme: { color: string };
+}
+
+interface RazorpayInstance {
+  on: (event: string, handler: () => void) => void;
+  open: () => void;
+}
+
 declare global {
   interface Window {
-    Razorpay: any;
+    Razorpay: new (options: RazorpayOptions) => RazorpayInstance;
   }
 }
 
@@ -27,14 +45,14 @@ export default function RazorpayButton({
 
   useEffect(() => {
     if (typeof window.Razorpay !== "undefined") {
-      setLoaded(true);
+      startTransition(() => setLoaded(true));
       return;
     }
 
     const script = document.createElement("script");
     script.src = "https://checkout.razorpay.com/v1/checkout.js";
     script.async = true;
-    script.onload = () => setLoaded(true);
+    script.onload = () => startTransition(() => setLoaded(true));
     document.body.appendChild(script);
 
     return () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, startTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Trash2, FileText, Lock, CreditCard, CheckCircle, ArrowLeft, AlertTriangle, Package, ShoppingBag } from "lucide-react";
@@ -98,13 +98,15 @@ export default function CartPage() {
 
   useEffect(() => {
     if (!effectiveMode) return;
-    if (effectiveMode === "pickup" && !form.pickupDate) {
-      setForm((prev) => ({ ...prev, pickupDate: minDate }));
-    }
-    if (effectiveMode !== "pickup" && !form.deliveryDate) {
-      setForm((prev) => ({ ...prev, deliveryDate: minDate }));
-    }
-  }, [effectiveMode, minDate]);
+    startTransition(() => {
+      if (effectiveMode === "pickup" && !form.pickupDate) {
+        setForm((prev) => ({ ...prev, pickupDate: minDate }));
+      }
+      if (effectiveMode !== "pickup" && !form.deliveryDate) {
+        setForm((prev) => ({ ...prev, deliveryDate: minDate }));
+      }
+    });
+  }, [effectiveMode, minDate, form.pickupDate, form.deliveryDate]);
 
   const isChennaiLocal = effectiveMode === "local_delivery" && form.pincode.startsWith("600");
 
@@ -668,7 +670,7 @@ export default function CartPage() {
   );
 }
 
-function TruckIcon(props: any) { return <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M5 15H3V5a1 1 0 0 1 1-1h11v11" /><path d="M19 15h-1V9l-3-3H7v3" /><path d="M10 17h4" /></svg> }
+function TruckIcon({ size, ...props }: { size?: number; className?: string }) { return <svg xmlns="http://www.w3.org/2000/svg" width={size ?? 24} height={size ?? 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}><path d="M5 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M17 17a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z" /><path d="M5 15H3V5a1 1 0 0 1 1-1h11v11" /><path d="M19 15h-1V9l-3-3H7v3" /><path d="M10 17h4" /></svg> }
 
 function CourierFields({ form, update, setForm, touched, blur }: { form: OrderFormData; update: (field: keyof OrderFormData, value: string) => void; setForm: (cb: (prev: OrderFormData) => OrderFormData) => void; touched: Record<string, boolean>; blur: (field: string) => void }) {
   return (
@@ -699,7 +701,7 @@ function CourierFields({ form, update, setForm, touched, blur }: { form: OrderFo
         </div>
         <textarea value={form.courierNotes} onChange={(e) => update("courierNotes", e.target.value)} className="min-h-16 rounded-2xl border border-orange-200 bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
         <label className="flex items-start gap-3 rounded-2xl bg-white p-4 ring-1 ring-orange-200">
-          <input type="checkbox" checked={form.confirmCourierRisk} onChange={(e) => setForm((prev: any) => ({ ...prev, confirmCourierRisk: e.target.checked }))} className="mt-1 h-4 w-4 accent-[#1D3C42]" />
+          <input type="checkbox" checked={form.confirmCourierRisk} onChange={(e) => setForm((prev) => ({ ...prev, confirmCourierRisk: e.target.checked }))} className="mt-1 h-4 w-4 accent-[#1D3C42]" />
           <span className="text-sm text-[#7A6262]">I understand delicate products may need special handling. Bakery is not responsible for courier transit damage. <strong className="text-orange-800">*</strong></span>
         </label>
       </div>

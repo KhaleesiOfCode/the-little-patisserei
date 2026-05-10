@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Clock, MapPin, Package, ShoppingBag, ExternalLink } from "lucide-react";
@@ -23,12 +23,12 @@ export default function OrderConfirmationPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!orderId) { setLoading(false); return; }
+    if (!orderId) return;
     let cancelled = false;
     async function load() {
       const data = await getOrderById(orderId as string);
       if (cancelled) return;
-      setOrder(data); setLoading(false);
+      startTransition(() => { setOrder(data); setLoading(false); });
     }
     load();
     const interval = setInterval(load, 15000);

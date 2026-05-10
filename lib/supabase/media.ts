@@ -9,6 +9,12 @@ export interface MenuItemMediaRow {
   display_order: number
 }
 
+interface DbMediaItem {
+  id: string;
+  name: string;
+  media: MenuItemMediaRow[];
+}
+
 export async function getMenuItemsWithMedia(): Promise<
   { id: string; name: string; media: MenuItemMediaRow[] }[]
 > {
@@ -26,11 +32,11 @@ export async function getMenuItemsWithMedia(): Promise<
     return [];
   }
 
-  return (data as any[]).map((item) => ({
+  return (data as DbMediaItem[]).map((item) => ({
     id: item.id,
     name: item.name,
-    media: ((item.media as any[]) ?? []).sort(
-      (a: any, b: any) => a.display_order - b.display_order
+    media: (item.media ?? []).sort(
+      (a, b) => a.display_order - b.display_order
     ),
   }));
 }
@@ -125,5 +131,5 @@ export async function getNextDisplayOrder(
 
   if (error || !data || data.length === 0) return 0;
 
-  return (data[0] as any).display_order + 1;
+  return data[0].display_order + 1;
 }

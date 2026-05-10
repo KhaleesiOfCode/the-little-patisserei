@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, Clock, MapPin, Package, ShoppingBag, Truck, DollarSign, X, Calendar } from "lucide-react";
@@ -30,13 +30,15 @@ export default function TrackPage() {
   const [error, setError] = useState(false);
 
   useEffect(() => {
-    if (!orderNumber) { setLoading(false); setError(true); return; }
+    if (!orderNumber) return;
     let cancelled = false;
     async function load() {
       const data = await getOrderByNumber(orderNumber);
       if (cancelled) return;
-      if (data) setOrder(data); else setError(true);
-      setLoading(false);
+      startTransition(() => {
+        if (data) setOrder(data); else setError(true);
+        setLoading(false);
+      });
     }
     load();
     const interval = setInterval(load, 15000);

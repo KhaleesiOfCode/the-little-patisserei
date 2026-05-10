@@ -4,16 +4,6 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "admin123";
 const SESSION_COOKIE = "admin_session";
 const SESSION_DURATION = 8 * 60 * 60;
 
-function hash(input: string): string {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) {
-    const c = input.charCodeAt(i);
-    h = ((h << 5) - h) + c;
-    h |= 0;
-  }
-  return Math.abs(h).toString(36);
-}
-
 export async function verifyPassword(password: string): Promise<boolean> {
   return password === ADMIN_PASSWORD;
 }

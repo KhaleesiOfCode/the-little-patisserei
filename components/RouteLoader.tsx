@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, startTransition } from "react";
 import { usePathname } from "next/navigation";
 import BrandLoader from "./BrandLoader";
 
@@ -10,7 +10,7 @@ export default function RouteLoader() {
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-    setLoading(true);
+    startTransition(() => setLoading(true));
 
     const timer = setTimeout(() => {
       setLoading(false);

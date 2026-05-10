@@ -3,6 +3,35 @@ import type { MenuCategory, MenuItem } from "../../types/menu";
 import { BADGE_KEYWORDS } from "../../types/menu";
 import { categories as fallbackCategories } from "../../data/products";
 
+interface DbMediaRow {
+  media_type: string;
+  url: string;
+  display_order: number;
+}
+
+interface DbPriceRow {
+  quantity_label: string;
+  price: number;
+  display_order: number;
+}
+
+interface DbMenuItemRow {
+  id: string;
+  name: string;
+  description: string | null;
+  food_type: string | null;
+  keywords: string[] | null;
+  ingredient_tags: string[] | null;
+  shelf_life: string | null;
+  is_bestseller: boolean | null;
+  is_new_launch: boolean | null;
+  is_available: boolean | null;
+  display_order: number | null;
+  category: { name: string }[] | null;
+  prices: DbPriceRow[] | null;
+  media: DbMediaRow[] | null;
+}
+
 const fallbackImages: Record<string, string[]> = {}
 for (const cat of fallbackCategories) {
   for (const item of cat.items) {
@@ -22,28 +51,28 @@ function dedupeByName(items: MenuItem[]): MenuItem[] {
   });
 }
 
-function transformRow(item: any): MenuItem {
+function transformRow(item: DbMenuItemRow): MenuItem {
   const mediaImages =
-    (item.media as any[])
-      ?.filter((m: any) => m.media_type === "image")
-      ?.sort((a: any, b: any) => a.display_order - b.display_order)
-      ?.map((m: any) => m.url) ?? [];
+    item.media
+      ?.filter((m) => m.media_type === "image")
+      ?.sort((a, b) => a.display_order - b.display_order)
+      ?.map((m) => m.url) ?? [];
 
   const staticFallback = fallbackImages[item.name?.toLowerCase().trim()] ?? [];
 
   const images = mediaImages.length > 0 && mediaImages.length >= staticFallback.length ? mediaImages : staticFallback;
 
   const video =
-    (item.media as any[])?.find((m: any) => m.media_type === "video")?.url ?? "";
+    item.media?.find((m) => m.media_type === "video")?.url ?? "";
 
   const prices =
-    ((item.prices as any[])?.sort(
-      (a: any, b: any) => a.display_order - b.display_order
-    ) ?? []).map((p: any) => ({
-      quantity_label: p.quantity_label,
-      price: Number(p.price),
-      display_order: p.display_order,
-    })) ?? [];
+    (item.prices
+      ?.sort((a, b) => a.display_order - b.display_order)
+      .map((p) => ({
+        quantity_label: p.quantity_label,
+        price: Number(p.price),
+        display_order: p.display_order,
+      })) ?? []);
 
   const keywordTags: string[] = item.keywords ?? [];
   const ingredientTags: string[] = item.ingredient_tags ?? [];
@@ -79,7 +108,7 @@ function transformRow(item: any): MenuItem {
     price: prices[0]?.price ?? 0,
     prices,
     badges: [...new Set(badgeTags as string[])],
-    category: (item.category as any)?.name ?? "Others",
+    category: item.category?.[0]?.name ?? "Others",
   };
 }
 
@@ -117,7 +146,7 @@ export async function getNewLaunches(): Promise<MenuItem[]> {
     return [];
   }
 
-  return dedupeByName((data as any[]).map(transformRow));
+  return dedupeByName((data as unknown as DbMenuItemRow[]).map(transformRow));
 }
 
 export async function getMenuCategories(): Promise<MenuCategory[]> {
@@ -136,7 +165,7 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
     return [];
   }
 
-  const products: MenuItem[] = dedupeByName((data as any[]).map(transformRow));
+  const products: MenuItem[] = dedupeByName((data as unknown as DbMenuItemRow[]).map(transformRow));
 
   const grouped = products.reduce<MenuCategory[]>((acc, product) => {
     const existing = acc.find((cat) => cat.name === product.category);

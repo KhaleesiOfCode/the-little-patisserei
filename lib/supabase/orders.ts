@@ -1,5 +1,5 @@
 import { supabase } from "./client";
-import type { Order, OrderItem, OrderFormData, OrderStatus, DeliveryMode } from "../../types/menu";
+import type { Order, OrderItem, OrderFormData, OrderStatus } from "../../types/menu";
 import { getMinDateTime } from "../../types/menu";
 
 export async function createOrder(
@@ -22,7 +22,7 @@ export async function createOrder(
   const actualFee = mode === "courier" ? deliveryFee : deliveryFee;
   const orderTotal = subtotal + actualFee + (fragileSurcharge ?? 0);
 
-  const payload: Record<string, any> = {
+  const payload: Record<string, unknown> = {
     order_number: orderNumber,
     delivery_mode: mode,
     delivery_zone: deliveryZone,
@@ -121,9 +121,12 @@ export async function getOrders(): Promise<Order[]> {
     .select("*, order_items(*)")
     .order("created_at", { ascending: false });
   if (error) return [];
-  return (data || []).map((o: any) => ({
+  interface DbOrderWithItems extends Order {
+    order_items: OrderItem[];
+  }
+  return (data || []).map((o: DbOrderWithItems) => ({
     ...o,
-    items: (o.order_items || []) as OrderItem[],
+    items: o.order_items || [],
   })) as Order[];
 }
 
@@ -170,7 +173,7 @@ export async function updateDeliveryInfo(
   id: string,
   data: { provider_name?: string; partner_phone?: string; tracking_url?: string; notes?: string }
 ): Promise<boolean> {
-  const updates: Record<string, any> = { updated_at: new Date().toISOString() };
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (data.provider_name !== undefined) updates.delivery_provider_name = data.provider_name;
   if (data.partner_phone !== undefined) updates.delivery_partner_phone = data.partner_phone;
   if (data.tracking_url !== undefined) updates.delivery_tracking_url = data.tracking_url;
@@ -185,7 +188,7 @@ export async function updateCourierInfo(
 ): Promise<boolean> {
   const order = await getOrderById(id);
   if (!order) return false;
-  const updates: Record<string, any> = { updated_at: new Date().toISOString() };
+  const updates: Record<string, unknown> = { updated_at: new Date().toISOString() };
   if (data.company !== undefined) updates.courier_company = data.company;
   if (data.tracking_number !== undefined) updates.courier_tracking_number = data.tracking_number;
   if (data.tracking_url !== undefined) updates.courier_tracking_url = data.tracking_url;
@@ -203,7 +206,7 @@ export async function updateCourierInfo(
 
 export async function requestDateChange(id: string, newDate: string, newSlot: string): Promise<boolean> {
   const { data: order } = await supabase.from("orders").select("notes, baker_notes").eq("id", id).single();
-  const existing = (order as any)?.notes || "";
+  const existing = (order as { notes?: string })?.notes || "";
   const note = `[${new Date().toISOString().slice(0, 10)}] Date change requested → ${newDate} ${newSlot ? `(${newSlot})` : ""}`;
   const updatedNotes = existing ? `${existing}\n${note}` : note;
   const { error } = await supabase
@@ -218,7 +221,7 @@ export async function requestDateChange(id: string, newDate: string, newSlot: st
 
 export async function cancelOrderByUser(id: string, reason: string): Promise<boolean> {
   const { data: order } = await supabase.from("orders").select("notes, baker_notes").eq("id", id).single();
-  const existing = (order as any)?.notes || "";
+  const existing = (order as { notes?: string })?.notes || "";
   const note = `[${new Date().toISOString().slice(0, 10)}] Cancelled by customer: ${reason}`;
   const updatedNotes = existing ? `${existing}\n${note}` : note;
   const { error } = await supabase
