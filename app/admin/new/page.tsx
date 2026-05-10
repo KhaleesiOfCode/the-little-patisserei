@@ -141,7 +141,14 @@ export default function AdminNewProductPage() {
       setCategories((prev) => [...prev, cat]);
       setCategoryId(cat.id);
       setNewCategoryName("");
-      setShowNewCategory(false);
+    }
+  }
+
+  async function handleDeleteCategory(id: string) {
+    const res = await fetch(`/api/admin/categories?id=${id}`, { method: "DELETE" });
+    if (res.ok) {
+      setCategories((prev) => prev.filter((c) => c.id !== id));
+      if (categoryId === id) setCategoryId("");
     }
   }
 
@@ -295,11 +302,26 @@ export default function AdminNewProductPage() {
                 </button>
               </div>
               {showNewCategory && (
-                <div className="mt-2 flex gap-2">
-                  <input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Category name" className="flex-1 rounded-xl border border-[#F4CFC8] bg-white px-4 py-2 text-sm outline-none focus:border-[#1D3C42]" />
-                  <button type="button" onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="rounded-xl bg-[#1D3C42] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#163136] disabled:opacity-50">
-                    Add
-                  </button>
+                <div className="mt-3 space-y-2 rounded-xl border border-[#F4CFC8] bg-[#FFF8E4] p-3">
+                  {categories.length > 0 && (
+                    <div className="space-y-1">
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#7A6262]">Existing categories</p>
+                      {categories.map((c) => (
+                        <div key={c.id} className="flex items-center justify-between rounded-lg bg-white px-3 py-2 text-sm">
+                          <span className="text-[#1D3C42]">{c.name}</span>
+                          <button type="button" onClick={() => handleDeleteCategory(c.id)} className="ml-2 rounded p-1 text-red-400 hover:bg-red-50 hover:text-red-600">
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-2 pt-1">
+                    <input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="New category name" className="flex-1 rounded-xl border border-[#F4CFC8] bg-white px-4 py-2 text-sm outline-none focus:border-[#1D3C42]" />
+                    <button type="button" onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="rounded-xl bg-[#1D3C42] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#163136] disabled:opacity-50">
+                      Add
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
