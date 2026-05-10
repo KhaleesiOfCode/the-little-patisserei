@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { Plus, Trash2, ArrowLeft, Upload } from "lucide-react";
 
 interface Category {
@@ -15,13 +15,22 @@ interface PriceRow {
   display_order: number;
 }
 
-export default function AdminNewProductPage() {
+interface ExistingMedia {
+  id: string;
+  url: string;
+  display_order: number;
+}
+
+export default function AdminEditProductPage() {
   const router = useRouter();
+  const params = useParams();
+  const id = params.id as string;
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -35,12 +44,11 @@ export default function AdminNewProductPage() {
   const [isNewLaunch, setIsNewLaunch] = useState(false);
   const [isAvailable, setIsAvailable] = useState(true);
 
-  const [prices, setPrices] = useState<PriceRow[]>([
-    { quantity_label: "", price: 0, display_order: 0 },
-  ]);
-
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [prices, setPrices] = useState<PriceRow[]>([]);
+  const [existingMedia, setExistingMedia] = useState<ExistingMedia[]>([]);
+  const [mediaToRemove, setMediaToRemove] = useState<string[]>([]);
+  const [newImageFiles, setNewImageFiles] = useState<File[]>([]);
+  const [newImagePreviews, setNewImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
   const [courierSupported, setCourierSupported] = useState(true);
@@ -49,37 +57,82 @@ export default function AdminNewProductPage() {
   const [courierCategory, setCourierCategory] = useState("");
 
   useEffect(() => {
-    fetch("/api/admin/categories")
-      .then((r) => r.json())
-      .then((data) => {
-        setCategories(Array.isArray(data) ? data : []);
-      });
-  }, []);
+    async function load() {
+      const [catRes, itemRes] = await Promise.all([
+        fetch("/api/admin/categories"),
+        fetch(`/api/admin/menu?id=${id}`),
+      ]);
+
+      const catData = await catRes.json();
+      setCategories(Array.isArray(catData) ? catData : []);
+
+      if (itemRes.ok) {
+        const item = await itemRes.json();
+        setName(item.name || "");
+        setDescription(item.description || "");
+        setFoodType(item.food_type || "veg");
+        setCategoryId(item.category_id || "");
+        setKeywords((item.keywords || []).join(", "));
+        setIngredientTags((item.ingredient_tags || []).join(", "));
+        setShelfLife(item.shelf_life || "");
+        setDisplayOrder(item.display_order || 0);
+        setIsBestseller(item.is_bestseller || false);
+        setIsNewLaunch(item.is_new_launch || false);
+        setIsAvailable(item.is_available ?? true);
+
+        setPrices(
+          (item.prices || []).map(
+            (p: { quantity_label: string; price: number; display_order: number }, i: number) => ({
+              quantity_label: p.quantity_label,
+              price: Number(p.price),
+              display_order: p.display_order ?? i,
+            })
+          )
+        );
+        if (!item.prices?.length) {
+          setPrices([{ quantity_label: "", price: 0, display_order: 0 }]);
+        }
+
+        setExistingMedia(
+          (item.media || [])
+            .filter((m: { media_type: string }) => m.media_type === "image")
+            .map((m: ExistingMedia) => ({ id: m.id, url: m.url, display_order: m.display_order }))
+        );
+
+        setCourierSupported(item.courier_supported ?? true);
+        setCourierWeight(item.courier_weight_grams ? String(item.courier_weight_grams) : "");
+        setCourierFragile(item.courier_fragile || false);
+        setCourierCategory(item.courier_category || "");
+      }
+
+      setLoading(false);
+    }
+    load();
+  }, [id]);
 
   function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
     const files = Array.from(e.target.files || []);
-    setImageFiles((prev) => [...prev, ...files]);
-    const newPreviews = files.map((f) => URL.createObjectURL(f));
-    setImagePreviews((prev) => [...prev, ...newPreviews]);
+    setNewImageFiles((prev) => [...prev, ...files]);
+    setNewImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))]);
   }
 
-  function removeImage(index: number) {
-    URL.revokeObjectURL(imagePreviews[index]);
-    setImageFiles((prev) => prev.filter((_, i) => i !== index));
-    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  function removeNewImage(index: number) {
+    URL.revokeObjectURL(newImagePreviews[index]);
+    setNewImageFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function removeExistingImage(mediaId: string) {
+    setMediaToRemove((prev) => [...prev, mediaId]);
+    setExistingMedia((prev) => prev.filter((m) => m.id !== mediaId));
   }
 
   function addPrice() {
-    setPrices((prev) => [
-      ...prev,
-      { quantity_label: "", price: 0, display_order: prev.length },
-    ]);
+    setPrices((prev) => [...prev, { quantity_label: "", price: 0, display_order: prev.length }]);
   }
 
   function updatePrice(index: number, field: keyof PriceRow, value: string | number) {
-    setPrices((prev) =>
-      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p))
-    );
+    setPrices((prev) => prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)));
   }
 
   function removePrice(index: number) {
@@ -97,8 +150,25 @@ export default function AdminNewProductPage() {
     setSaving(true);
     setNotification(null);
 
-    // First create the product with basic info
+    // Upload new images
+    const newUrls: string[] = [];
+    if (newImageFiles.length > 0) {
+      setUploading(true);
+      for (const file of newImageFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("menuItemId", id);
+        const res = await fetch("/api/admin/upload", { method: "POST", body: formData });
+        if (res.ok) {
+          const { url } = await res.json();
+          newUrls.push(url);
+        }
+      }
+      setUploading(false);
+    }
+
     const payload: Record<string, unknown> = {
+      id,
       name: name.trim(),
       description,
       food_type: foodType,
@@ -115,57 +185,31 @@ export default function AdminNewProductPage() {
       courier_fragile: courierFragile,
       courier_category: courierCategory || null,
       prices: prices.filter((p) => p.quantity_label.trim()),
+      media_to_remove: mediaToRemove,
+      image_urls: newUrls,
     };
 
     const res = await fetch("/api/admin/menu", {
-      method: "POST",
+      method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      setNotification("Failed to create product");
-      setSaving(false);
+    if (res.ok) {
+      router.push("/admin/menu");
+    } else {
+      setNotification("Failed to save changes");
       setTimeout(() => setNotification(null), 3000);
-      return;
+      setSaving(false);
     }
+  }
 
-    const product = await res.json();
-
-    // Upload images
-    if (imageFiles.length > 0) {
-      setUploading(true);
-      const urls: string[] = [];
-
-      for (const file of imageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("menuItemId", product.id);
-
-        const uploadRes = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (uploadRes.ok) {
-          const { url } = await uploadRes.json();
-          urls.push(url);
-        }
-      }
-
-      // Link images to product
-      if (urls.length > 0) {
-        await fetch("/api/admin/menu", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id: product.id, image_urls: urls }),
-        });
-      }
-
-      setUploading(false);
-    }
-
-    router.push("/admin/menu");
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#D4AF37] border-t-transparent" />
+      </div>
+    );
   }
 
   return (
@@ -181,8 +225,8 @@ export default function AdminNewProductPage() {
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-2xl font-extrabold text-[#1D3C42]">New Product</h1>
-          <p className="text-sm text-[#7A6262]">Add a new item to the menu</p>
+          <h1 className="text-2xl font-extrabold text-[#1D3C42]">Edit Product</h1>
+          <p className="text-sm text-[#7A6262]">{name}</p>
         </div>
       </div>
 
@@ -193,11 +237,11 @@ export default function AdminNewProductPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Name *</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Chocolate Truffle Cake" />
+              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Description</label>
-              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Rich chocolate sponge layered with smooth truffle cream." />
+              <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Food Type</label>
@@ -217,7 +261,7 @@ export default function AdminNewProductPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Shelf Life</label>
-              <input value={shelfLife} onChange={(e) => setShelfLife(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="3 days" />
+              <input value={shelfLife} onChange={(e) => setShelfLife(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Display Order</label>
@@ -225,11 +269,11 @@ export default function AdminNewProductPage() {
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Keywords (comma separated)</label>
-              <input value={keywords} onChange={(e) => setKeywords(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Chocolate, Truffle, Best Seller" />
+              <input value={keywords} onChange={(e) => setKeywords(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Ingredient Tags (comma separated)</label>
-              <input value={ingredientTags} onChange={(e) => setIngredientTags(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Egg and Eggless" />
+              <input value={ingredientTags} onChange={(e) => setIngredientTags(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
           </div>
 
@@ -280,10 +324,18 @@ export default function AdminNewProductPage() {
         <section className="rounded-2xl border border-[#F4CFC8] bg-white p-6">
           <h2 className="mb-4 text-base font-extrabold text-[#1D3C42]">Images</h2>
           <div className="flex flex-wrap gap-3">
-            {imagePreviews.map((src, i) => (
-              <div key={i} className="relative h-24 w-24 overflow-hidden rounded-xl border border-[#F4CFC8]">
+            {existingMedia.map((m) => (
+              <div key={m.id} className="relative h-24 w-24 overflow-hidden rounded-xl border border-[#F4CFC8]">
+                <img src={m.url} alt="" className="h-full w-full object-cover" />
+                <button type="button" onClick={() => removeExistingImage(m.id)} className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white">
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+            {newImagePreviews.map((src, i) => (
+              <div key={`new-${i}`} className="relative h-24 w-24 overflow-hidden rounded-xl border border-[#F4CFC8]">
                 <img src={src} alt="" className="h-full w-full object-cover" />
-                <button type="button" onClick={() => removeImage(i)} className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white">
+                <button type="button" onClick={() => removeNewImage(i)} className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white">
                   <Trash2 size={12} />
                 </button>
               </div>
@@ -301,11 +353,11 @@ export default function AdminNewProductPage() {
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Weight (grams)</label>
-              <input type="number" value={courierWeight} onChange={(e) => setCourierWeight(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="500" />
+              <input type="number" value={courierWeight} onChange={(e) => setCourierWeight(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Category</label>
-              <input value={courierCategory} onChange={(e) => setCourierCategory(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Cake, Cookies..." />
+              <input value={courierCategory} onChange={(e) => setCourierCategory(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
             </div>
             <div className="flex items-end gap-4 pb-3">
               <label className="flex items-center gap-2 cursor-pointer">
@@ -327,7 +379,7 @@ export default function AdminNewProductPage() {
             disabled={saving || uploading}
             className="rounded-full bg-[#1D3C42] px-10 py-4 font-bold text-white transition hover:bg-[#163136] disabled:opacity-50"
           >
-            {saving || uploading ? "Saving..." : "Create Product"}
+            {saving || uploading ? "Saving..." : "Save Changes"}
           </button>
           <button type="button" onClick={() => router.back()} className="rounded-full border border-[#F4CFC8] px-6 py-4 font-semibold text-[#7A6262] transition hover:bg-[#F4CFC8]/30">
             Cancel
