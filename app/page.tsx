@@ -205,20 +205,25 @@ export default function HomePage() {
       <ScrollReveal>
         <section className="bg-[#FFF8E4] px-5 py-12 sm:px-6 sm:py-20">
           <div className="mx-auto max-w-7xl overflow-hidden">
-            <div className="mb-10 text-center">
+            <div className="mb-12 text-center">
+              <span className="mb-3 inline-block text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">Our Creations</span>
               <h2 className="text-3xl font-extrabold text-[#1D3C42] sm:text-4xl">
                 Cakes crafted for our customers
               </h2>
-              <div className="mx-auto mt-4 h-1 w-16 rounded-full bg-[#D4AF37]" />
+              <div className="mx-auto mt-4 flex items-center justify-center gap-2">
+                <span className="h-px w-8 bg-[#D4AF37]/40" />
+                <span className="h-1.5 w-1.5 rounded-full bg-[#D4AF37]" />
+                <span className="h-px w-8 bg-[#D4AF37]/40" />
+              </div>
             </div>
 
             <div
-              className="relative overflow-hidden"
+              className="relative overflow-hidden before:pointer-events-none before:absolute before:inset-y-0 before:left-0 before:z-10 before:w-16 before:bg-gradient-to-r before:from-[#FFF8E4] before:to-transparent before:content-[''] after:pointer-events-none after:absolute after:inset-y-0 after:right-0 after:z-10 after:w-16 after:bg-gradient-to-l after:from-[#FFF8E4] after:to-transparent after:content-['']"
               onMouseEnter={() => setPaused(true)}
               onMouseLeave={() => setPaused(false)}
             >
               <motion.div
-                className="flex gap-4 sm:gap-10"
+                className="flex gap-6 sm:gap-12"
                 animate={paused ? { x: `0%` } : { x: ["0%", `${scrollPercent}%`] }}
                 transition={{
                   duration: paused ? 0.3 : 25,
@@ -229,19 +234,23 @@ export default function HomePage() {
                 {duplicatedGallery.map((item, index) => (
                   <div
                     key={`${item.name}-${index}`}
-                    className="group relative h-36 w-48 shrink-0 overflow-hidden rounded-[2rem] bg-white shadow-sm ring-1 ring-[#F4CFC8] sm:h-44 sm:w-64"
+                    className="group relative w-48 shrink-0 sm:w-64"
                   >
-                    <img
-                      src={item.img}
-                      alt={item.name}
-                      className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
-                    />
-
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
-
-                    <h3 className="absolute bottom-4 left-4 right-4 text-lg font-extrabold text-white drop-shadow">
-                      {item.name}
-                    </h3>
+                    <div className="relative overflow-hidden rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition-all duration-500 group-hover:-translate-y-1 group-hover:shadow-lg group-hover:ring-[#D4AF37]/50">
+                      <div className="aspect-[4/3] overflow-hidden rounded-xl">
+                        <img
+                          src={item.img}
+                          alt={item.name}
+                          className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                        />
+                      </div>
+                    </div>
+                    <div className="mt-3 text-center">
+                      <h3 className="text-sm font-bold text-[#1D3C42] transition-colors group-hover:text-[#D4AF37] sm:text-base">
+                        {item.name}
+                      </h3>
+                      <div className="mx-auto mt-1.5 h-0.5 w-0 rounded-full bg-[#D4AF37] transition-all duration-300 group-hover:w-8" />
+                    </div>
                   </div>
                 ))}
               </motion.div>
