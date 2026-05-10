@@ -132,10 +132,11 @@ export default function AdminNewProductPage() {
 
     const product = await res.json();
 
-    // Upload images
+      // Upload images
     if (imageFiles.length > 0) {
       setUploading(true);
       const urls: string[] = [];
+      let uploadErrors = 0;
 
       for (const file of imageFiles) {
         const formData = new FormData();
@@ -150,6 +151,8 @@ export default function AdminNewProductPage() {
         if (uploadRes.ok) {
           const { url } = await uploadRes.json();
           urls.push(url);
+        } else {
+          uploadErrors++;
         }
       }
 
@@ -163,6 +166,13 @@ export default function AdminNewProductPage() {
       }
 
       setUploading(false);
+
+      if (uploadErrors > 0) {
+        setNotification(`${uploadErrors} image(s) failed to upload. Product was created.`);
+        setTimeout(() => setNotification(null), 5000);
+        setSaving(false);
+        return;
+      }
     }
 
     router.push("/admin/menu");

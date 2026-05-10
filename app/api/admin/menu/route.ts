@@ -141,52 +141,55 @@ export async function PUT(request: Request) {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
     }
 
-    const slug = slugify(fields.name);
+    // Only update menu_item fields if any were provided
+    if (Object.keys(fields).length > 0) {
+      const slug = slugify(fields.name);
+      const { error: updateError } = await adminSupabase
+        .from("menu_items")
+        .update({
+          ...(fields.name !== undefined && { name: fields.name, slug }),
+          ...(fields.category_id !== undefined && { category_id: fields.category_id || null }),
+          ...(fields.description !== undefined && { description: fields.description || null }),
+          ...(fields.food_type !== undefined && { food_type: fields.food_type || "veg" }),
+          ...(fields.keywords !== undefined && { keywords: fields.keywords || [] }),
+          ...(fields.ingredient_tags !== undefined && { ingredient_tags: fields.ingredient_tags || [] }),
+          ...(fields.shelf_life !== undefined && { shelf_life: fields.shelf_life || null }),
+          ...(fields.is_bestseller !== undefined && { is_bestseller: fields.is_bestseller || false }),
+          ...(fields.is_new_launch !== undefined && { is_new_launch: fields.is_new_launch || false }),
+          ...(fields.is_available !== undefined && { is_available: fields.is_available ?? true }),
+          ...(fields.display_order !== undefined && { display_order: fields.display_order || 0 }),
+          ...(fields.courier_supported !== undefined && { courier_supported: fields.courier_supported ?? true }),
+          ...(fields.courier_weight_grams !== undefined && { courier_weight_grams: fields.courier_weight_grams || null }),
+          ...(fields.courier_fragile !== undefined && { courier_fragile: fields.courier_fragile || false }),
+          ...(fields.courier_category !== undefined && { courier_category: fields.courier_category || null }),
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id);
 
-    const { error: updateError } = await adminSupabase
-      .from("menu_items")
-      .update({
-        category_id: fields.category_id || null,
-        name: fields.name,
-        slug,
-        description: fields.description || null,
-        food_type: fields.food_type || "veg",
-        keywords: fields.keywords || [],
-        ingredient_tags: fields.ingredient_tags || [],
-        shelf_life: fields.shelf_life || null,
-        is_bestseller: fields.is_bestseller || false,
-        is_new_launch: fields.is_new_launch || false,
-        is_available: fields.is_available ?? true,
-        display_order: fields.display_order || 0,
-        courier_supported: fields.courier_supported ?? true,
-        courier_weight_grams: fields.courier_weight_grams || null,
-        courier_fragile: fields.courier_fragile || false,
-        courier_category: fields.courier_category || null,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", id);
-
-    if (updateError) {
-      return NextResponse.json({ error: updateError.message }, { status: 500 });
+      if (updateError) {
+        return NextResponse.json({ error: updateError.message }, { status: 500 });
+      }
     }
 
-    // Replace prices: delete all, re-insert
-    await adminSupabase.from("menu_item_prices").delete().eq("menu_item_id", id);
+    // Replace prices only if prices field was explicitly provided
+    if (prices !== undefined) {
+      await adminSupabase.from("menu_item_prices").delete().eq("menu_item_id", id);
 
-    if (prices && Array.isArray(prices) && prices.length > 0) {
-      const { error: pricesError } = await adminSupabase
-        .from("menu_item_prices")
-        .insert(
-          prices.map((p: { quantity_label: string; price: number; display_order: number }, i: number) => ({
-            menu_item_id: id,
-            quantity_label: p.quantity_label,
-            price: p.price,
-            display_order: p.display_order ?? i,
-          }))
-        );
+      if (Array.isArray(prices) && prices.length > 0) {
+        const { error: pricesError } = await adminSupabase
+          .from("menu_item_prices")
+          .insert(
+            prices.map((p: { quantity_label: string; price: number; display_order: number }, i: number) => ({
+              menu_item_id: id,
+              quantity_label: p.quantity_label,
+              price: p.price,
+              display_order: p.display_order ?? i,
+            }))
+          );
 
-      if (pricesError) {
-        console.error("Failed to insert prices:", pricesError);
+        if (pricesError) {
+          console.error("Failed to insert prices:", pricesError);
+        }
       }
     }
 

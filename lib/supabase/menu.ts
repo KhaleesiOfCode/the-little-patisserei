@@ -60,7 +60,7 @@ function transformRow(item: DbMenuItemRow): MenuItem {
 
   const staticFallback = fallbackImages[item.name?.toLowerCase().trim()] ?? [];
 
-  const images = mediaImages.length > 0 && mediaImages.length >= staticFallback.length ? mediaImages : staticFallback;
+  const images = mediaImages.length > 0 ? mediaImages : staticFallback;
 
   const video =
     item.media?.find((m) => m.media_type === "video")?.url ?? "";
