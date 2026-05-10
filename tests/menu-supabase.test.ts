@@ -27,7 +27,7 @@ function makeDbItem(overrides: Record<string, unknown> = {}) {
     is_new_launch: true,
     is_available: true,
     display_order: 1,
-    category: [{ name: "Cakes" }],
+    category: { name: "Cakes" },
     prices: [
       { quantity_label: "500g", price: 650, display_order: 1 },
       { quantity_label: "1kg", price: 1200, display_order: 2 },
@@ -91,9 +91,9 @@ describe("getMenuCategories", () => {
 
   it("groups items by category", async () => {
     const mockData = [
-      makeDbItem({ id: "1", name: "Cake A", category: [{ name: "Cakes" }], is_new_launch: false }),
-      makeDbItem({ id: "2", name: "Cake B", category: [{ name: "Cakes" }], is_new_launch: false }),
-      makeDbItem({ id: "3", name: "Pastry A", category: [{ name: "Pastries" }], is_new_launch: false }),
+      makeDbItem({ id: "1", name: "Cake A", category: { name: "Cakes" }, is_new_launch: false }),
+      makeDbItem({ id: "2", name: "Cake B", category: { name: "Cakes" }, is_new_launch: false }),
+      makeDbItem({ id: "3", name: "Pastry A", category: { name: "Pastries" }, is_new_launch: false }),
     ];
     chain.order.mockResolvedValue({ data: mockData, error: null });
 

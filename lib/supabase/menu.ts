@@ -27,7 +27,7 @@ interface DbMenuItemRow {
   is_new_launch: boolean | null;
   is_available: boolean | null;
   display_order: number | null;
-  category: { name: string }[] | null;
+  category: { name: string } | null;
   prices: DbPriceRow[] | null;
   media: DbMediaRow[] | null;
 }
@@ -108,7 +108,7 @@ function transformRow(item: DbMenuItemRow): MenuItem {
     price: prices[0]?.price ?? 0,
     prices,
     badges: [...new Set(badgeTags as string[])],
-    category: item.category?.[0]?.name ?? "Others",
+    category: item.category?.name ?? "Others",
   };
 }
 
