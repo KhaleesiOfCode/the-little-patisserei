@@ -90,82 +90,84 @@ export default function AdminMenuPage() {
 
       {items.length === 0 ? (
         <div className="rounded-2xl border-2 border-dashed border-[#D4AF37]/30 p-16 text-center">
-          <p className="text-lg font-semibold text-[#7A6262]">No products yet</p>
-          <p className="mt-1 text-sm text-[#7A6262]/70">Create your first product to get started.</p>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#FFF0DC]">
+            <Plus size={28} className="text-[#D4AF37]" />
+          </div>
+          <p className="text-lg font-semibold text-[#1D3C42]">No products yet</p>
+          <p className="mt-1 text-sm text-[#7A6262]">Create your first product to get started.</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-2xl border border-[#F4CFC8]">
-          <table className="w-full text-left text-sm">
-            <thead className="border-b border-[#F4CFC8] bg-[#FFF0DC]">
-              <tr>
-                <th className="px-5 py-4 font-extrabold text-[#1D3C42]">Product</th>
-                <th className="px-5 py-4 font-extrabold text-[#1D3C42] hidden md:table-cell">Category</th>
-                <th className="px-5 py-4 font-extrabold text-[#1D3C42] hidden sm:table-cell">Price</th>
-                <th className="px-5 py-4 font-extrabold text-[#1D3C42] hidden lg:table-cell">Order</th>
-                <th className="px-5 py-4 font-extrabold text-[#1D3C42]">Status</th>
-                <th className="px-5 py-4" />
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-[#F4CFC8]">
-              {items.map((item) => (
-                <tr key={item.id} className="hover:bg-white/60 transition">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      {thumb(item) ? (
-                        <img src={thumb(item)!} alt="" className="h-10 w-10 rounded-lg object-cover" />
-                      ) : (
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#F4CFC8] text-xs text-[#7A6262]">
-                          No img
-                        </div>
-                      )}
-                      <div>
-                        <p className="font-semibold text-[#1D3C42]">{item.name}</p>
-                        <p className="text-xs text-[#7A6262]">{item.food_type === "veg" ? "🟢 Veg" : "🔴 Non-Veg"}</p>
-                      </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+          {items.map((item) => (
+            <div key={item.id} className="group rounded-2xl border border-[#F4CFC8] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#D4AF37]/40 hover:shadow-md">
+              <div className="flex items-start gap-4">
+                <div className="shrink-0">
+                  {thumb(item) ? (
+                    <div className="h-16 w-16 overflow-hidden rounded-xl">
+                      <img src={thumb(item)!} alt="" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110" />
                     </div>
-                  </td>
-                  <td className="px-5 py-4 text-[#7A6262] hidden md:table-cell">{catName(item)}</td>
-                  <td className="px-5 py-4 text-[#7A6262] hidden sm:table-cell">
-                    {item.prices?.length
-                      ? `₹${Math.min(...item.prices.map((p) => p.price))}+`
-                      : "—"}
-                  </td>
-                  <td className="px-5 py-4 text-[#7A6262] hidden lg:table-cell">{item.display_order}</td>
-                  <td className="px-5 py-4">
-                    <span className={`inline-block rounded-full px-3 py-1 text-xs font-bold ${item.is_available ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
+                  ) : (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-[#F4CFC8] text-xs text-[#7A6262]">
+                      No img
+                    </div>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <p className="font-bold text-[#1D3C42]">{item.name}</p>
+                      <p className="mt-0.5 text-xs text-[#7A6262]">{catName(item)}</p>
+                    </div>
+                    <div className="flex shrink-0 gap-1">
+                      <Link
+                        href={`/admin/menu/${item.id}`}
+                        className="rounded-lg p-1.5 text-[#7A6262] transition hover:bg-[#F4CFC8]/40 hover:text-[#1D3C42]"
+                      >
+                        <Pencil size={14} />
+                      </Link>
+                      <button
+                        onClick={() => setDeleteId(item.id)}
+                        className="rounded-lg p-1.5 text-[#7A6262] transition hover:bg-red-50 hover:text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${item.is_available ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700"}`}>
+                      <span className={`h-1.5 w-1.5 rounded-full ${item.is_available ? "bg-green-500" : "bg-red-500"}`} />
                       {item.is_available ? "Active" : "Hidden"}
                     </span>
                     {item.is_new_launch && (
-                      <span className="ml-1 inline-block rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-[10px] font-bold text-amber-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-amber-500" />
                         NEW
                       </span>
                     )}
                     {item.is_bestseller && (
-                      <span className="ml-1 inline-block rounded-full bg-blue-100 px-3 py-1 text-xs font-bold text-blue-700">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 px-2.5 py-0.5 text-[10px] font-bold text-blue-700">
+                        <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
                         BEST
                       </span>
                     )}
-                  </td>
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-2">
-                      <Link
-                        href={`/admin/menu/${item.id}`}
-                        className="rounded-lg p-2 text-[#7A6262] transition hover:bg-[#F4CFC8]/40 hover:text-[#1D3C42]"
-                      >
-                        <Pencil size={16} />
-                      </Link>
-                      <button
-                        onClick={() => setDeleteId(item.id)}
-                        className="rounded-lg p-2 text-[#7A6262] transition hover:bg-red-50 hover:text-red-500"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                    {item.food_type === "veg" ? (
+                      <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-bold text-emerald-700">VEG</span>
+                    ) : (
+                      <span className="rounded-full bg-red-50 px-2 py-0.5 text-[10px] font-bold text-red-700">NON-VEG</span>
+                    )}
+                  </div>
+                  <div className="mt-2 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-[#1D3C42]">
+                      {item.prices?.length
+                        ? `₹${Math.min(...item.prices.map((p) => p.price))}${item.prices.length > 1 ? "+" : ""}`
+                        : "—"}
+                    </span>
+                    <span className="text-[#7A6262]">#{item.display_order}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

@@ -161,26 +161,32 @@ export default function AdminOrdersPage() {
           </div>
           <div className="flex items-center gap-2">
             <Link href="/" className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-semibold text-white">View site</Link>
-            <button onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }} className="rounded-full border border-[#F4CFC8] bg-white px-4 py-2 text-xs font-semibold text-[#7A6262] hover:text-red-500">Logout</button>
+            {/* <button onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }} className="rounded-full border border-[#F4CFC8] bg-white px-4 py-2 text-xs font-semibold text-[#7A6262] hover:text-red-500">Logout</button> */}
           </div>
         </div>
       </header>
 
       <section className="mx-auto max-w-7xl px-5 py-8">
         <div className="mb-6 flex flex-wrap gap-2">
-          {FILTER_TABS.map((t) => (
-            <button key={t.key} onClick={() => setTab(t.key)}
-              className={`relative rounded-full px-4 py-2 text-xs font-bold transition ${
-                tab === t.key ? "bg-[#1D3C42] text-white" : "bg-white text-[#7A6262] ring-1 ring-[#F4CFC8] hover:bg-[#FFF8E4]"
-              }`}>
-              {t.label}
-              {t.key === "new" && orders.filter((o) => o.status === "order_received").length > 0 && (
-                <span className="absolute -right-1.5 -top-1.5 grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
-                  {orders.filter((o) => o.status === "order_received").length}
-                </span>
-              )}
-            </button>
-          ))}
+          {FILTER_TABS.map((t) => {
+            const count = t.key === "new" ? orders.filter((o) => o.status === "order_received").length : 0;
+            return (
+              <button key={t.key} onClick={() => setTab(t.key)}
+                className={`relative inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-bold shadow-sm transition-all ${
+                  tab === t.key ? "bg-[#1D3C42] text-white shadow-md" : "bg-white text-[#7A6262] ring-1 ring-[#F4CFC8] hover:bg-[#FFF8E4] hover:shadow-sm"
+                }`}>
+                {t.key === "new" && count > 0 && (
+                  <span className="h-2 w-2 rounded-full bg-red-500" />
+                )}
+                {t.label}
+                {count > 0 && (
+                  <span className="grid h-4 min-w-4 place-items-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white">
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
 
         {loading ? (
@@ -192,17 +198,22 @@ export default function AdminOrdersPage() {
             {filtered.map((order) => {
               const nextStatuses = getNextStatuses(order.status as OrderStatus, order.delivery_mode);
               return (
-                <div key={order.id} className={`rounded-[2rem] bg-white p-6 shadow-sm ring-1 transition hover:shadow-md ${
+                <div key={order.id} className={`rounded-[2rem] bg-white p-6 shadow-sm ring-1 transition-all hover:-translate-y-0.5 hover:shadow-lg ${
                   order.status === "order_received" ? "ring-2 ring-amber-300" : "ring-[#F4CFC8]"
                 }`}>
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-3">
                         <span className="text-xl font-extrabold text-[#1D3C42]">{order.order_number}</span>
-                        <span className={`rounded-full px-4 py-1 text-xs font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-bold ring-1 ${STATUS_COLORS[order.status] || ""}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${
+                            order.status === "order_received" ? "bg-amber-500" :
+                            order.status === "cancelled" ? "bg-red-500" :
+                            ["delivered", "picked_up", "refunded"].includes(order.status) ? "bg-green-500" : "bg-blue-500"
+                          }`} />
                           {ORDER_STATUS_LABELS[order.status as OrderStatus] || order.status}
                         </span>
-                        <span className={`rounded-full px-4 py-1 text-xs font-bold ring-1 ${
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-4 py-1 text-xs font-bold ring-1 ${
                           order.delivery_mode === "pickup" ? "bg-green-100 text-green-800 ring-green-300" :
                           order.delivery_mode === "courier" ? "bg-orange-100 text-orange-800 ring-orange-300" :
                           "bg-blue-100 text-blue-800 ring-blue-300"
