@@ -17,6 +17,10 @@ import {
   validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
 
+function isOrderWindowOpen(): boolean {
+  return true
+}
+
 export default function CartPage() {
   const router = useRouter();
   const { cart, updateQty, removeFromCart, clearCart, total } = useCart();
@@ -24,9 +28,15 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paid, setPaid] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+  const [orderWindowOpen, setOrderWindowOpen] = useState(isOrderWindowOpen());
   const [showCourierDetails, setShowCourierDetails] = useState(false);
   const [sameAsDeliveryAddress, setSameAsDeliveryAddress] = useState(true);
   const [awaitingSubMode, setAwaitingSubMode] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => setOrderWindowOpen(isOrderWindowOpen()), 60000)
+    return () => clearInterval(interval)
+  }, [])
 
   const [mode, setMode] = useState<DeliveryMode | null>(null);
   const [form, setForm] = useState<OrderFormData>({
@@ -76,6 +86,14 @@ export default function CartPage() {
   }, [effectiveMode, form.state, form.district, cart])
 
   const hasNonCourierItems = effectiveMode === "courier" && cart.some((item) => item.courier_supported === false)
+  const hasNonBrownieItems = effectiveMode === "courier" && cart.some((item) => item.category !== "Brownies")
+  const courierDisabled = hasNonCourierItems || hasNonBrownieItems
+
+  const courierDeliveryEstimate = useMemo(() => {
+    if (effectiveMode !== "courier" || !form.state) return ""
+    if (form.state === "Tamil Nadu") return "Estimated delivery: 1 day"
+    return "Estimated delivery: 2-3 days"
+  }, [effectiveMode, form.state])
 
   const courierCharge = courierCalc?.courier_charge ?? 0
   const fragileSurcharge = courierCalc?.fragile_surcharge ?? 0
@@ -221,10 +239,11 @@ export default function CartPage() {
 
   const canSubmit = (() => {
     if (!effectiveMode) return false;
+    if (!orderWindowOpen) return false;
     if (!form.name || !validatePhone(form.phone) || !emailValid) return false;
     if (effectiveMode === "pickup") return form.pickupDate !== "" && emailValid;
     if (effectiveMode === "courier") {
-      if (hasNonCourierItems) return false
+      if (courierDisabled) return false
       if (courierCalc?.courier_fee_status === "manual_confirmation" || !courierCalc) return false
       return form.addressLine1 && form.city && form.district && form.pincode &&
         validatePincode(form.pincode) &&
@@ -240,6 +259,25 @@ export default function CartPage() {
     }
     return false;
   })();
+
+  if (!orderWindowOpen) {
+    return (
+      <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
+        <section className="mx-auto flex min-h-[60vh] max-w-lg flex-col items-center justify-center px-5 text-center">
+          <svg viewBox="0 0 120 80" className="mx-auto h-24 w-32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
+            <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
+            <circle cx="60" cy="12" r="3" fill="white"/>
+            <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
+            <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+          </svg>
+          <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">Store is currently closed</h1>
+          <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders tomorrow at 8:00 AM.</p>
+          <Link href="/" className="mt-6 inline-block rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Back to Home</Link>
+        </section>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
@@ -297,12 +335,12 @@ export default function CartPage() {
               <div className="mt-6 rounded-2xl bg-[#FFF8E4] p-4">
                 <div className="flex items-center gap-2 text-sm font-semibold text-[#7A6262]">
                   <FileText size={16} />
-                  <span>Add a note <span className="font-normal text-[#7A6262]/60">(optional)</span></span>
+                  <span>Write a short message / Add notes <span className="font-normal text-[#7A6262]/60">(optional)</span></span>
                 </div>
                 <textarea
                   value={form.instructions}
                   onChange={(e) => update("instructions", e.target.value)}
-                  placeholder="Any special instructions..."
+                  placeholder="Write a short message / Add notes..."
                   className="mt-3 w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm text-[#3A2A2A] outline-none placeholder:text-[#7A6262] focus:border-[#1D3C42]"
                 />
               </div>
@@ -321,7 +359,7 @@ export default function CartPage() {
                   <button onClick={() => startCheckout("local_delivery")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Delivery</h3>
-                    <p className="mt-1 text-sm text-[#7A6262]">Chennai or courier</p>
+                    <p className="mt-1 text-sm text-[#7A6262]">Within Chennai or courier</p>
                   </button>
                 </div>
               </div>
@@ -334,13 +372,13 @@ export default function CartPage() {
                 <div className="mt-6 grid gap-4 sm:grid-cols-2">
                   <button onClick={() => selectSubMode("local_delivery")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto text-[#D4AF37]"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
-                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Chennai Local</h3>
+                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Within Chennai</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Delivered within Chennai</p>
                   </button>
-                  <button onClick={() => selectSubMode("courier")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
+                  <button onClick={() => selectSubMode("courier")} disabled={cart.some((item) => item.category !== "Brownies")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
-                    <p className="mt-1 text-sm text-[#7A6262]">Courier across South India</p>
+                    <p className="mt-1 text-sm text-[#7A6262]">Courier — Brownies only</p>
                   </button>
                 </div>
                 <button onClick={() => { setAwaitingSubMode(false); setShowCheckout(false); }} className="mt-4 text-xs font-bold text-[#D4AF37] underline">Back</button>
@@ -406,8 +444,8 @@ export default function CartPage() {
                         : "bg-green-50 text-green-800 ring-green-200"
                     }`}>
                       {effectiveMode === "courier" ? (
-                        <><AlertTriangle size={16} className="mr-1 inline" /> Courier delivery — minimum 48 hours.</>
-                      ) : "Chennai local delivery — minimum 24 hours."}
+                        <><AlertTriangle size={16} className="mr-1 inline" /> Prep Time — minimum 24 hours. {courierDeliveryEstimate}</>
+                      ) : "Within Chennai — minimum 24 hours."}
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
@@ -509,7 +547,7 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Preferred delivery date</label>
                         <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({effectiveMode === "courier" ? "48 hrs prep" : "24 hrs prep"})</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}                         (24 hrs prep)</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Delivery slot</label>
@@ -604,6 +642,7 @@ export default function CartPage() {
                     </div>
                   )}
                   <p className="mt-2 text-xs text-orange-600/70">{getCourierMessage(courierCalc)}</p>
+                  {courierDeliveryEstimate && <p className="mt-1 text-xs font-semibold text-orange-700">{courierDeliveryEstimate}</p>}
                 </div>
               )}
               {effectiveMode === "courier" && courierCalc && !courierCalc.courier_charge && (
@@ -611,9 +650,9 @@ export default function CartPage() {
                   <p className="text-sm font-semibold text-amber-700">{courierCalc.message}</p>
                 </div>
               )}
-              {effectiveMode === "courier" && hasNonCourierItems && (
+              {effectiveMode === "courier" && hasNonBrownieItems && (
                 <div className="rounded-2xl bg-red-50 p-4 text-center ring-1 ring-red-200">
-                  <p className="text-sm font-semibold text-red-600">Some items are not suitable for courier. Choose pickup or remove them.</p>
+                  <p className="text-sm font-semibold text-red-600">Courier is available only for Brownies. Choose pickup or remove non-brownie items.</p>
                 </div>
               )}
               <div className="mt-5 border-t border-[#F4CFC8] pt-5">
@@ -628,6 +667,12 @@ export default function CartPage() {
                   <p className="mt-1 text-right text-xs text-[#7A6262]">incl. courier charge</p>
                 )}
               </div>
+
+              {!orderWindowOpen && (
+                <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
+                  <p className="text-sm font-semibold text-amber-700">Orders are currently closed (7 AM - 8 PM IST). Please come back during business hours.</p>
+                </div>
+              )}
 
               <div className="mt-6 space-y-3">
                 {!showCheckout ? (
@@ -675,7 +720,7 @@ function TruckIcon({ size, ...props }: { size?: number; className?: string }) { 
 function CourierFields({ form, update, setForm, touched, blur }: { form: OrderFormData; update: (field: keyof OrderFormData, value: string) => void; setForm: (cb: (prev: OrderFormData) => OrderFormData) => void; touched: Record<string, boolean>; blur: (field: string) => void }) {
   return (
     <div className="rounded-2xl border border-orange-200 bg-orange-50 p-5">
-      <p className="text-sm font-semibold text-orange-800"><AlertTriangle size={16} className="mr-1 inline" /> Courier orders require at least 48 hours. Delicate products may need special handling.</p>
+      <p className="text-sm font-semibold text-orange-800"><AlertTriangle size={16} className="mr-1 inline" /> Courier is available only for Brownies. Orders require at least 24 hours. Delicate products may need special handling.</p>
       <div className="mt-5 grid gap-4 border-t border-orange-200 pt-5">
         <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-orange-700">Receiver details</h3>
         <div className="grid gap-4 sm:grid-cols-2">

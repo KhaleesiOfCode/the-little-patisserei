@@ -27,6 +27,20 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
   const basePrice = item.prices?.[0]?.price ?? item.price;
   const cartId = `${item.id}-${item.prices?.[0]?.quantity_label ?? "default"}-default`;
 
+  const [orderClosedPopup, setOrderClosedPopup] = useState(false);
+
+  function isOrderWindowOpen(): boolean {
+    return true
+  }
+
+  const handleAdd = () => {
+    if (!isOrderWindowOpen()) {
+      setOrderClosedPopup(true);
+      return;
+    }
+    if (!inCart) addToCart(cartItem);
+  };
+
   const cartItem: CartItem = {
     ...item,
     id: cartId,
@@ -75,9 +89,7 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
 
             <motion.button
               whileTap={{ scale: 0.92 }}
-              onClick={() => {
-                if (!inCart) addToCart(cartItem);
-              }}
+              onClick={handleAdd}
               className={`rounded-full px-5 py-2 text-xs font-bold transition ${
                 inCart
                   ? "bg-[#D4AF37]/20 text-[#1D3C42] cursor-default"
@@ -89,6 +101,23 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
           </div>
         </div>
       </div>
+
+      {orderClosedPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setOrderClosedPopup(false)}>
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <svg viewBox="0 0 120 80" className="mx-auto h-20 w-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
+              <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
+              <circle cx="60" cy="12" r="3" fill="white"/>
+              <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
+              <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+            </svg>
+            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
+            <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
+            <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }

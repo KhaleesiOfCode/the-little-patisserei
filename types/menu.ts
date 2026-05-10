@@ -112,8 +112,7 @@ export function estimateDeliveryFee(
 }
 
 export function getMinHours(mode: DeliveryMode): number {
-  if (mode === "pickup" || mode === "local_delivery") return 24
-  return 48
+  return 24
 }
 
 export function getMinDateTime(mode: DeliveryMode): Date {
@@ -169,10 +168,9 @@ export function getStatusFlow(mode: DeliveryMode | null | undefined): OrderStatu
 export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null | undefined): OrderStatus[] {
   if (mode === "pickup") {
     const m: Record<string, OrderStatus[]> = {
-      order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
-      baker_confirmed: ["ready_for_pickup", "date_change_requested", "cancelled"],
+      order_received: ["baker_confirmed", "cancelled"],
+      baker_confirmed: ["ready_for_pickup", "cancelled"],
       ready_for_pickup: ["picked_up"],
-      date_change_requested: ["baker_confirmed", "cancelled"],
       cancelled: ["refund_initiated"],
       refund_initiated: ["refunded"],
     }
@@ -180,20 +178,18 @@ export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null 
   }
   if (mode === "courier") {
     const m: Record<string, OrderStatus[]> = {
-      order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
-      baker_confirmed: ["courier_booked", "date_change_requested", "cancelled"],
+      order_received: ["baker_confirmed", "cancelled"],
+      baker_confirmed: ["courier_booked", "cancelled"],
       courier_booked: ["delivered"],
-      date_change_requested: ["baker_confirmed", "cancelled"],
       cancelled: ["refund_initiated"],
       refund_initiated: ["refunded"],
     }
     return m[current] || []
   }
   const m: Record<string, OrderStatus[]> = {
-    order_received: ["baker_confirmed", "date_change_requested", "cancelled"],
-    baker_confirmed: ["out_for_delivery", "date_change_requested", "cancelled"],
+    order_received: ["baker_confirmed", "cancelled"],
+    baker_confirmed: ["out_for_delivery", "cancelled"],
     out_for_delivery: ["delivered"],
-    date_change_requested: ["baker_confirmed", "cancelled"],
     cancelled: ["refund_initiated"],
     refund_initiated: ["refunded"],
   }

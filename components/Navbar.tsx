@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "./CartContext";
+
+function isOrderWindowOpen(): boolean {
+  return true
+}
 
 export default function Navbar() {
   const { cart } = useCart();
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [storeOpen, setStoreOpen] = useState(isOrderWindowOpen());
+
+  useEffect(() => {
+    const interval = setInterval(() => setStoreOpen(isOrderWindowOpen()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header className="fixed inset-x-0 top-0 z-50 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 backdrop-blur-md">
@@ -31,34 +41,48 @@ export default function Navbar() {
           <Link href="/about">About</Link>
           <Link href="/contact">Contact</Link>
 
-          <Link
-            href="/cart"
-            className="relative rounded-full bg-[#1D3C42] px-5 py-2.5 text-white shadow-sm transition hover:bg-[#163136]"
-          >
-            <ShoppingBag size={16} className="mr-1 inline" />
-            Cart
+          {storeOpen ? (
+            <Link
+              href="/cart"
+              className="relative rounded-full bg-[#1D3C42] px-5 py-2.5 text-white shadow-sm transition hover:bg-[#163136]"
+            >
+              <ShoppingBag size={16} className="mr-1 inline" />
+              Cart
 
-            {cartCount > 0 && (
-              <span className="absolute -right-2 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-[#D4AF37] px-1.5 text-xs font-bold text-[#1D3C42] ring-2 ring-[#FFF8E4]">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-2 grid h-6 min-w-6 place-items-center rounded-full bg-[#D4AF37] px-1.5 text-xs font-bold text-[#1D3C42] ring-2 ring-[#FFF8E4]">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          ) : (
+            <span className="relative cursor-not-allowed rounded-full bg-[#1D3C42]/50 px-5 py-2.5 text-white/60 shadow-sm">
+              <ShoppingBag size={16} className="mr-1 inline" />
+              Cart
+            </span>
+          )}
         </div>
 
         <div className="flex items-center gap-2 md:hidden">
-          <Link
-            href="/cart"
-            className="relative rounded-full bg-[#1D3C42] px-4 py-2 text-sm font-bold text-white shadow-sm"
-          >
-            <ShoppingBag size={16} className="mr-1 inline" />
-            Cart
-            {cartCount > 0 && (
-              <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-[#D4AF37] px-1 text-xs font-bold text-[#1D3C42] ring-2 ring-[#FFF8E4]">
-                {cartCount}
-              </span>
-            )}
-          </Link>
+          {storeOpen ? (
+            <Link
+              href="/cart"
+              className="relative rounded-full bg-[#1D3C42] px-4 py-2 text-sm font-bold text-white shadow-sm"
+            >
+              <ShoppingBag size={16} className="mr-1 inline" />
+              Cart
+              {cartCount > 0 && (
+                <span className="absolute -right-2 -top-2 grid h-5 min-w-5 place-items-center rounded-full bg-[#D4AF37] px-1 text-xs font-bold text-[#1D3C42] ring-2 ring-[#FFF8E4]">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+          ) : (
+            <span className="relative cursor-not-allowed rounded-full bg-[#1D3C42]/50 px-4 py-2 text-sm font-bold text-white/60 shadow-sm">
+              <ShoppingBag size={16} className="mr-1 inline" />
+              Cart
+            </span>
+          )}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
             className="grid h-10 w-10 place-items-center rounded-full text-[#1D3C42] hover:bg-[#FADCD4]"

@@ -42,6 +42,23 @@ export default function ProductCard({ product }: { product: MenuItem }) {
   const [cakeOccasion, setCakeOccasion] = useState("");
   const [cakeDesign, setCakeDesign] = useState("");
   const [customizationOpen, setCustomizationOpen] = useState(false);
+  const [orderClosedPopup, setOrderClosedPopup] = useState(false);
+
+  function isOrderWindowOpen(): boolean {
+    return true
+  }
+
+  const handleAddToCart = () => {
+    if (!isOrderWindowOpen()) {
+      setOrderClosedPopup(true);
+      return;
+    }
+    if (isCelebrationCake) {
+      setCustomizationOpen(true);
+    } else {
+      addToCart(cartProduct);
+    }
+  };
 
   const baseCartId = `${product.id}-${selectedPrice.quantity_label}-${
     eggOption || "default"
@@ -174,7 +191,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                     : "bg-green-100 text-green-700"
                 }`}
               >
-                {product.type === "nonveg" ? "Non-Veg" : "Veg"}
+                {product.type === "nonveg" ? "Egg-based" : "Egg-free"}
               </span>
             </div>
 
@@ -251,28 +268,25 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 sm:mt-4 sm:gap-3">
+          <div className="mt-2 flex flex-wrap items-center justify-end gap-2 sm:mt-4 sm:gap-3">
             {prices.length > 1 ? (
-              <div className="relative min-w-0 sm:min-w-[220px]" ref={dropdownRef}>
+              <div className="relative" ref={dropdownRef}>
                 <button
                   type="button"
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex w-full items-center justify-between rounded-full border border-[#D4AF37] bg-[#FFF8E4] px-3 py-1.5 text-xs font-extrabold text-[#1D3C42] shadow-sm transition hover:bg-white sm:px-5 sm:py-3 sm:text-sm"
+                  className="flex items-center gap-1 rounded-full border border-[#D4AF37]/40 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
                 >
-                  <span className="truncate">
-                    {selectedPrice.quantity_label} · ₹
-                    {Number(selectedPrice.price)}
-                  </span>
+                  <span>{selectedPrice.quantity_label}</span>
                   <ChevronDown
-                    size={14}
-                    className={`shrink-0 transition sm:size-[18px] ${
+                    size={12}
+                    className={`shrink-0 transition sm:size-[14px] ${
                       isDropdownOpen ? "rotate-180" : ""
                     }`}
                   />
                 </button>
 
                 {isDropdownOpen && (
-                  <div className="absolute bottom-full left-0 z-30 mb-2 w-full overflow-hidden rounded-2xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
+                  <div className="absolute bottom-full right-0 z-30 mb-2 w-44 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
                     {prices.map((p) => {
                       const isSelected =
                         selectedPrice.quantity_label === p.quantity_label;
@@ -285,7 +299,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                             setSelectedPrice(p);
                             setIsDropdownOpen(false);
                           }}
-                          className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-bold transition ${
+                          className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition ${
                             isSelected
                               ? "bg-[#1D3C42] text-white"
                               : "text-[#1D3C42] hover:bg-[#FFF8E4]"
@@ -300,12 +314,9 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 )}
               </div>
             ) : prices.length === 1 ? (
-              <div className="flex min-w-0 items-center rounded-full border border-[#D4AF37] bg-[#FFF8E4] px-3 py-1.5 text-xs font-extrabold text-[#1D3C42] sm:min-w-[220px] sm:px-5 sm:py-3 sm:text-sm">
-                <span className="truncate">
-                  {selectedPrice.quantity_label} · ₹
-                  {Number(selectedPrice.price)}
-                </span>
-              </div>
+              <span className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
+                {selectedPrice.quantity_label}
+              </span>
             ) : null}
 
             <div className="flex items-center gap-2 sm:gap-3">
@@ -316,13 +327,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               {!itemInCart ? (
                 <motion.button
                   whileTap={{ scale: 0.92 }}
-                  onClick={() => {
-                    if (isCelebrationCake) {
-                      setCustomizationOpen(true);
-                    } else {
-                      addToCart(cartProduct);
-                    }
-                  }}
+                  onClick={handleAddToCart}
                   className="rounded-full bg-[#1D3C42] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3 sm:text-sm"
                 >
                   {isCelebrationCake ? "Customize" : "Add"}
@@ -419,7 +424,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                       : "bg-green-100 text-green-700"
                   }`}
                 >
-                  {product.type === "nonveg" ? "Non-Veg" : "Veg"}
+                  {product.type === "nonveg" ? "Egg-based" : "Egg-free"}
                 </span>
 
                 {product.badges?.map((badge) => (
@@ -488,6 +493,23 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 </p>
               )}
             </div>
+          </div>
+        </div>
+      )}
+
+      {orderClosedPopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setOrderClosedPopup(false)}>
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <svg viewBox="0 0 120 80" className="mx-auto h-20 w-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
+              <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
+              <circle cx="60" cy="12" r="3" fill="white"/>
+              <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
+              <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+            </svg>
+            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
+            <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
+            <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
           </div>
         </div>
       )}

@@ -68,6 +68,29 @@ export default function AboutPage() {
             </div>
           </div>
 
+          <div className="mx-auto mt-20 max-w-5xl">
+            <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-1.jpg" alt="Chocolate Truffle Cake" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-2.jpg" alt="Mango Cream Cake" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-3.jpg" alt="Red Velvet Delight" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-4.jpg" alt="Birthday Special Cake" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-5.jpg" alt="Cupcake Box" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+              <div className="overflow-hidden rounded-2xl shadow-md ring-1 ring-[#F4CFC8]">
+                <img src="/gallery/cake-6.jpg" alt="Anniversary Cake" className="h-full w-full object-cover transition duration-500 hover:scale-105" />
+              </div>
+            </div>
+          </div>
+
           <div className="mx-auto mt-20 max-w-4xl">
             <div className="text-center">
               <div className="mx-auto h-1 w-12 rounded-full bg-[#D4AF37]/60" />

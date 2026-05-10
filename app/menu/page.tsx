@@ -22,7 +22,18 @@ export default function MenuPage() {
   const [categoriesOpen, setCategoriesOpen] = useState(false);
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
+  const [orderClosedPopup, setOrderClosedPopup] = useState(false);
+  const [storeOpen, setStoreOpen] = useState(true);
   const { cart, updateQty, removeFromCart, total } = useCart();
+
+  useEffect(() => {
+    function isOrderWindowOpen(): boolean {
+      return true
+    }
+    const open = isOrderWindowOpen();
+    setStoreOpen(open);
+    if (!open) setOrderClosedPopup(true);
+  }, []);
 
   const allItems = useMemo(() => categories.flatMap((cat) => cat.items), [categories]);
 
@@ -279,12 +290,18 @@ export default function MenuPage() {
                     <span className="text-xs font-bold text-[#1D3C42]">Total</span>
                     <span className="text-sm font-extrabold text-[#1D3C42]">₹{total}</span>
                   </div>
-                  <Link
-                    href="/cart"
-                    className="mt-3 flex w-full items-center justify-center gap-1 rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136]"
-                  >
-                    View Cart
-                  </Link>
+                  {storeOpen ? (
+                    <Link
+                      href="/cart"
+                      className="mt-3 flex w-full items-center justify-center gap-1 rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136]"
+                    >
+                      View Cart
+                    </Link>
+                  ) : (
+                    <span className="mt-3 flex w-full cursor-not-allowed items-center justify-center gap-1 rounded-full bg-[#1D3C42]/50 px-4 py-2 text-xs font-bold text-white/60 shadow-sm">
+                      Cart unavailable
+                    </span>
+                  )}
                 </div>
               )}
             </aside>
@@ -322,8 +339,8 @@ export default function MenuPage() {
                   <div className="flex rounded-full bg-[#FFF8E4] p-1">
                     {[
                       { label: "All", value: "all" as const },
-                      { label: "Veg", value: "veg" as const },
-                      { label: "Non-Veg", value: "nonveg" as const },
+                      { label: "Egg-free", value: "veg" as const },
+                      { label: "Egg-based", value: "nonveg" as const },
                     ].map((filter) => (
                       <button
                         key={filter.value}
@@ -374,6 +391,23 @@ export default function MenuPage() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        )}
+
+        {orderClosedPopup && (
+          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setOrderClosedPopup(false)}>
+            <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <svg viewBox="0 0 120 80" className="mx-auto h-20 w-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
+                <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
+                <circle cx="60" cy="12" r="3" fill="white"/>
+                <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
+                <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+              </svg>
+              <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
+              <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
+              <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
             </div>
           </div>
         )}

@@ -122,14 +122,21 @@ export default function HomePage() {
               transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
               className="order-2 text-center md:text-left"
             >
-              <motion.p
+              <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.15, duration: 0.4 }}
-                className="mb-4 text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]"
+                className="mb-6 flex flex-col items-center gap-3 md:flex-row md:items-center"
               >
-                The Little Patisserie
-              </motion.p>
+                <img
+                  src="/logo.png"
+                  alt="The Little Patisserie"
+                  className="h-16 w-16 rounded-full object-contain ring-2 ring-[#D4AF37]/20 sm:h-20 sm:w-20"
+                />
+                <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
+                  The Little Patisserie
+                </span>
+              </motion.div>
 
               <h1 className="font-display text-4xl font-bold leading-[1.12] tracking-tight text-[#1D3C42] sm:text-5xl lg:text-6xl">
                 Handcrafted Cakes &amp; Sweet Moments

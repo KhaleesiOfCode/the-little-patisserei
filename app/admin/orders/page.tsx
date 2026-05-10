@@ -27,7 +27,7 @@ function filterOrders(orders: Order[], tab: FilterTab): Order[] {
     case "local": return orders.filter((o) => o.delivery_mode === "local_delivery" && !["delivered", "cancelled", "refunded"].includes(o.status));
     case "courier": return orders.filter((o) => o.delivery_mode === "courier" && !["delivered", "cancelled", "refunded"].includes(o.status));
     case "completed": return orders.filter((o) => ["delivered", "picked_up", "refunded"].includes(o.status));
-    case "cancelled": return orders.filter((o) => ["cancelled", "refund_initiated", "date_change_requested"].includes(o.status));
+    case "cancelled": return orders.filter((o) => ["cancelled", "refund_initiated"].includes(o.status));
     default: return orders;
   }
 }
@@ -78,9 +78,9 @@ export default function AdminOrdersPage() {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, (payload) => {
         const updated = payload.new as Order;
         const changedStatus = updated.status;
-        if (changedStatus === "cancelled" || changedStatus === "date_change_requested") {
+        if (changedStatus === "cancelled") {
           setOrders((prev) => prev.map((o) => o.id === updated.id ? { ...o, ...updated } : o));
-          setNotification(`${changedStatus === "cancelled" ? "Cancellation" : "Date change"} for ${updated.order_number}`);
+          setNotification(`Cancellation for ${updated.order_number}`);
           playAlertSound();
           setTimeout(() => setNotification(null), 5000);
         }
