@@ -15,6 +15,26 @@ interface PriceRow {
   display_order: number;
 }
 
+const PRICE_UNITS = ["kg", "pack", "box", "g"] as const;
+
+function getPriceValue(label: string): string {
+  const lower = label.toLowerCase().trim();
+  for (const unit of PRICE_UNITS) {
+    if (lower.endsWith(unit)) {
+      return label.slice(0, -unit.length).trim();
+    }
+  }
+  return label;
+}
+
+function getPriceUnit(label: string): string {
+  const lower = label.toLowerCase().trim();
+  for (const unit of PRICE_UNITS) {
+    if (lower.endsWith(unit)) return unit;
+  }
+  return "g";
+}
+
 export default function AdminNewProductPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -47,6 +67,10 @@ export default function AdminNewProductPage() {
   const [courierWeight, setCourierWeight] = useState("");
   const [courierFragile, setCourierFragile] = useState(false);
   const [courierCategory, setCourierCategory] = useState("");
+
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showNewCategory, setShowNewCategory] = useState(false);
+  const [newCategoryName, setNewCategoryName] = useState("");
 
   useEffect(() => {
     fetch("/api/admin/categories")
@@ -86,44 +110,58 @@ export default function AdminNewProductPage() {
     setPrices((prev) => prev.filter((_, i) => i !== index));
   }
 
+  function onValueChange(index: number, val: string) {
+    const unit = getPriceUnit(prices[index].quantity_label);
+    updatePrice(index, "quantity_label", val + unit);
+  }
+
+  function onUnitChange(index: number, unit: string) {
+    const val = getPriceValue(prices[index].quantity_label);
+    updatePrice(index, "quantity_label", val + unit);
+  }
+
+  function clearError(field: string) {
+    setErrors((prev) => {
+      const next = { ...prev };
+      delete next[field];
+      return next;
+    });
+  }
+
+  async function handleAddCategory() {
+    const name = newCategoryName.trim();
+    if (!name) return;
+    const res = await fetch("/api/admin/categories", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name }),
+    });
+    if (res.ok) {
+      const cat = await res.json();
+      setCategories((prev) => [...prev, cat]);
+      setCategoryId(cat.id);
+      setNewCategoryName("");
+      setShowNewCategory(false);
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) {
-      setNotification("Product name is required");
-      setTimeout(() => setNotification(null), 3000);
+    const newErrors: Record<string, string> = {};
+    if (!name.trim()) newErrors.name = "Product name is required";
+    const validPrices = prices.filter((p) => p.quantity_label.trim() && p.price > 0);
+    if (validPrices.length === 0) newErrors.prices = "Add at least one size with a price";
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
       return;
     }
+    setErrors({});
 
     setSaving(true);
     setNotification(null);
 
-    // Upload images FIRST so we can include URLs in the product creation
-    let uploadedUrls: string[] = [];
-    let uploadErrors = 0;
-
-    if (imageFiles.length > 0) {
-      setUploading(true);
-      for (const file of imageFiles) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("menuItemId", "temp");
-
-        const uploadRes = await fetch("/api/admin/upload", {
-          method: "POST",
-          body: formData,
-        });
-
-        if (uploadRes.ok) {
-          const { url } = await uploadRes.json();
-          uploadedUrls.push(url);
-        } else {
-          uploadErrors++;
-        }
-      }
-      setUploading(false);
-    }
-
-    // Create product with all data including image URLs in one POST
+    // First create the product with basic info
     const payload: Record<string, unknown> = {
       name: name.trim(),
       description,
@@ -141,7 +179,6 @@ export default function AdminNewProductPage() {
       courier_fragile: courierFragile,
       courier_category: courierCategory || null,
       prices: prices.filter((p) => p.quantity_label.trim()),
-      image_urls: uploadedUrls,
     };
 
     const res = await fetch("/api/admin/menu", {
@@ -157,11 +194,49 @@ export default function AdminNewProductPage() {
       return;
     }
 
-    if (uploadErrors > 0) {
-      setNotification(`${uploadErrors} image(s) failed to upload. Product was created without those images.`);
-      setTimeout(() => setNotification(null), 5000);
-      setSaving(false);
-      return;
+    const product = await res.json();
+
+      // Upload images
+    if (imageFiles.length > 0) {
+      setUploading(true);
+      const urls: string[] = [];
+      let uploadErrors = 0;
+
+      for (const file of imageFiles) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("menuItemId", product.id);
+
+        const uploadRes = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (uploadRes.ok) {
+          const { url } = await uploadRes.json();
+          urls.push(url);
+        } else {
+          uploadErrors++;
+        }
+      }
+
+      // Link images to product
+      if (urls.length > 0) {
+        await fetch("/api/admin/menu", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: product.id, image_urls: urls }),
+        });
+      }
+
+      setUploading(false);
+
+      if (uploadErrors > 0) {
+        setNotification(`${uploadErrors} image(s) failed to upload. Product was created.`);
+        setTimeout(() => setNotification(null), 5000);
+        setSaving(false);
+        return;
+      }
     }
 
     router.push("/admin/menu");
@@ -185,14 +260,15 @@ export default function AdminNewProductPage() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-6">
+      <form onSubmit={handleSubmit} className="mx-auto max-w-3xl space-y-6">
         {/* Basic info */}
         <section className="rounded-2xl border border-[#F4CFC8] bg-white p-6">
           <h2 className="mb-4 text-base font-extrabold text-[#1D3C42]">Basic Info</h2>
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Name *</label>
-              <input value={name} onChange={(e) => setName(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Chocolate Truffle Cake" />
+              <input value={name} onChange={(e) => { setName(e.target.value); clearError("name"); }} className={`w-full rounded-xl border bg-white px-4 py-3 outline-none focus:border-[#1D3C42] ${errors.name ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Chocolate Truffle Cake" />
+              {errors.name && <p className="mt-1 text-xs text-red-500">{errors.name}</p>}
             </div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Description</label>
@@ -207,12 +283,25 @@ export default function AdminNewProductPage() {
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Category</label>
-              <select value={categoryId} onChange={(e) => setCategoryId(e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]">
-                <option value="">— Select —</option>
-                {categories.map((c) => (
-                  <option key={c.id} value={c.id}>{c.name}</option>
-                ))}
-              </select>
+              <div className="flex gap-2">
+                <select value={categoryId} onChange={(e) => { setCategoryId(e.target.value); clearError("category"); }} className="flex-1 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]">
+                  <option value="">— Select —</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>{c.name}</option>
+                  ))}
+                </select>
+                <button type="button" onClick={() => setShowNewCategory(!showNewCategory)} className="rounded-xl border border-[#F4CFC8] px-3 text-[#1D3C42] hover:bg-[#F4CFC8]/30">
+                  <Plus size={18} />
+                </button>
+              </div>
+              {showNewCategory && (
+                <div className="mt-2 flex gap-2">
+                  <input value={newCategoryName} onChange={(e) => setNewCategoryName(e.target.value)} placeholder="Category name" className="flex-1 rounded-xl border border-[#F4CFC8] bg-white px-4 py-2 text-sm outline-none focus:border-[#1D3C42]" />
+                  <button type="button" onClick={handleAddCategory} disabled={!newCategoryName.trim()} className="rounded-xl bg-[#1D3C42] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#163136] disabled:opacity-50">
+                    Add
+                  </button>
+                </div>
+              )}
             </div>
             <div>
               <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Shelf Life</label>
@@ -256,15 +345,23 @@ export default function AdminNewProductPage() {
               <Plus size={14} /> Add size
             </button>
           </div>
+          {errors.prices && <p className="mb-2 text-xs text-red-500">{errors.prices}</p>}
           {prices.map((p, i) => (
             <div key={i} className="mb-3 flex items-end gap-3">
-              <div className="flex-1">
-                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Label</label>
-                <input value={p.quantity_label} onChange={(e) => updatePrice(i, "quantity_label", e.target.value)} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="500g" />
+              <div>
+                <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Size</label>
+                <div className="flex gap-2">
+                  <input type="number" min="1" max="9999" value={getPriceValue(p.quantity_label)} onChange={(e) => { onValueChange(i, e.target.value); clearError("prices"); }} className="w-20 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-center outline-none focus:border-[#1D3C42]" placeholder="200" />
+                  <select value={getPriceUnit(p.quantity_label)} onChange={(e) => { onUnitChange(i, e.target.value); clearError("prices"); }} className="rounded-xl border border-[#F4CFC8] bg-white px-3 py-3 outline-none focus:border-[#1D3C42]">
+                    {PRICE_UNITS.map((u) => (
+                      <option key={u} value={u}>{u}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
-              <div className="flex-1">
+              <div className="w-36">
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Price (₹)</label>
-                <input type="number" step="0.01" value={p.price} onChange={(e) => updatePrice(i, "price", Number(e.target.value))} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
+                <input type="number" min="0" max="9999" value={p.price || ""} onChange={(e) => { updatePrice(i, "price", Number(e.target.value)); clearError("prices"); }} className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-right text-lg font-bold outline-none focus:border-[#1D3C42]" placeholder="0" />
               </div>
               {prices.length > 1 && (
                 <button type="button" onClick={() => removePrice(i)} className="mb-1 rounded-lg p-2 text-[#7A6262] hover:text-red-500">

@@ -1,9 +1,9 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin/orders", label: "Orders" },
@@ -13,61 +13,70 @@ const NAV_ITEMS = [
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
   }
 
   return (
-    <div className="flex min-h-screen bg-[#FFF8E4]">
-      <aside className={`fixed inset-y-0 left-0 z-50 w-60 -translate-x-full border-r border-[#D4AF37]/30 bg-white transition-transform md:static md:translate-x-0 ${sidebarOpen ? "translate-x-0" : ""}`}>
-        <div className="flex h-16 items-center justify-between border-b border-[#D4AF37]/30 px-5">
-          <Link href="/admin/menu" className="text-lg font-extrabold text-[#1D3C42]">
-            🧁 Patisserie
+    <div className="min-h-screen bg-[#FFF8E4]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 backdrop-blur-md">
+        <nav className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-5 sm:py-4">
+          <Link href="/admin/orders" className="flex items-center gap-2 text-lg font-bold text-[#1D3C42] sm:text-xl">
+            <img src="/logo.png" alt="The Little Patisserie" className="h-10 w-10 rounded-full object-contain sm:h-11 sm:w-11" />
+            <span className="hidden sm:inline">The Little Patisserie</span>
           </Link>
-          <button onClick={() => setSidebarOpen(false)} className="md:hidden text-[#7A6262]">
-            <X size={20} />
-          </button>
-        </div>
-        <nav className="space-y-1 px-3 py-6">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname.startsWith(item.href);
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={() => setSidebarOpen(false)}
-                className={`block rounded-xl px-4 py-3 text-sm font-semibold transition ${active ? "bg-[#1D3C42] text-white" : "text-[#7A6262] hover:bg-[#F4CFC8]/30 hover:text-[#1D3C42]"}`}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+
+          <div className="hidden items-center gap-6 text-sm font-semibold text-[#1D3C42] md:flex">
+            {NAV_ITEMS.map((item) => {
+              const active = pathname.startsWith(item.href);
+              return (
+                <Link key={item.href} href={item.href} className={active ? "text-[#1D3C42]" : "text-[#7A6262] hover:text-[#1D3C42]"}>
+                  {item.label}
+                </Link>
+              );
+            })}
+            <button
+              onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }}
+              className="rounded-full bg-[#1D3C42] px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-[#163136]"
+            >
+              <LogOut size={16} className="mr-1 inline" />
+              Logout
+            </button>
+          </div>
+
+          <div className="flex items-center gap-2 md:hidden">
+            <button
+              onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }}
+              className="rounded-full bg-[#1D3C42] px-4 py-2 text-sm font-bold text-white shadow-sm"
+            >
+              <LogOut size={16} className="mr-1 inline" />
+              Logout
+            </button>
+            <button
+              onClick={() => setMobileOpen(!mobileOpen)}
+              className="grid h-10 w-10 place-items-center rounded-full text-[#1D3C42] hover:bg-[#FADCD4]"
+            >
+              {mobileOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+          </div>
         </nav>
-        <div className="absolute bottom-4 left-0 right-0 px-3">
-          <button
-            onClick={() => { fetch("/api/admin/logout", { method: "POST" }).then(() => { window.location.href = "/admin/login"; }); }}
-            className="block w-full rounded-xl px-4 py-3 text-left text-sm font-semibold text-red-500 hover:bg-red-50 transition"
-          >
-            Logout
-          </button>
-        </div>
-      </aside>
 
-      {sidebarOpen && (
-        <div className="fixed inset-0 z-40 bg-black/30 md:hidden" onClick={() => setSidebarOpen(false)} />
-      )}
+        {mobileOpen && (
+          <div className="border-t border-[#D4AF37]/20 bg-[#FFF8E4] px-4 pb-4 pt-3 md:hidden">
+            <div className="flex flex-col gap-1 text-sm font-semibold text-[#1D3C42]">
+              {NAV_ITEMS.map((item) => (
+                <Link key={item.href} href={item.href} onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </header>
 
-      <div className="flex-1">
-        <header className="sticky top-0 z-30 flex h-16 items-center gap-3 border-b border-[#D4AF37]/30 bg-[#FFF8E4]/90 px-5 backdrop-blur-md md:hidden">
-          <button onClick={() => setSidebarOpen(true)} className="text-[#1D3C42]">
-            <Menu size={24} />
-          </button>
-          <span className="text-lg font-extrabold text-[#1D3C42]">🧁 Patisserie</span>
-        </header>
-        <main>{children}</main>
-      </div>
+      <main className="pt-[68px] sm:pt-[76px]">{children}</main>
     </div>
   );
 }
