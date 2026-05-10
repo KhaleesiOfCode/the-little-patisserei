@@ -16,10 +16,7 @@ import {
   sanitizeAddress, sanitizePincode, sanitizeEmail,
   validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
-
-function isOrderWindowOpen(): boolean {
-  return true
-}
+import { isOrderWindowOpen } from "../../lib/store-hours";
 
 export default function CartPage() {
   const router = useRouter();

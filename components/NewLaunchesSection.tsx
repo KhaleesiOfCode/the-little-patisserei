@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { getNewLaunches } from "../lib/supabase/menu";
 import { useCart } from "./CartContext";
 import type { MenuItem, CartItem } from "../types/menu";
+import { isOrderWindowOpen } from "../lib/store-hours";
 
 const MAX_HOME_ITEMS = 4;
 
@@ -28,10 +29,6 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
   const cartId = `${item.id}-${item.prices?.[0]?.quantity_label ?? "default"}-default`;
 
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
-
-  function isOrderWindowOpen(): boolean {
-    return true
-  }
 
   const handleAdd = () => {
     if (!isOrderWindowOpen()) {

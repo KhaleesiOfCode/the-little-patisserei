@@ -4,10 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "./CartContext";
-
-function isOrderWindowOpen(): boolean {
-  return true
-}
+import { isOrderWindowOpen } from "../lib/store-hours";
 
 export default function Navbar() {
   const { cart } = useCart();

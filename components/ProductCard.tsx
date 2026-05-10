@@ -13,6 +13,7 @@ import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
+import { isOrderWindowOpen } from "../lib/store-hours";
 
 const WHATSAPP_NUMBER = "919488407130";
 
@@ -43,10 +44,6 @@ export default function ProductCard({ product }: { product: MenuItem }) {
   const [cakeDesign, setCakeDesign] = useState("");
   const [customizationOpen, setCustomizationOpen] = useState(false);
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
-
-  function isOrderWindowOpen(): boolean {
-    return true
-  }
 
   const handleAddToCart = () => {
     if (!isOrderWindowOpen()) {

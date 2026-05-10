@@ -8,6 +8,7 @@ import ProductCard from "../../components/ProductCard";
 import { useCart } from "../../components/CartContext";
 import { getMenuCategories } from "../../lib/supabase/menu";
 import type { MenuCategory, MenuItem } from "../../types/menu";
+import { isOrderWindowOpen } from "../../lib/store-hours";
 
 export default function MenuPage() {
   const searchParams = useSearchParams();
@@ -27,9 +28,6 @@ export default function MenuPage() {
   const { cart, updateQty, removeFromCart, total } = useCart();
 
   useEffect(() => {
-    function isOrderWindowOpen(): boolean {
-      return true
-    }
     const open = isOrderWindowOpen();
     setStoreOpen(open);
     if (!open) setOrderClosedPopup(true);
