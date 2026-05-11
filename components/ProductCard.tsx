@@ -18,7 +18,7 @@ import { isOrderWindowOpen } from "../lib/store-hours";
 const WHATSAPP_NUMBER = "919488407130";
 
 export default function ProductCard({ product }: { product: MenuItem }) {
-  const { cart, addToCart, updateQty, updateCartItem } = useCart();
+  const { cart, addToCart, updateQty } = useCart();
 
   const prices = product.prices || [];
 
@@ -130,7 +130,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
   return (
     <>
-      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[230px_1fr] md:gap-5">
+      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-5">
         <button
           type="button"
           onClick={() => {
@@ -161,107 +161,96 @@ export default function ProductCard({ product }: { product: MenuItem }) {
         <div className="flex min-w-0 flex-col justify-between">
           <div>
             <div className="flex flex-wrap items-start justify-between gap-3">
-              <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                <h3 className="font-serif text-sm font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
+                  {product.name}
+                </h3>
+
                 <span
-                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border ${
+                  className={`flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border sm:h-4 sm:w-4 sm:rounded-[3px] ${
                     product.type === "nonveg"
-                      ? "border-red-500"
+                      ? "border-amber-400"
                       : "border-green-600"
                   }`}
                 >
                   <span
-                    className={`h-2 w-2 rounded-full ${
-                      product.type === "nonveg" ? "bg-red-500" : "bg-green-600"
+                    className={`h-1.5 w-1.5 rounded-full sm:h-2 sm:w-2 ${
+                      product.type === "nonveg" ? "bg-amber-400" : "bg-green-600"
                     }`}
                   />
                 </span>
-
-                <h3 className="font-serif text-sm font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
-                  {product.name}
-                </h3>
               </div>
-
-              <span
-                className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${
-                  product.type === "nonveg"
-                    ? "bg-red-100 text-red-600"
-                    : "bg-green-100 text-green-700"
-                }`}
-              >
-                {product.type === "nonveg" ? "Egg-based" : "Egg-free"}
-              </span>
             </div>
 
-            {product.badges?.length > 0 && (
-              <div className="mt-2 flex flex-wrap gap-2">
-                {product.badges.map((badge) => (
-                  <span
-                    key={badge}
-                    className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]"
-                  >
-                    {badge}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            <p className="mt-1 max-w-4xl overflow-hidden text-xs leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:mt-3 sm:text-sm sm:leading-6">
-              {product.description}
-            </p>
-
-            <button
-              type="button"
-              onClick={() => setIsDetailsOpen(true)}
-              className="mt-0 text-xs font-bold text-[#1D3C42] underline-offset-4 hover:underline sm:mt-1 sm:text-sm"
-            >
-              View more
-            </button>
-
-            {compactTags.length > 0 && (
-              <div className="mt-1 flex flex-wrap gap-1 sm:mt-3 sm:gap-2">
-                {compactTags.map((tag, idx) => (
-                  <span
-                    key={`${tag}-${idx}`}
-                    className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {product.shelf_life && (
-              <p className="mt-1 flex items-center gap-1 text-[10px] font-semibold text-[#7A6262] sm:mt-3 sm:gap-2 sm:text-xs">
-                <Clock size={12} className="sm:hidden" />
-                <Clock size={14} className="hidden sm:block" />
-                Shelf life: {product.shelf_life}
-              </p>
-            )}
-
-            {hasEggChoice && (
-              <div className="mt-1 flex flex-wrap items-center gap-1 sm:mt-3 sm:gap-2">
-                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                  Choose option
+          {product.badges?.length > 0 && (
+            <div className="mt-1.5 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
+              {product.badges.map((badge) => (
+                <span
+                  key={badge}
+                  className="rounded-full bg-[#D4AF37]/20 px-2.5 py-1 text-xs font-bold text-[#1D3C42]"
+                >
+                  {badge}
                 </span>
+              ))}
+            </div>
+          )}
 
-                <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
-                  {["Eggless", "Egg"].map((option) => (
-                    <button
-                      key={option}
-                      type="button"
-                      onClick={() => setEggOption(option)}
-                      className={`rounded-full px-3 py-1.5 text-[11px] font-extrabold transition sm:px-4 sm:py-2 sm:text-xs ${
-                        eggOption === option
-                          ? "bg-[#1D3C42] text-white shadow-sm"
-                          : "text-[#1D3C42] hover:bg-white"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ))}
-                </div>
+          <p className="mt-1.5 overflow-hidden text-sm leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-sm sm:leading-6">
+            {product.description}
+          </p>
+
+          <button
+            type="button"
+            onClick={() => setIsDetailsOpen(true)}
+            className="mt-1 text-left text-xs font-bold text-[#1D3C42] underline-offset-4 hover:underline sm:text-sm"
+          >
+            View more
+          </button>
+
+          {compactTags.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1.5 sm:mt-3 sm:gap-2">
+              {compactTags.map((tag, idx) => (
+                <span
+                  key={`${tag}-${idx}`}
+                  className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {product.shelf_life && (
+            <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#7A6262] sm:mt-3 sm:gap-2">
+              <Clock size={14} />
+              Shelf life: {product.shelf_life}
+            </p>
+          )}
+
+          {hasEggChoice && (
+            <div className="mt-2 flex items-center gap-2 sm:mt-3">
+              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+                Egg
+              </span>
+
+              <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
+                {["Eggless", "Egg"].map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setEggOption(option)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
+                      eggOption === option
+                        ? "bg-[#1D3C42] text-white shadow-sm"
+                        : "text-[#1D3C42] hover:bg-white"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
               </div>
-            )}
+            </div>
+          )}
 
           </div>
 
@@ -325,70 +314,70 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={handleAddToCart}
-                  className="rounded-full bg-[#1D3C42] px-5 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3 sm:text-sm"
+                  className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3"
                 >
                   {isCelebrationCake ? "Customize" : "Add"}
                 </motion.button>
               ) : (
-                <div className="flex items-center rounded-full border border-[#1D3C42]">
+                <div className="flex items-center rounded-full border-2 border-[#1D3C42]">
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty - 1)}
-                    className="px-3 py-1.5 text-[#1D3C42] sm:px-4 sm:py-2"
+                    className="px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
                   >
                     −
                   </button>
 
-                  <span className="px-3 py-1.5 text-xs font-bold text-[#3A2A2A] sm:px-4 sm:py-2 sm:text-sm">
+                  <span className="min-w-[2rem] px-2 py-2 text-center text-sm font-bold text-[#3A2A2A]">
                     {itemInCart.qty}
                   </span>
 
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty + 1)}
-                    className="px-3 py-1.5 text-[#1D3C42] sm:px-4 sm:py-2"
+                    className="px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
                   >
                     +
                   </button>
                 </div>
               )}
             </div>
-
-            {isCelebrationCake && customizationOpen && (
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="mt-5 space-y-3"
-              >
-                <LiveDesignStudio
-                  cakeMessage={cakeMessage}
-                  setCakeMessage={setCakeMessage}
-                  cakeOccasion={cakeOccasion}
-                  setCakeOccasion={setCakeOccasion}
-                  cakeDesign={cakeDesign}
-                  setCakeDesign={setCakeDesign}
-                  productName={product.name}
-                />
-
-                <motion.button
-                  whileTap={cakeMessage || cakeOccasion ? { scale: 0.95 } : {}}
-                  onClick={() => {
-                    if (!cakeMessage && !cakeOccasion) return;
-                    const msg = encodeURIComponent(
-                      `Hi, I'd like to enquire about the ${product.name} (${selectedPrice.quantity_label} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
-                    );
-                    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-                  }}
-                  className={`w-full rounded-full px-6 py-3 text-sm font-extrabold shadow-sm transition ${
-                    cakeMessage || cakeOccasion
-                      ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90 cursor-pointer"
-                      : "bg-[#D4AF37]/40 text-[#1D3C42]/50 cursor-not-allowed"
-                  }`}
-                >
-                  Enquire on WhatsApp
-                </motion.button>
-              </motion.div>
-            )}
           </div>
+
+          {isCelebrationCake && customizationOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+              className="mt-4 space-y-3"
+            >
+              <LiveDesignStudio
+                cakeMessage={cakeMessage}
+                setCakeMessage={setCakeMessage}
+                cakeOccasion={cakeOccasion}
+                setCakeOccasion={setCakeOccasion}
+                cakeDesign={cakeDesign}
+                setCakeDesign={setCakeDesign}
+                productName={product.name}
+              />
+
+              <motion.button
+                whileTap={cakeMessage || cakeOccasion ? { scale: 0.95 } : {}}
+                onClick={() => {
+                  if (!cakeMessage && !cakeOccasion) return;
+                  const msg = encodeURIComponent(
+                    `Hi, I'd like to enquire about the ${product.name} (${selectedPrice.quantity_label} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
+                  );
+                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
+                }}
+                className={`w-full rounded-full px-6 py-3 text-sm font-extrabold shadow-sm transition ${
+                  cakeMessage || cakeOccasion
+                    ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90 cursor-pointer"
+                    : "bg-[#D4AF37]/40 text-[#1D3C42]/50 cursor-not-allowed"
+                }`}
+              >
+                Enquire on WhatsApp
+              </motion.button>
+            </motion.div>
+          )}
         </div>
       </article>
 
@@ -413,15 +402,19 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 {product.name}
               </h2>
 
-              <div className="mt-3 flex flex-wrap gap-2">
+              <div className="mt-3 flex flex-wrap items-center gap-2">
                 <span
-                  className={`rounded-full px-3 py-1 text-xs font-bold ${
+                  className={`flex h-4 w-4 items-center justify-center rounded-[3px] border ${
                     product.type === "nonveg"
-                      ? "bg-red-100 text-red-600"
-                      : "bg-green-100 text-green-700"
+                      ? "border-amber-400"
+                      : "border-green-600"
                   }`}
                 >
-                  {product.type === "nonveg" ? "Egg-based" : "Egg-free"}
+                  <span
+                    className={`h-2 w-2 rounded-full ${
+                      product.type === "nonveg" ? "bg-amber-400" : "bg-green-600"
+                    }`}
+                  />
                 </span>
 
                 {product.badges?.map((badge) => (

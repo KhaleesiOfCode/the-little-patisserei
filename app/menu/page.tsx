@@ -2,17 +2,14 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Link from "next/link";
-import { ChevronDown, ShoppingBag, Trash2 } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
-import { useCart } from "../../components/CartContext";
 import { getMenuCategories } from "../../lib/supabase/menu";
-import type { MenuCategory, MenuItem } from "../../types/menu";
-import { isOrderWindowOpen } from "../../lib/store-hours";
+import type { MenuCategory } from "../../types/menu";
 
 export default function MenuPage() {
   const searchParams = useSearchParams();
-  const initialCategory = searchParams.get("category") || "All";
+  const initialCategory = searchParams.get("category") || "Recommended";
 
   const [categories, setCategories] = useState<MenuCategory[]>([]);
   const [activeCategory, setActiveCategory] = useState(initialCategory);
@@ -21,60 +18,18 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [selectedBadges, setSelectedBadges] = useState<string[]>([]);
-  const [orderClosedPopup, setOrderClosedPopup] = useState(false);
-  const [storeOpen, setStoreOpen] = useState(true);
-  const { cart, updateQty, removeFromCart, total } = useCart();
-
-  useEffect(() => {
-    const open = isOrderWindowOpen();
-    setStoreOpen(open);
-    if (!open) setOrderClosedPopup(true);
-  }, []);
 
   const allItems = useMemo(() => categories.flatMap((cat) => cat.items), [categories]);
 
-  const availableTags = useMemo(() => {
-    const seen = new Set<string>();
-    const result: string[] = [];
-    allItems.forEach((item) => item.ingredient_tags?.forEach((t) => {
-      const key = t.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (key && !seen.has(key)) {
-        seen.add(key);
-        result.push(t.trim());
-      }
-    }));
-    return result.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  }, [allItems]);
+  const recommendedItems = useMemo(
+    () => allItems.filter((item) => item.badges?.some((b) => b.toLowerCase().includes("best seller"))),
+    [allItems]
+  );
 
-  const availableBadges = useMemo(() => {
-    const seen = new Set<string>();
-    const result: string[] = [];
-    allItems.forEach((item) => item.badges?.forEach((b) => {
-      const key = b.trim().toLowerCase().replace(/[^a-z0-9]/g, "");
-      if (key && !seen.has(key)) {
-        seen.add(key);
-        result.push(b.trim());
-      }
-    }));
-    return result.sort((a, b) => a.toLowerCase().localeCompare(b.toLowerCase()));
-  }, [allItems]);
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags((prev) => prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]);
-  };
-
-  const toggleBadge = (badge: string) => {
-    setSelectedBadges((prev) => prev.includes(badge) ? prev.filter((b) => b !== badge) : [...prev, badge]);
-  };
-
-  const clearFilters = () => {
-    setSelectedTags([]);
-    setSelectedBadges([]);
-  };
-
-  const hasActiveFilters = selectedTags.length > 0 || selectedBadges.length > 0;
+  const categoryList = useMemo(
+    () => ["Recommended", ...categories.map((cat) => cat.name)],
+    [categories]
+  );
 
   const scrollDoneRef = useRef(false);
 
@@ -113,10 +68,10 @@ export default function MenuPage() {
   }, [loading, searchParams]);
 
   const activeItems = useMemo(() => {
-    let items: MenuItem[] = [];
+    let items;
 
-    if (activeCategory === "All") {
-      items = categories.flatMap((cat) => cat.items);
+    if (activeCategory === "Recommended") {
+      items = recommendedItems;
     } else {
       const selected = categories.find((cat) => cat.name === activeCategory);
       items = selected?.items || [];
@@ -129,15 +84,9 @@ export default function MenuPage() {
 
       const matchesType = foodType === "all" || item.type === foodType;
 
-      const matchesTags = selectedTags.length === 0 || selectedTags.some((t) => item.ingredient_tags?.some((it) => it.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === t.toLowerCase().replace(/[^a-z0-9]/g, "")));
-
-      const matchesBadges = selectedBadges.length === 0 || selectedBadges.some((b) => item.badges?.some((ib) => ib.trim().toLowerCase().replace(/[^a-z0-9]/g, "") === b.toLowerCase().replace(/[^a-z0-9]/g, "")));
-
-      return matchesSearch && matchesType && matchesTags && matchesBadges;
+      return matchesSearch && matchesType;
     });
-  }, [categories, activeCategory, search, foodType, selectedTags, selectedBadges]);
-
-  const totalItems = categories.reduce((sum, cat) => sum + cat.items.length, 0);
+  }, [categories, activeCategory, search, foodType, recommendedItems]);
 
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
@@ -154,7 +103,7 @@ export default function MenuPage() {
             <p className="font-semibold text-[#1D3C42]">Loading menu...</p>
           </div>
         ) : (
-          <div className="grid gap-6 lg:grid-cols-[260px_1fr]">
+          <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
             <aside className="h-fit rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8] lg:sticky lg:top-24">
               <button
                 onClick={() => setCategoriesOpen(!categoriesOpen)}
@@ -167,141 +116,35 @@ export default function MenuPage() {
               </button>
 
               <div className={`mt-4 space-y-2 ${categoriesOpen ? "block" : "hidden"} lg:block`}>
-                <button
-                  onClick={() => { setActiveCategory("All"); setCategoriesOpen(false); }}
-                  className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                    activeCategory === "All"
-                      ? "bg-[#1D3C42] text-white shadow-md"
-                      : "bg-[#FFF8E4] text-[#3A2A2A] hover:bg-[#FADCD4]"
-                  }`}
-                >
-                  <span>All</span>
-                  <span className="rounded-full bg-white px-2 py-0.5 text-xs text-[#1D3C42]">
-                    {totalItems}
-                  </span>
-                </button>
+                {categoryList.map((cat) => {
+                  const count = cat === "Recommended"
+                    ? recommendedItems.length
+                    : categories.find((c) => c.name === cat)?.items.length || 0;
 
-                {categories.map((category) => (
-                  <button
-                    key={category.name}
-                    onClick={() => { setActiveCategory(category.name); setCategoriesOpen(false); }}
-                    className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
-                      activeCategory === category.name
-                        ? "bg-[#1D3C42] text-white shadow-md"
-                        : "bg-[#FFF8E4] text-[#3A2A2A] hover:bg-[#FADCD4]"
-                    }`}
-                  >
-                    <span>{category.name}</span>
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        activeCategory === category.name
-                          ? "bg-white/20 text-white"
-                          : "bg-white text-[#1D3C42]"
+                  return (
+                    <button
+                      key={cat}
+                      onClick={() => { setActiveCategory(cat); setCategoriesOpen(false); }}
+                      className={`flex w-full items-center justify-between rounded-2xl px-4 py-3 text-left text-sm font-semibold transition ${
+                        activeCategory === cat
+                          ? "bg-[#1D3C42] text-white shadow-md"
+                          : "bg-[#FFF8E4] text-[#3A2A2A] hover:bg-[#FADCD4]"
                       }`}
                     >
-                      {category.items.length}
-                    </span>
-                  </button>
-                ))}
+                      <span>{cat}</span>
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs ${
+                          activeCategory === cat
+                            ? "bg-white/20 text-white"
+                            : "bg-white text-[#1D3C42]"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
-
-              {(availableTags.length > 0 || availableBadges.length > 0) && (
-                <div className="mt-6 border-t border-[#F4CFC8] pt-6">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Filters</h3>
-                    {hasActiveFilters && (
-                      <button onClick={clearFilters} className="text-[10px] font-semibold text-[#D4AF37] underline transition hover:text-[#1D3C42]">
-                        Clear
-                      </button>
-                    )}
-                  </div>
-
-                  {availableTags.length > 0 && (
-                    <div className="mt-4">
-                      <p className="mb-2 text-left text-[11px] font-semibold text-[#7A6262]">Dietary</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {availableTags.map((tag) => (
-                          <button
-                            key={tag}
-                            onClick={() => toggleTag(tag)}
-                            className={`rounded-full px-3 py-1 text-left text-[10px] font-bold uppercase tracking-wider transition ${
-                              selectedTags.includes(tag)
-                                ? "bg-[#1D3C42] text-white shadow-sm"
-                                : "bg-[#FFF8E4] text-[#7A6262] ring-1 ring-[#F4CFC8] hover:ring-[#D4AF37] hover:text-[#1D3C42]"
-                            }`}
-                          >
-                            {tag}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {availableBadges.length > 0 && (
-                    <div className="mt-4">
-                      <p className="mb-2 text-left text-[11px] font-semibold text-[#7A6262]">Popular</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {availableBadges.map((badge) => (
-                          <button
-                            key={badge}
-                            onClick={() => toggleBadge(badge)}
-                            className={`rounded-full px-3 py-1 text-left text-[10px] font-bold uppercase tracking-wider transition ${
-                              selectedBadges.includes(badge)
-                                ? "bg-[#1D3C42] text-white shadow-sm"
-                                : "bg-[#FFF8E4] text-[#7A6262] ring-1 ring-[#F4CFC8] hover:ring-[#D4AF37] hover:text-[#1D3C42]"
-                            }`}
-                          >
-                            {badge}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {cart.length > 0 && (
-                <div className="mt-6 border-t border-[#F4CFC8] pt-6">
-                  <div className="flex items-center gap-2">
-                    <ShoppingBag size={16} className="text-[#D4AF37]" />
-                    <h3 className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Cart ({cart.length})</h3>
-                  </div>
-                  <div className="mt-3 space-y-2">
-                    {cart.map((item) => (
-                      <div key={item.id} className="flex items-center justify-between gap-2">
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-xs font-semibold text-[#1D3C42]">{item.name}</p>
-                          <div className="flex items-center gap-2 text-[10px] text-[#7A6262]">
-                            <button onClick={() => updateQty(item.id, item.qty - 1)} className="font-bold hover:text-[#1D3C42]">−</button>
-                            <span>{item.qty}</span>
-                            <button onClick={() => updateQty(item.id, item.qty + 1)} className="font-bold hover:text-[#1D3C42]">+</button>
-                            <span>· ₹{item.price * item.qty}</span>
-                          </div>
-                        </div>
-                        <button onClick={() => removeFromCart(item.id)} className="shrink-0 text-[#D4AF37] hover:text-red-500">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 flex items-center justify-between border-t border-[#F4CFC8] pt-3">
-                    <span className="text-xs font-bold text-[#1D3C42]">Total</span>
-                    <span className="text-sm font-extrabold text-[#1D3C42]">₹{total}</span>
-                  </div>
-                  {storeOpen ? (
-                    <Link
-                      href="/cart"
-                      className="mt-3 flex w-full items-center justify-center gap-1 rounded-full bg-[#1D3C42] px-4 py-2 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136]"
-                    >
-                      View Cart
-                    </Link>
-                  ) : (
-                    <span className="mt-3 flex w-full cursor-not-allowed items-center justify-center gap-1 rounded-full bg-[#1D3C42]/50 px-4 py-2 text-xs font-bold text-white/60 shadow-sm">
-                      Cart unavailable
-                    </span>
-                  )}
-                </div>
-              )}
             </aside>
 
             <div>
@@ -333,12 +176,11 @@ export default function MenuPage() {
                       )}
                     </div>
 
-
                   <div className="flex rounded-full bg-[#FFF8E4] p-1">
                     {[
                       { label: "All", value: "all" as const },
-                      { label: "Egg-free", value: "veg" as const },
-                      { label: "Egg-based", value: "nonveg" as const },
+                      { label: "Veg", value: "veg" as const },
+                      { label: "Egg", value: "nonveg" as const },
                     ].map((filter) => (
                       <button
                         key={filter.value}
@@ -359,7 +201,7 @@ export default function MenuPage() {
               <div className="mb-5 flex items-end justify-between">
                 <div>
                   <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#D4AF37]">
-                    {activeCategory === "All" ? "All Items" : activeCategory}
+                    {activeCategory === "Recommended" ? "Recommended" : activeCategory}
                   </p>
                   <h2 className="mt-2 font-serif text-3xl font-bold text-[#1D3C42]">
                     {activeCategory}
@@ -389,23 +231,6 @@ export default function MenuPage() {
                   </div>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {orderClosedPopup && (
-          <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setOrderClosedPopup(false)}>
-            <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
-              <svg viewBox="0 0 120 80" className="mx-auto h-20 w-28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
-                <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
-                <circle cx="60" cy="12" r="3" fill="white"/>
-                <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
-                <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
-              </svg>
-              <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
-              <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
-              <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
             </div>
           </div>
         )}
