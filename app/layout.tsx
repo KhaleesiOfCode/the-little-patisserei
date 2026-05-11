@@ -3,6 +3,7 @@ import { Fraunces, Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "../components/CartContext";
 import AdminAwareNavbar from "../components/AdminAwareNavbar";
+import Footer from "../components/Footer";
 import LayoutWrapper from "../components/LayoutWrapper";
 import RouteLoader from "../components/RouteLoader";
 import ErrorBoundary from "../components/ErrorBoundary";
@@ -73,6 +74,7 @@ export default function RootLayout({
             <LayoutWrapper>
               {children}
             </LayoutWrapper>
+            <Footer />
           </ErrorBoundary>
         </CartProvider>
       </body>
