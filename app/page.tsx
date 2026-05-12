@@ -3,6 +3,7 @@
 import HeroBanner from "../components/HeroBanner";
 import CategoriesSection from "../components/CategoriesSection";
 import BestSellersSection from "../components/BestSellersSection";
+import GallerySection from "../components/GallerySection";
 
 export default function HomePage() {
   return (
@@ -10,6 +11,7 @@ export default function HomePage() {
       <HeroBanner />
       <CategoriesSection />
       <BestSellersSection />
+      <GallerySection />
     </main>
   );
 }

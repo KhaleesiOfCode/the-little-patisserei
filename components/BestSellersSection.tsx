@@ -27,7 +27,7 @@ export default function BestSellersSection() {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-[#FFF8E4] px-5 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-12">
+    <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 text-center">
           <span className="font-display text-sm italic tracking-wide text-[#D4AF37]">
@@ -42,9 +42,11 @@ export default function BestSellersSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 gap-x-6 gap-y-10 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-2 lg:grid-cols-4">
           {items.map((item, i) => {
-            const basePrice = item.prices?.[0]?.price ?? item.price;
+            const isBestSeller = item.badges?.some((b) =>
+              b.toLowerCase().includes("best seller")
+            );
             return (
               <motion.div
                 key={item.id}
@@ -54,29 +56,30 @@ export default function BestSellersSection() {
                 transition={{ delay: i * 0.05, duration: 0.4 }}
               >
                 <Link
-                  href={`/menu?product=${item.id}`}
-                  className="group flex flex-col rounded-2xl bg-white shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
+                  href={`/menu?category=${encodeURIComponent(item.category)}&product=${item.id}`}
+                  className="group relative flex aspect-square overflow-hidden rounded-2xl ring-1 ring-[#3A2A2A]/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:ring-[#D4AF37]/20"
                 >
-                  <div className="flex aspect-square items-center justify-center p-4 sm:p-5">
-                    <img
-                      src={item.image || "/cakes/chocolate-cake-1.jpg"}
-                      alt={item.name}
-                      className="h-full w-full object-contain transition duration-500 group-hover:scale-105"
-                    />
-                  </div>
+                  <img
+                    src={item.image || "/cakes/chocolate-cake-1.jpg"}
+                    alt={item.name}
+                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                  />
 
-                  <div className="px-3 pb-3 text-center sm:px-4 sm:pb-4">
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                  {isBestSeller && (
+                    <span className="absolute right-2 top-2 z-10 rounded-full bg-[#D4AF37] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-sm sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-[10px]">
+                      Best Seller
+                    </span>
+                  )}
+
+                  <div className="relative mt-auto px-3 pb-3 pt-8 sm:px-4 sm:pb-4">
                     <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-xs">
                       {item.category}
                     </p>
-
-                    <h3 className="truncate font-display text-xs font-bold uppercase leading-tight text-[#3A2A2A] sm:text-sm">
+                    <h3 className="mt-0.5 truncate font-display text-xs font-bold uppercase leading-tight text-white sm:text-sm">
                       {item.name}
                     </h3>
-
-                    <p className="mt-1 font-serif text-sm font-bold text-[#1D3C42] sm:text-base">
-                      ₹{basePrice}
-                    </p>
                   </div>
                 </Link>
               </motion.div>

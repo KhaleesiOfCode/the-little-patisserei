@@ -6,8 +6,6 @@ import { useEffect, useState, useMemo } from "react";
 import { getMenuCategories } from "../lib/supabase/menu";
 import type { MenuCategory } from "../types/menu";
 
-const cardBg = "#F5E6D3";
-
 const BANNED_CATEGORIES = ["New Launches"];
 
 export default function CategoriesSection() {
@@ -31,7 +29,7 @@ export default function CategoriesSection() {
   if (display.length === 0) return null;
 
   return (
-    <section className="bg-[#FFF8E4] px-5 pb-16 pt-8 sm:px-6 sm:pb-24 sm:pt-12">
+    <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 text-center">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
@@ -42,18 +40,9 @@ export default function CategoriesSection() {
           </h2>
         </div>
 
-        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-row gap-4">
           {display.map((cat, i) => {
             const item = cat.items[0];
-            const caption =
-              cat.items.length > 0
-                ? cat.items.reduce(
-                    (best, curr) =>
-                      curr.description.length < best.description.length
-                        ? curr
-                        : best,
-                  ).description
-                : "Explore our selection";
 
             return (
               <motion.div
@@ -62,37 +51,31 @@ export default function CategoriesSection() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.15, duration: 0.6, ease: "easeOut" }}
+                className="flex-1"
               >
                 <Link
                   href={`/menu?category=${cat.name}`}
-                  className="flex h-full flex-col rounded-[28px] p-6 transition-all duration-500 hover:-translate-y-1 sm:p-8"
-                  style={{ backgroundColor: cardBg }}
+                  className="group relative flex aspect-square overflow-hidden rounded-2xl ring-1 ring-[#3A2A2A]/5 transition-all duration-500 hover:-translate-y-1.5 hover:shadow-lg hover:ring-[#D4AF37]/30"
                 >
-                  <div className="text-center">
-                    <h3 className="font-display text-2xl font-bold text-[#3A2A2A] sm:text-3xl">
+                  {item?.image ? (
+                    <img
+                      src={item.image}
+                      alt={cat.name}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-[#F5E6D3]" />
+                  )}
+
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+
+                  <div className="relative mt-auto px-3 pb-3 pt-8 sm:px-4 sm:pb-4">
+                    <h3 className="font-display text-base font-bold leading-tight text-white sm:text-lg">
                       {cat.name}
                     </h3>
-                    <p className="mt-1.5 text-xs uppercase tracking-[0.2em] text-[#7A6262]">
+                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-white/70 sm:text-xs">
                       {cat.items.length} {cat.items.length === 1 ? "item" : "items"}
                     </p>
-                  </div>
-
-                  <div className="mt-4 flex flex-1 items-center justify-center">
-                    {item?.image && (
-                      <div className="flex h-56 w-full items-center justify-center sm:h-64">
-                        <img
-                          src={item.image}
-                          alt={cat.name}
-                          className="h-full w-full object-contain transition duration-500 group-hover:scale-105"
-                        />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="mt-4 border-t border-[#3A2A2A]/10 pt-4 text-center">
-                    <span className="font-display text-sm italic tracking-wide text-[#7A6262]/70 line-clamp-1">
-                      {caption}
-                    </span>
                   </div>
                 </Link>
               </motion.div>

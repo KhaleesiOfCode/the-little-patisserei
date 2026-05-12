@@ -319,6 +319,14 @@ export interface OrderItem {
   created_at: string
 }
 
+export function formatQuantityLabel(label: string): string {
+  const num = label.replace(/[^0-9.]/g, "");
+  const unit = label.replace(/[0-9.\s]/g, "").toLowerCase();
+  if (!num) return label;
+  if (unit === "g" || unit === "kg") return `${num} ${unit}`;
+  return `${unit.charAt(0).toUpperCase() + unit.slice(1)} of ${num}`;
+}
+
 export const BADGE_KEYWORDS = [
   "Best Seller", "Bestseller", "New Launch", "Highly Recommended",
   "Highly Reordered", "Seasonal", "Signature", "Customer Favourite",

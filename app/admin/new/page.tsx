@@ -112,12 +112,12 @@ export default function AdminNewProductPage() {
 
   function onValueChange(index: number, val: string) {
     const unit = getPriceUnit(prices[index].quantity_label);
-    updatePrice(index, "quantity_label", val + unit);
+    updatePrice(index, "quantity_label", val + " " + unit);
   }
 
   function onUnitChange(index: number, unit: string) {
     const val = getPriceValue(prices[index].quantity_label);
-    updatePrice(index, "quantity_label", val + unit);
+    updatePrice(index, "quantity_label", val + " " + unit);
   }
 
   function clearError(field: string) {

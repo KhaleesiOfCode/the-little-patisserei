@@ -12,6 +12,7 @@ import {
 import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
+import { formatQuantityLabel } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
 import { isOrderWindowOpen } from "../lib/store-hours";
 
@@ -262,7 +263,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                   onClick={() => setIsDropdownOpen((prev) => !prev)}
                   className="flex items-center gap-1 rounded-full border border-[#D4AF37]/40 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
                 >
-                  <span>{selectedPrice.quantity_label}</span>
+                  <span>{formatQuantityLabel(selectedPrice.quantity_label)}</span>
                   <ChevronDown
                     size={12}
                     className={`shrink-0 transition sm:size-[14px] ${
@@ -291,7 +292,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                               : "text-[#1D3C42] hover:bg-[#FFF8E4]"
                           }`}
                         >
-                          <span>{p.quantity_label}</span>
+                          <span>{formatQuantityLabel(p.quantity_label)}</span>
                           <span>₹{Number(p.price)}</span>
                         </button>
                       );
@@ -301,7 +302,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               </div>
             ) : prices.length === 1 ? (
               <span className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
-                {selectedPrice.quantity_label}
+                {formatQuantityLabel(selectedPrice.quantity_label)}
               </span>
             ) : null}
 
@@ -364,7 +365,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 onClick={() => {
                   if (!cakeMessage && !cakeOccasion) return;
                   const msg = encodeURIComponent(
-                    `Hi, I'd like to enquire about the ${product.name} (${selectedPrice.quantity_label} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
+                    `Hi, I'd like to enquire about the ${product.name} (${formatQuantityLabel(selectedPrice.quantity_label)} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
                   );
                   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
                 }}
