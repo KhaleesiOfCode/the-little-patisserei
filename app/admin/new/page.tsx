@@ -63,6 +63,8 @@ export default function AdminNewProductPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
+  const [videoUrl, setVideoUrl] = useState("");
+
   const [courierSupported, setCourierSupported] = useState(true);
   const [courierWeight, setCourierWeight] = useState("");
   const [courierFragile, setCourierFragile] = useState(false);
@@ -184,6 +186,7 @@ export default function AdminNewProductPage() {
       courier_supported: courierSupported,
       courier_weight_grams: courierWeight ? Number(courierWeight) : null,
       courier_fragile: courierFragile,
+      video_url: videoUrl || null,
       courier_category: courierCategory || null,
       prices: prices.filter((p) => p.quantity_label.trim()),
     };
@@ -392,6 +395,19 @@ export default function AdminNewProductPage() {
               )}
             </div>
           ))}
+        </section>
+
+        {/* Video */}
+        <section className="rounded-2xl border border-[#F4CFC8] bg-white p-6">
+          <h2 className="mb-4 border-l-2 border-[#D4AF37]/50 pl-3 text-base font-extrabold text-[#1D3C42]">Video</h2>
+          <input
+            type="text"
+            value={videoUrl}
+            onChange={(e) => setVideoUrl(e.target.value)}
+            className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]"
+            placeholder="https://example.com/video.mp4"
+          />
+          <p className="mt-1.5 text-xs text-[#7A6262]">Enter a publicly accessible video URL (MP4, WebM, etc.)</p>
         </section>
 
         {/* Images */}

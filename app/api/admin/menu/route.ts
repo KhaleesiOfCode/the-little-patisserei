@@ -54,7 +54,7 @@ export async function POST(request: Request) {
 
   try {
     const body = await request.json();
-    const { prices, image_urls, ...fields } = body;
+    const { prices, image_urls, video_url, ...fields } = body;
 
     const slug = slugify(fields.name);
 
@@ -122,6 +122,22 @@ export async function POST(request: Request) {
       }
     }
 
+    // Insert video
+    if (video_url) {
+      const { error: videoError } = await adminSupabase
+        .from("menu_item_media")
+        .insert({
+          menu_item_id: item.id,
+          media_type: "video",
+          url: video_url,
+          display_order: 999,
+        });
+
+      if (videoError) {
+        console.error("Failed to insert video:", videoError);
+      }
+    }
+
     return NextResponse.json(item, { status: 201 });
   } catch (err) {
     return NextResponse.json({ error: String(err) }, { status: 500 });
@@ -136,7 +152,7 @@ export async function PUT(request: Request) {
 
   try {
     const body = await request.json();
-    const { id, prices, image_urls, media_to_remove, ...fields } = body;
+    const { id, prices, image_urls, video_url, media_to_remove, ...fields } = body;
 
     if (!id) {
       return NextResponse.json({ error: "Missing id" }, { status: 400 });
@@ -214,6 +230,26 @@ export async function PUT(request: Request) {
 
       if (mediaError) {
         console.error("Failed to insert media:", mediaError);
+      }
+    }
+
+    // Handle video
+    if (video_url !== undefined) {
+      await adminSupabase.from("menu_item_media").delete().eq("menu_item_id", id).eq("media_type", "video");
+
+      if (video_url) {
+        const { error: videoError } = await adminSupabase
+          .from("menu_item_media")
+          .insert({
+            menu_item_id: id,
+            media_type: "video",
+            url: video_url,
+            display_order: 999,
+          });
+
+        if (videoError) {
+          console.error("Failed to insert video:", videoError);
+        }
       }
     }
 

@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../../lib/store-hours";
 import type { MenuCategory } from "../../types/menu";
 
 export default function MenuPage() {
@@ -18,6 +19,13 @@ export default function MenuPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const [showClosurePopup, setShowClosurePopup] = useState(false);
+
+  useEffect(() => {
+    refreshStoreStatus().then(() => {
+      if (!isOrderWindowOpen()) setShowClosurePopup(true);
+    });
+  }, []);
 
   const allItems = useMemo(() => categories.flatMap((cat) => cat.items), [categories]);
 
@@ -235,6 +243,26 @@ export default function MenuPage() {
           </div>
         )}
       </section>
+
+      {showClosurePopup && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setShowClosurePopup(false)}>
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <svg viewBox="0 0 120 80" className="mx-auto h-20 w-28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
+              <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
+              <circle cx="60" cy="12" r="3" fill="white"/>
+              <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
+              <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+            </svg>
+            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
+            <p className="mt-2 text-sm text-[#7A6262]">
+              {getClosureReason() || "Orders are paused"}
+              {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
+            </p>
+            <button onClick={() => setShowClosurePopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

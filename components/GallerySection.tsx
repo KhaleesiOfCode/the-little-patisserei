@@ -2,26 +2,48 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 
-const GALLERY_IMAGES = [
-  { src: "/gallery/cake-1.jpg", label: "Chocolate Truffle Cake" },
-  { src: "/gallery/cake-2.jpg", label: "Mango Cream Cake" },
-  { src: "/gallery/cake-3.jpg", label: "Red Velvet Delight" },
-  { src: "/gallery/cake-4.jpg", label: "Birthday Special Cake" },
-  { src: "/gallery/cake-5.jpg", label: "Cupcake Box" },
-  { src: "/gallery/cake-6.jpg", label: "Anniversary Cake" },
-];
+const FALLBACK = Array.from({ length: 27 }, (_, i) => ({
+  src: `/gallery/cake-${i + 1}.jpg`,
+  caption: `Cake ${i + 1}`,
+}));
 
-const COPIES = 5;
-const IMG = [...Array(COPIES)].flatMap(() => GALLERY_IMAGES);
-const LEN = GALLERY_IMAGES.length;
+const COPIES = 3;
 
 export default function GallerySection() {
-  const [pos, setPos] = useState(LEN * Math.floor(COPIES / 2));
+  const [images, setImages] = useState(FALLBACK);
+  const [loaded, setLoaded] = useState(false);
+  const [pos, setPos] = useState(0);
   const [x, setX] = useState(0);
   const rowRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    fetch("/api/gallery")
+      .then((r) => r.json())
+      .then((data) => {
+        if (Array.isArray(data) && data.length > 0) {
+          setImages(data.map((img: { url: string; caption: string | null }) => ({
+            src: img.url,
+            caption: img.caption || "",
+          })));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const LEN = images.length;
+  const IMG = [...Array(COPIES)].flatMap(() => images);
   const currentIndex = ((pos % LEN) + LEN) % LEN;
+
+  useEffect(() => {
+    if (!loaded && LEN > 0) {
+      const nextTick = setTimeout(() => {
+        setPos(LEN * Math.floor(COPIES / 2));
+        setLoaded(true);
+      }, 0);
+      return () => clearTimeout(nextTick);
+    }
+  }, [LEN, loaded]);
 
   const updateOffset = useCallback(() => {
     if (!rowRef.current || !containerRef.current) return;
@@ -34,13 +56,8 @@ export default function GallerySection() {
     setX(offset);
   }, [pos]);
 
-  const next = useCallback(() => {
-    setPos((p) => p + 1);
-  }, []);
-
-  const prev = useCallback(() => {
-    setPos((p) => p - 1);
-  }, []);
+  const next = useCallback(() => setPos((p) => p + 1), []);
+  const prev = useCallback(() => setPos((p) => p - 1), []);
 
   useEffect(() => {
     updateOffset();
@@ -56,6 +73,8 @@ export default function GallerySection() {
     window.addEventListener("keydown", handleKey);
     return () => window.removeEventListener("keydown", handleKey);
   }, [prev, next]);
+
+  if (!loaded || LEN === 0) return null;
 
   return (
     <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
@@ -77,32 +96,27 @@ export default function GallerySection() {
               style={{ transform: `translateX(${x}px)` }}
             >
               {IMG.map((img, i) => {
-                const localIndex = ((i % LEN) + LEN) % LEN;
                 const dist = Math.abs(i - pos);
                 return (
                   <button
-                    key={`${localIndex}-${i}`}
+                    key={`${i}-${img.src}`}
                     onClick={() => setPos(i)}
                     className="w-[70%] shrink-0 sm:w-[55%] lg:w-[42%]"
                   >
-                    <div
-                      className="aspect-[4/3] overflow-hidden rounded-2xl"
+                    <img
+                      src={img.src}
+                      alt={img.caption}
+                      className="w-full rounded-2xl"
                       style={{
                         opacity: dist === 0 ? 1 : dist < 3 ? 0.45 : 0.1,
                         filter: dist > 1 ? "blur(3px)" : "none",
                         transform: `scale(${dist === 0 ? 1 : 0.9})`,
                         transition: "opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease",
                       }}
-                    >
-                      <img
-                        src={img.src}
-                        alt={img.label}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    {dist === 0 && (
+                    />
+                    {dist === 0 && img.caption && (
                       <p className="mt-3 text-center font-display text-sm font-bold text-[#3A2A2A] sm:text-base">
-                        {img.label}
+                        {img.caption}
                       </p>
                     )}
                   </button>
@@ -133,7 +147,7 @@ export default function GallerySection() {
         </div>
 
         <div className="mt-6 flex items-center justify-center gap-2 sm:mt-8">
-          {GALLERY_IMAGES.map((_, i) => (
+          {images.map((_, i) => (
             <button
               key={i}
               onClick={() => setPos(LEN * Math.floor(COPIES / 2) + i)}

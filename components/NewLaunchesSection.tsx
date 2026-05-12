@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { getNewLaunches } from "../lib/supabase/menu";
 import { useCart } from "./CartContext";
 import type { MenuItem, CartItem } from "../types/menu";
-import { isOrderWindowOpen } from "../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../lib/store-hours";
 
 const MAX_HOME_ITEMS = 4;
 
@@ -30,7 +30,8 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
 
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = async () => {
+    await refreshStoreStatus();
     if (!isOrderWindowOpen()) {
       setOrderClosedPopup(true);
       return;
@@ -110,7 +111,10 @@ function LaunchCard({ item, index }: { item: MenuItem; index: number }) {
               <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
             </svg>
             <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
-            <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
+            <p className="mt-2 text-sm text-[#7A6262]">
+              {getClosureReason() || "Orders are paused"}
+              {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
+            </p>
             <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
           </div>
         </div>

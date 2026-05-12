@@ -3,12 +3,14 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, ClipboardList, Box, Plus, LogOut } from "lucide-react";
+import { Menu, X, ClipboardList, Box, Plus, Image, Clock, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "/admin/orders", label: "Orders", icon: ClipboardList },
   { href: "/admin/menu", label: "Menu", icon: Box },
   { href: "/admin/new", label: "New Product", icon: Plus },
+  { href: "/admin/gallery", label: "Gallery", icon: Image },
+  { href: "/admin/store-status", label: "Store Hours", icon: Clock },
 ];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {

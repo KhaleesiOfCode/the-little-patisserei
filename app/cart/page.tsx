@@ -16,7 +16,7 @@ import {
   sanitizeAddress, sanitizePincode, sanitizeEmail,
   validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
-import { isOrderWindowOpen } from "../../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../../lib/store-hours";
 
 export default function CartPage() {
   const router = useRouter();
@@ -25,13 +25,13 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paid, setPaid] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
-  const [orderWindowOpen, setOrderWindowOpen] = useState(isOrderWindowOpen());
-  const [showCourierDetails, setShowCourierDetails] = useState(false);
-  const [sameAsDeliveryAddress, setSameAsDeliveryAddress] = useState(true);
-  const [awaitingSubMode, setAwaitingSubMode] = useState(false);
+  const [orderWindowOpen, setOrderWindowOpen] = useState(true);
 
   useEffect(() => {
-    const interval = setInterval(() => setOrderWindowOpen(isOrderWindowOpen()), 60000)
+    refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
+    const interval = setInterval(() => {
+      refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
+    }, 60000)
     return () => clearInterval(interval)
   }, [])
 
@@ -269,7 +269,10 @@ export default function CartPage() {
             <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
           </svg>
           <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">Store is currently closed</h1>
-          <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders tomorrow at 8:00 AM.</p>
+          <p className="mt-2 text-sm text-[#7A6262]">
+            {getClosureReason() || "Orders are paused"}
+            {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
+          </p>
           <Link href="/" className="mt-6 inline-block rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Back to Home</Link>
         </section>
       </main>
@@ -667,7 +670,7 @@ export default function CartPage() {
 
               {!orderWindowOpen && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
-                  <p className="text-sm font-semibold text-amber-700">Orders are currently closed (7 AM - 8 PM IST). Please come back during business hours.</p>
+                  <p className="text-sm font-semibold text-amber-700">{getClosureReason() || "Orders are currently closed"}{getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}</p>
                 </div>
               )}
 

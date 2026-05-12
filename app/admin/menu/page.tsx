@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
@@ -21,6 +21,7 @@ interface AdminMenuItem {
 
 export default function AdminMenuPage() {
   const [items, setItems] = useState<AdminMenuItem[]>([]);
+  const [filterCat, setFilterCat] = useState("all");
   const [loading, setLoading] = useState(true);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
@@ -53,6 +54,20 @@ export default function AdminMenuPage() {
     return (c as { name: string }).name || "—";
   };
 
+  const categories = useMemo(() => {
+    const names = new Set<string>();
+    items.forEach((i) => {
+      const n = catName(i);
+      if (n && n !== "—") names.add(n);
+    });
+    return [...names].sort();
+  }, [items]);
+
+  const filtered = useMemo(
+    () => (filterCat === "all" ? items : items.filter((i) => catName(i) === filterCat)),
+    [items, filterCat]
+  );
+
   const thumb = (item: AdminMenuItem) => {
     if (item.media?.length) return item.media[0].url;
     return null;
@@ -74,18 +89,30 @@ export default function AdminMenuPage() {
         </div>
       )}
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-extrabold text-[#1D3C42]">Menu</h1>
-          <p className="text-sm text-[#7A6262]">{items.length} products</p>
+          <p className="text-sm text-[#7A6262]">{filtered.length} of {items.length} products</p>
         </div>
-        <Link
-          href="/admin/new"
-          className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#163136]"
-        >
-          <Plus size={18} />
-          New Product
-        </Link>
+        <div className="flex items-center gap-3">
+          <select
+            value={filterCat}
+            onChange={(e) => setFilterCat(e.target.value)}
+            className="rounded-xl border border-[#F4CFC8] bg-white px-3 py-2.5 text-sm font-semibold text-[#1D3C42] outline-none focus:border-[#D4AF37]"
+          >
+            <option value="all">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <Link
+            href="/admin/new"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-6 py-3 text-sm font-semibold text-white transition hover:bg-[#163136]"
+          >
+            <Plus size={18} />
+            New Product
+          </Link>
+        </div>
       </div>
 
       {items.length === 0 ? (
@@ -98,7 +125,7 @@ export default function AdminMenuPage() {
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {items.map((item) => (
+          {filtered.map((item) => (
             <div key={item.id} className="group rounded-2xl border border-[#F4CFC8] bg-white p-5 shadow-sm transition-all hover:-translate-y-0.5 hover:border-[#D4AF37]/40 hover:shadow-md">
               <div className="flex items-start gap-4">
                 <div className="shrink-0">

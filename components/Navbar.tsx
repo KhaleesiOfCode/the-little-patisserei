@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "./CartContext";
-import { isOrderWindowOpen } from "../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus } from "../lib/store-hours";
 
 export default function Navbar() {
   const { cart } = useCart();
@@ -13,7 +13,10 @@ export default function Navbar() {
   const [storeOpen, setStoreOpen] = useState(isOrderWindowOpen());
 
   useEffect(() => {
-    const interval = setInterval(() => setStoreOpen(isOrderWindowOpen()), 60000);
+    refreshStoreStatus().then(() => setStoreOpen(isOrderWindowOpen()));
+    const interval = setInterval(() => {
+      refreshStoreStatus().then(() => setStoreOpen(isOrderWindowOpen()));
+    }, 60000);
     return () => clearInterval(interval);
   }, []);
 

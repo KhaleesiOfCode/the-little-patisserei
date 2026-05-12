@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import { formatQuantityLabel } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
-import { isOrderWindowOpen } from "../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../lib/store-hours";
 
 const WHATSAPP_NUMBER = "919488407130";
 
@@ -46,7 +46,8 @@ export default function ProductCard({ product }: { product: MenuItem }) {
   const [customizationOpen, setCustomizationOpen] = useState(false);
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
 
-  const handleAddToCart = () => {
+  const handleAddToCart = async () => {
+    await refreshStoreStatus();
     if (!isOrderWindowOpen()) {
       setOrderClosedPopup(true);
       return;
@@ -138,12 +139,12 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             setActiveIndex(0);
             setIsGalleryOpen(true);
           }}
-          className="relative aspect-[4/3] overflow-hidden rounded-xl bg-[#FADCD4] text-left sm:aspect-square sm:rounded-[1.5rem]"
+          className="relative aspect-square overflow-hidden rounded-xl bg-[#FADCD4] p-1.5 text-left sm:rounded-[1.5rem] sm:p-2"
         >
           <img
             src={mediaItems[0]?.src || fallbackImage}
             alt={product.name}
-            className="h-full w-full object-cover transition duration-500 hover:scale-105"
+            className="h-full w-full rounded-lg object-cover transition duration-500 hover:scale-105"
           />
 
           {extraCount > 0 && (
@@ -221,92 +222,89 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             </div>
           )}
 
-          {product.shelf_life && (
-            <p className="mt-2 flex items-center gap-1 text-xs font-semibold text-[#7A6262] sm:mt-3 sm:gap-2">
-              <Clock size={14} />
-              Shelf life: {product.shelf_life}
-            </p>
-          )}
-
-          {hasEggChoice && (
-            <div className="mt-2 flex items-center gap-2 sm:mt-3">
-              <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                Egg
-              </span>
-
-              <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
-                {["Eggless", "Egg"].map((option) => (
-                  <button
-                    key={option}
-                    type="button"
-                    onClick={() => setEggOption(option)}
-                    className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
-                      eggOption === option
-                        ? "bg-[#1D3C42] text-white shadow-sm"
-                        : "text-[#1D3C42] hover:bg-white"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center justify-end gap-2 sm:mt-4 sm:gap-3">
-            {prices.length > 1 ? (
-              <div className="relative" ref={dropdownRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsDropdownOpen((prev) => !prev)}
-                  className="flex items-center gap-1 rounded-full border border-[#D4AF37]/40 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
-                >
-                  <span>{formatQuantityLabel(selectedPrice.quantity_label)}</span>
-                  <ChevronDown
-                    size={12}
-                    className={`shrink-0 transition sm:size-[14px] ${
-                      isDropdownOpen ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-
-                {isDropdownOpen && (
-                  <div className="absolute bottom-full right-0 z-30 mb-2 w-44 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
-                    {prices.map((p) => {
-                      const isSelected =
-                        selectedPrice.quantity_label === p.quantity_label;
-
-                      return (
-                        <button
-                          key={p.quantity_label}
-                          type="button"
-                          onClick={() => {
-                            setSelectedPrice(p);
-                            setIsDropdownOpen(false);
-                          }}
-                          className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition ${
-                            isSelected
-                              ? "bg-[#1D3C42] text-white"
-                              : "text-[#1D3C42] hover:bg-[#FFF8E4]"
-                          }`}
-                        >
-                          <span>{formatQuantityLabel(p.quantity_label)}</span>
-                          <span>₹{Number(p.price)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 sm:mt-3">
+            {hasEggChoice ? (
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+                  Egg
+                </span>
+                <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
+                  {["Eggless", "Egg"].map((option) => (
+                    <button
+                      key={option}
+                      type="button"
+                      onClick={() => setEggOption(option)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
+                        eggOption === option
+                          ? "bg-[#1D3C42] text-white shadow-sm"
+                          : "text-[#1D3C42] hover:bg-white"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ))}
+                </div>
               </div>
-            ) : prices.length === 1 ? (
-              <span className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
-                {formatQuantityLabel(selectedPrice.quantity_label)}
-              </span>
-            ) : null}
+            ) : product.shelf_life ? (
+              <p className="flex items-center gap-1 text-xs font-semibold text-[#7A6262] sm:gap-2">
+                <Clock size={14} />
+                Shelf life: {product.shelf_life}
+              </p>
+            ) : <span />}
 
             <div className="flex items-center gap-2 sm:gap-3">
+              {prices.length > 1 ? (
+                <div className="relative" ref={dropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setIsDropdownOpen((prev) => !prev)}
+                    className="flex items-center gap-1 rounded-full border border-[#D4AF37]/40 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
+                  >
+                    <span>{formatQuantityLabel(selectedPrice.quantity_label)}</span>
+                    <ChevronDown
+                      size={12}
+                      className={`shrink-0 transition sm:size-[14px] ${
+                        isDropdownOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute bottom-full right-0 z-30 mb-2 w-44 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
+                      {prices.map((p) => {
+                        const isSelected =
+                          selectedPrice.quantity_label === p.quantity_label;
+
+                        return (
+                          <button
+                            key={p.quantity_label}
+                            type="button"
+                            onClick={() => {
+                              setSelectedPrice(p);
+                              setIsDropdownOpen(false);
+                            }}
+                            className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition ${
+                              isSelected
+                                ? "bg-[#1D3C42] text-white"
+                                : "text-[#1D3C42] hover:bg-[#FFF8E4]"
+                            }`}
+                          >
+                            <span>{formatQuantityLabel(p.quantity_label)}</span>
+                            <span>₹{Number(p.price)}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              ) : prices.length === 1 ? (
+                <span className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
+                  {formatQuantityLabel(selectedPrice.quantity_label)}
+                </span>
+              ) : null}
+
               <p className="text-base font-black text-[#1D3C42] sm:text-xl">
                 ₹{Number(selectedPrice.price)}
               </p>
@@ -499,7 +497,10 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
             </svg>
             <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
-            <p className="mt-2 text-sm text-[#7A6262]">The store will reopen for orders on Tomorrow at 7 AM</p>
+            <p className="mt-2 text-sm text-[#7A6262]">
+              {getClosureReason() || "Orders are paused"}
+              {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
+            </p>
             <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
           </div>
         </div>
@@ -521,23 +522,21 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             className="mx-auto flex h-full max-w-5xl flex-col justify-center"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="relative overflow-hidden rounded-[2rem] bg-white p-3">
-              <div className="aspect-video overflow-hidden rounded-[1.5rem] bg-[#FADCD4]">
-                {activeMedia?.type === "video" ? (
-                  <video
-                    src={activeMedia.src}
-                    controls
-                    autoPlay
-                    className="h-full w-full object-contain"
-                  />
-                ) : (
-                  <img
-                    src={activeMedia?.src || fallbackImage}
-                    alt={product.name}
-                    className="h-full w-full object-contain"
-                  />
-                )}
-              </div>
+            <div className="relative flex max-h-[85vh] items-center justify-center overflow-hidden rounded-2xl bg-black/5 sm:rounded-3xl">
+              {activeMedia?.type === "video" ? (
+                <video
+                  src={activeMedia.src}
+                  controls
+                  autoPlay
+                  className="max-h-[85vh] w-full object-contain"
+                />
+              ) : (
+                <img
+                  src={activeMedia?.src || fallbackImage}
+                  alt={product.name}
+                  className="max-h-[85vh] w-full object-contain"
+                />
+              )}
 
               {mediaItems.length > 1 && (
                 <>
