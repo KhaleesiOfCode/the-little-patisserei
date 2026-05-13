@@ -246,9 +246,10 @@ export default function CartPage() {
       quantityLabel: item.selectedQuantity, eggOption: item.selectedEggOption,
       productId: item.originalId || item.id,
     }));
-    const deliveryDate = effectiveMode === "courier" ? courierEarliestDate : slotInfo.earliestDate;
-    const estimatedDeliveryAt = new Date(deliveryDate);
-    estimatedDeliveryAt.setHours(effectiveMode === "courier" ? 0 : slotInfo.earliestHour, 0, 0, 0);
+    const selectedDate = effectiveMode === "pickup" ? form.pickupDate : form.deliveryDate;
+    const estimatedDeliveryAt = selectedDate
+      ? new Date(selectedDate + "T12:00:00")
+      : new Date(effectiveMode === "courier" ? courierEarliestDate : slotInfo.earliestDate);
     const order = await createOrder(
       {
         ...form,
