@@ -26,6 +26,9 @@ export default function CartPage() {
   const [paid, setPaid] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
   const [showCourierPopup, setShowCourierPopup] = useState(false);
+  const [awaitingSubMode, setAwaitingSubMode] = useState(false);
+  const [sameAsDeliveryAddress, setSameAsDeliveryAddress] = useState(true);
+  const [showCourierDetails, setShowCourierDetails] = useState(false);
   const [orderWindowOpen, setOrderWindowOpen] = useState(true);
 
   useEffect(() => {
