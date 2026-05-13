@@ -211,39 +211,56 @@ export default function TrackPage() {
           {/* Divider */}
           <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
-          {/* Info grid */}
-          {(order.delivery_fee ?? 0) > 0 ? (
-            <div className="mt-4 grid grid-cols-2 gap-3">
-              <div className="rounded-xl bg-[#FFF8E4] p-3 text-center ring-1 ring-[#F4CFC8]">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
-                <p className="mt-0.5 font-mono text-sm font-extrabold text-[#1D3C42]">₹{order.delivery_fee}</p>
-                {order.delivery_fee_status === "estimated" && <p className="text-[10px] text-[#7A6262]">Estimated</p>}
-              </div>
-              {order.estimated_delivery_at && (
-                <div className="rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+          {/* Info cards — stacked */}
+          {(() => {
+            const hasDeliveryFee = (order.delivery_fee ?? 0) > 0;
+            const hasEstDelivery = !!order.estimated_delivery_at;
+            if (hasDeliveryFee && hasEstDelivery) {
+              return (
+                <div className="mt-4 space-y-3">
+                  <div className="flex items-center justify-between rounded-xl bg-[#FFF8E4] p-4 ring-2 ring-[#D4AF37]/30">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
+                      {order.delivery_fee_status === "estimated" && <p className="text-[10px] text-[#7A6262]">Estimated</p>}
+                    </div>
+                    <p className="font-mono text-lg font-extrabold text-[#1D3C42]">₹{order.delivery_fee}</p>
+                  </div>
+                  <div className="rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+                    <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
+                    <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
+                      {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+                    </p>
+                    {order.preferred_delivery_slot && <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>}
+                  </div>
+                </div>
+              );
+            }
+            if (hasDeliveryFee) {
+              return (
+                <div className="mt-4 rounded-xl bg-[#FFF8E4] p-4 ring-2 ring-[#D4AF37]/30">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
+                      {order.delivery_fee_status === "estimated" && <p className="text-[10px] text-[#7A6262]">Estimated</p>}
+                    </div>
+                    <p className="font-mono text-lg font-extrabold text-[#1D3C42]">₹{order.delivery_fee}</p>
+                  </div>
+                </div>
+              );
+            }
+            if (hasEstDelivery) {
+              return (
+                <div className="mt-4 rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
                   <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
                   <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
                     {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
                   </p>
-                  {order.preferred_delivery_slot && (
-                    <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
-                  )}
+                  {order.preferred_delivery_slot && <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>}
                 </div>
-              )}
-            </div>
-          ) : order.estimated_delivery_at ? (
-            <div className="mt-4 flex justify-center">
-              <div className="w-full max-w-xs rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
-                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
-                <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
-                  {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
-                </p>
-                {order.preferred_delivery_slot && (
-                  <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
-                )}
-              </div>
-            </div>
-          ) : null}
+              );
+            }
+            return null;
+          })()}
 
           {/* Delivery provider */}
           {order.delivery_provider_name && (
