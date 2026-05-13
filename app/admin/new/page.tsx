@@ -38,6 +38,7 @@ function getPriceUnit(label: string): string {
 export default function AdminNewProductPage() {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoFileInputRef = useRef<HTMLInputElement>(null);
 
   const [categories, setCategories] = useState<Category[]>([]);
   const [saving, setSaving] = useState(false);
@@ -63,7 +64,8 @@ export default function AdminNewProductPage() {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
 
-  const [videoUrl, setVideoUrl] = useState("");
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreview, setVideoPreview] = useState<string>("");
 
   const [courierSupported, setCourierSupported] = useState(true);
   const [courierWeight, setCourierWeight] = useState("");
@@ -93,6 +95,21 @@ export default function AdminNewProductPage() {
     URL.revokeObjectURL(imagePreviews[index]);
     setImageFiles((prev) => prev.filter((_, i) => i !== index));
     setImagePreviews((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  function handleVideoSelect(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (videoPreview) URL.revokeObjectURL(videoPreview);
+      setVideoFile(file);
+      setVideoPreview(URL.createObjectURL(file));
+    }
+  }
+
+  function removeVideo() {
+    if (videoPreview) URL.revokeObjectURL(videoPreview);
+    setVideoFile(null);
+    setVideoPreview("");
   }
 
   function addPrice() {
@@ -186,7 +203,7 @@ export default function AdminNewProductPage() {
       courier_supported: courierSupported,
       courier_weight_grams: courierWeight ? Number(courierWeight) : null,
       courier_fragile: courierFragile,
-      video_url: videoUrl || null,
+      video_url: null,
       courier_category: courierCategory || null,
       prices: prices.filter((p) => p.quantity_label.trim()),
     };
@@ -247,6 +264,35 @@ export default function AdminNewProductPage() {
         setSaving(false);
         return;
       }
+    }
+
+    // Upload video
+    if (videoFile) {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append("file", videoFile);
+      formData.append("menuItemId", product.id);
+
+      const uploadRes = await fetch("/api/admin/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (uploadRes.ok) {
+        const { url } = await uploadRes.json();
+        await fetch("/api/admin/menu", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id: product.id, video_url: url }),
+        });
+      } else {
+        setNotification("Video failed to upload. Product was created.");
+        setTimeout(() => setNotification(null), 5000);
+        setSaving(false);
+        setUploading(false);
+        return;
+      }
+      setUploading(false);
     }
 
     router.push("/admin/menu");
@@ -400,14 +446,23 @@ export default function AdminNewProductPage() {
         {/* Video */}
         <section className="rounded-2xl border border-[#F4CFC8] bg-white p-6">
           <h2 className="mb-4 border-l-2 border-[#D4AF37]/50 pl-3 text-base font-extrabold text-[#1D3C42]">Video</h2>
-          <input
-            type="text"
-            value={videoUrl}
-            onChange={(e) => setVideoUrl(e.target.value)}
-            className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]"
-            placeholder="https://example.com/video.mp4"
-          />
-          <p className="mt-1.5 text-xs text-[#7A6262]">Enter a publicly accessible video URL (MP4, WebM, etc.)</p>
+          {videoPreview ? (
+            <div className="relative inline-block">
+              <video src={videoPreview} className="h-40 rounded-xl border border-[#F4CFC8]" controls />
+              <button type="button" onClick={removeVideo} className="absolute right-1 top-1 rounded-full bg-red-500 p-1 text-white">
+                <Trash2 size={14} />
+              </button>
+            </div>
+          ) : (
+            <button type="button" onClick={() => videoFileInputRef.current?.click()} className="flex h-32 w-full items-center justify-center rounded-xl border-2 border-dashed border-[#D4AF37]/30 text-[#7A6262] transition hover:border-[#D4AF37] hover:text-[#1D3C42]">
+              <div className="text-center">
+                <Upload size={28} className="mx-auto mb-2" />
+                <span className="text-sm font-semibold">Click to upload video</span>
+                <p className="mt-1 text-xs">MP4, WebM, etc.</p>
+              </div>
+            </button>
+          )}
+          <input ref={videoFileInputRef} type="file" accept="video/*" onChange={handleVideoSelect} className="hidden" />
         </section>
 
         {/* Images */}

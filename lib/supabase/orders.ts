@@ -1,6 +1,5 @@
 import { supabase } from "./client";
 import type { Order, OrderItem, OrderFormData, OrderStatus } from "../../types/menu";
-import { getMinDateTime } from "../../types/menu";
 
 export async function createOrder(
   form: OrderFormData,
@@ -12,10 +11,10 @@ export async function createOrder(
   totalWeight?: number | null,
   weightSlab?: string | null,
   fragileSurcharge?: number,
+  estimatedDeliveryAt?: string,
 ): Promise<Order | null> {
   const orderNumber = `ORD-${Date.now().toString(36).toUpperCase()}-${Math.floor(Math.random() * 1000)}`;
   const mode = form.deliveryMode;
-  const minAt = getMinDateTime(mode);
 
   const isCourierCalculated = mode === "courier" && deliveryFee > 0
   const feeStatus = mode === "pickup" ? "included" : mode === "courier" ? (isCourierCalculated ? "calculated" : "pending_confirmation") : "zone";
@@ -39,7 +38,7 @@ export async function createOrder(
     delivery_fee_status: feeStatus,
     delivery_charge: actualFee,
     total: orderTotal,
-    estimated_delivery_at: minAt.toISOString(),
+    estimated_delivery_at: estimatedDeliveryAt || new Date().toISOString(),
     customer_name: form.name,
     customer_phone: form.phone,
     customer_email: form.email || null,

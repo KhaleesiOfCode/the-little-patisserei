@@ -111,15 +111,6 @@ export function estimateDeliveryFee(
   return { fee: 0, status: "manual" }
 }
 
-export function getMinHours(mode: DeliveryMode): number {
-  return 24
-}
-
-export function getMinDateTime(mode: DeliveryMode): Date {
-  const now = new Date()
-  return new Date(now.getTime() + getMinHours(mode) * 60 * 60 * 1000)
-}
-
 export type OrderStatus =
   | "order_received"
   | "baker_confirmed"

@@ -1,8 +1,10 @@
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
+import Link from "next/link";
+import { ArrowRight, Sparkles } from "lucide-react";
 
-const FALLBACK = Array.from({ length: 27 }, (_, i) => ({
+const FALLBACK = Array.from({ length: 29 }, (_, i) => ({
   src: `/gallery/cake-${i + 1}.jpg`,
   caption: `Cake ${i + 1}`,
 }));
@@ -81,11 +83,15 @@ export default function GallerySection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 text-center sm:mb-14">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
-            Our Creations
+            Custom Creations
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold text-[#1D3C42] sm:text-4xl">
-            Gallery
+            Our Gallery
           </h2>
+          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[#7A6262]">
+            Every cake tells a story. Browse our collection of custom-designed celebration cakes —
+            each one crafted with love and attention to detail.
+          </p>
         </div>
 
         <div className="relative mx-auto max-w-5xl" ref={containerRef}>
@@ -103,17 +109,19 @@ export default function GallerySection() {
                     onClick={() => setPos(i)}
                     className="w-[70%] shrink-0 sm:w-[55%] lg:w-[42%]"
                   >
-                    <img
-                      src={img.src}
-                      alt={img.caption}
-                      className="w-full rounded-2xl"
-                      style={{
-                        opacity: dist === 0 ? 1 : dist < 3 ? 0.45 : 0.1,
-                        filter: dist > 1 ? "blur(3px)" : "none",
-                        transform: `scale(${dist === 0 ? 1 : 0.9})`,
-                        transition: "opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease",
-                      }}
-                    />
+                    <div className="overflow-hidden rounded-2xl shadow-lg ring-1 ring-[#F4CFC8]">
+                      <img
+                        src={img.src}
+                        alt={img.caption}
+                        className="w-full transition duration-500"
+                        style={{
+                          opacity: dist === 0 ? 1 : dist < 3 ? 0.45 : 0.1,
+                          filter: dist > 1 ? "blur(3px)" : "none",
+                          transform: `scale(${dist === 0 ? 1.02 : 0.9})`,
+                          transition: "opacity 0.5s ease, filter 0.5s ease, transform 0.5s ease",
+                        }}
+                      />
+                    </div>
                     {dist === 0 && img.caption && (
                       <p className="mt-3 text-center font-display text-sm font-bold text-[#3A2A2A] sm:text-base">
                         {img.caption}
@@ -159,6 +167,17 @@ export default function GallerySection() {
               }`}
             />
           ))}
+        </div>
+
+        <div className="mt-10 text-center">
+          <Link
+            href="/gallery"
+            className="inline-flex items-center gap-2 rounded-full bg-[#1D3C42] px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:-translate-y-0.5 hover:bg-[#163136] hover:shadow-xl"
+          >
+            <Sparkles size={16} />
+            View Full Gallery
+            <ArrowRight size={16} />
+          </Link>
         </div>
       </div>
     </section>

@@ -7,7 +7,7 @@ import { Trash2, FileText, Lock, CreditCard, CheckCircle, ArrowLeft, AlertTriang
 import { useCart } from "../../components/CartContext";
 import { createOrder } from "../../lib/supabase/orders";
 import type { OrderFormData, DeliveryMode } from "../../types/menu";
-import { getMinDateTime } from "../../types/menu";
+import { getSlotInfo, getAvailableSlots } from "../../lib/slot-logic";
 import { getDeliveryZone, getDeliveryFeeMessage } from "../../lib/delivery-zones";
 import { calculateCourierCharge, getCourierMessage } from "../../lib/delivery/courierZones";
 import { SOUTH_INDIA_STATES, getDistrictsForState, getCitiesForDistrict } from "../../lib/delivery/southIndiaData";
@@ -86,6 +86,18 @@ export default function CartPage() {
   const hasNonBrownieItems = effectiveMode === "courier" && cart.some((item) => item.category !== "Brownies")
   const courierDisabled = hasNonCourierItems || hasNonBrownieItems
 
+  const slotInfo = useMemo(() => getSlotInfo(cart), [cart]);
+
+  const pickupSlots = useMemo(
+    () => getAvailableSlots(form.pickupDate, slotInfo.earliestDate, slotInfo.earliestHour),
+    [form.pickupDate, slotInfo],
+  );
+
+  const deliverySlots = useMemo(
+    () => getAvailableSlots(form.deliveryDate, slotInfo.earliestDate, slotInfo.earliestHour),
+    [form.deliveryDate, slotInfo],
+  );
+
   const courierDeliveryEstimate = useMemo(() => {
     if (effectiveMode !== "courier" || !form.state) return ""
     if (form.state === "Tamil Nadu") return "Estimated delivery: 1 day"
@@ -99,10 +111,7 @@ export default function CartPage() {
   const deliveryZone = effectiveMode === "local_delivery" ? zoneInfo.zone.key : effectiveMode === "courier" ? (courierCalc?.courier_zone ?? null) : null;
   const deliverySupported = effectiveMode !== "local_delivery" || zoneInfo.isSupported;
 
-  const minDate = useMemo(() => {
-    const d = getMinDateTime(effectiveMode || "local_delivery");
-    return d.toISOString().split("T")[0];
-  }, [effectiveMode]);
+  const minDate = slotInfo.earliestDate.toISOString().split("T")[0];
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
@@ -213,6 +222,8 @@ export default function CartPage() {
       quantityLabel: item.selectedQuantity, eggOption: item.selectedEggOption,
       productId: item.originalId || item.id,
     }));
+    const estimatedDeliveryAt = new Date(slotInfo.earliestDate);
+    estimatedDeliveryAt.setHours(slotInfo.earliestHour, 0, 0, 0);
     const order = await createOrder(
       {
         ...form,
@@ -228,6 +239,7 @@ export default function CartPage() {
       courierCalc?.total_courier_weight_grams ?? null,
       courierCalc?.courier_weight_slab ?? null,
       fragileSurcharge,
+      estimatedDeliveryAt.toISOString(),
     );
     if (order) { clearCart(); router.push(`/order/confirmation?id=${order.id}`); }
   };
@@ -397,7 +409,7 @@ export default function CartPage() {
                 {effectiveMode === "pickup" && (
                   <div className="mt-6 grid gap-4">
                     <div className="rounded-2xl bg-green-50 p-4 text-sm font-semibold text-green-800 ring-1 ring-green-200">
-                      Pickup from our bakery. Ready by {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} (24 hrs prep)
+                      Pickup from our bakery. Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
@@ -420,16 +432,15 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup date *</label>
                         <input type="date" value={form.pickupDate} onChange={(e) => update("pickupDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} (24 hrs prep)</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup time</label>
                         <select value={form.pickupSlot} onChange={(e) => update("pickupSlot", e.target.value)} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]">
                           <option value="">Select time</option>
-                          <option value="9AM-12PM">9 AM - 12 PM</option>
-                          <option value="12PM-3PM">12 PM - 3 PM</option>
-                          <option value="3PM-6PM">3 PM - 6 PM</option>
-                          <option value="6PM-9PM">6 PM - 9 PM</option>
+                          {pickupSlots.map((slot) => (
+                            <option key={slot.value} value={slot.value}>{slot.label}</option>
+                          ))}
                         </select>
                       </div>
                     </div>
@@ -444,8 +455,8 @@ export default function CartPage() {
                         : "bg-green-50 text-green-800 ring-green-200"
                     }`}>
                       {effectiveMode === "courier" ? (
-                        <><AlertTriangle size={16} className="mr-1 inline" /> Prep Time — minimum 24 hours. {courierDeliveryEstimate}</>
-                      ) : "Within Chennai — minimum 24 hours."}
+                        <><AlertTriangle size={16} className="mr-1 inline" /> {slotInfo.prepLabel}. {courierDeliveryEstimate}</>
+                      ) : `Within Chennai — ${slotInfo.prepLabel}.`}
                     </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
@@ -547,16 +558,15 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Preferred delivery date</label>
                         <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Ready by: {new Date(minDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}                         (24 hrs prep)</p>
+                        <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Delivery slot</label>
                         <select value={form.deliverySlot} onChange={(e) => update("deliverySlot", e.target.value)} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]">
                           <option value="">Select slot</option>
-                          <option value="9AM-12PM">9 AM - 12 PM</option>
-                          <option value="12PM-3PM">12 PM - 3 PM</option>
-                          <option value="3PM-6PM">3 PM - 6 PM</option>
-                          <option value="6PM-9PM">6 PM - 9 PM</option>
+                          {deliverySlots.map((slot) => (
+                            <option key={slot.value} value={slot.value}>{slot.label}</option>
+                          ))}
                         </select>
                       </div>
                     </div>

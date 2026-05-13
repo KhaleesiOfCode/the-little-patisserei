@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Trash2, Upload } from "lucide-react";
+import { Trash2, Upload, Link, ChevronUp, ChevronDown, Check, X } from "lucide-react";
 
 interface GalleryImage {
   id: string;
@@ -14,8 +14,11 @@ export default function AdminGalleryPage() {
   const [images, setImages] = useState<GalleryImage[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInput, setUrlInput] = useState("");
   const [captionInput, setCaptionInput] = useState("");
+  const [editingCaption, setEditingCaption] = useState<string | null>(null);
+  const [editValue, setEditValue] = useState("");
   const [message, setMessage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -29,6 +32,11 @@ export default function AdminGalleryPage() {
       .catch(() => setLoading(false));
   }, []);
 
+  function showMessage(msg: string) {
+    setMessage(msg);
+    setTimeout(() => setMessage(null), 3000);
+  }
+
   async function addImage(url: string, caption: string) {
     const res = await fetch("/api/admin/gallery", {
       method: "POST",
@@ -41,30 +49,69 @@ export default function AdminGalleryPage() {
       setImages((prev) => [...prev, img]);
       setUrlInput("");
       setCaptionInput("");
-      setMessage("Image added");
+      showMessage("Image added");
     } else {
-      setMessage("Failed to add image");
+      showMessage("Failed to add image");
     }
-    setTimeout(() => setMessage(null), 3000);
   }
 
   async function deleteImage(id: string) {
     const res = await fetch(`/api/admin/gallery?id=${id}`, { method: "DELETE" });
     if (res.ok) {
       setImages((prev) => prev.filter((img) => img.id !== id));
-      setMessage("Image deleted");
+      showMessage("Image deleted");
     } else {
-      setMessage("Failed to delete");
+      showMessage("Failed to delete");
     }
-    setTimeout(() => setMessage(null), 3000);
   }
 
-  async function moveImage(id: string, newOrder: number) {
-    await fetch("/api/admin/gallery", {
+  async function updateCaption(id: string, caption: string) {
+    const res = await fetch("/api/admin/gallery", {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id, display_order: newOrder }),
+      body: JSON.stringify({ id, caption: caption || null }),
     });
+    if (res.ok) {
+      setImages((prev) => prev.map((img) => img.id === id ? { ...img, caption: caption || null } : img));
+      showMessage("Caption updated");
+    }
+    setEditingCaption(null);
+  }
+
+  async function moveImage(id: string, direction: "up" | "down") {
+    const idx = images.findIndex((img) => img.id === id);
+    if (idx === -1) return;
+    if (direction === "up" && idx === 0) return;
+    if (direction === "down" && idx === images.length - 1) return;
+
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    const sorted = [...images].sort((a, b) => a.display_order - b.display_order);
+    const current = sorted[idx];
+    const swap = sorted[swapIdx];
+    if (!current || !swap) return;
+
+    const temp = current.display_order;
+    current.display_order = swap.display_order;
+    swap.display_order = temp;
+
+    await Promise.all([
+      fetch("/api/admin/gallery", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: current.id, display_order: current.display_order }),
+      }),
+      fetch("/api/admin/gallery", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: swap.id, display_order: swap.display_order }),
+      }),
+    ]);
+
+    setImages((prev) => prev.map((img) => {
+      if (img.id === current.id) return { ...img, display_order: current.display_order };
+      if (img.id === swap.id) return { ...img, display_order: swap.display_order };
+      return img;
+    }));
   }
 
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -81,8 +128,7 @@ export default function AdminGalleryPage() {
       const { url } = await res.json();
       await addImage(url, "");
     } else {
-      setMessage("Upload failed");
-      setTimeout(() => setMessage(null), 3000);
+      showMessage("Upload failed");
     }
 
     setUploading(false);
@@ -97,11 +143,13 @@ export default function AdminGalleryPage() {
     );
   }
 
+  const sorted = [...images].sort((a, b) => a.display_order - b.display_order);
+
   return (
     <div className="p-5 md:p-8">
       <div className="mb-6">
         <h1 className="text-2xl font-extrabold text-[#1D3C42]">Gallery</h1>
-        <p className="text-sm text-[#7A6262]">{images.length} images</p>
+        <p className="text-sm text-[#7A6262]">{images.length} images &middot; Shown on homepage and /gallery page</p>
       </div>
 
       {message && (
@@ -110,67 +158,117 @@ export default function AdminGalleryPage() {
         </div>
       )}
 
+      {/* Upload */}
       <div className="mb-8 rounded-2xl border border-[#F4CFC8] bg-white p-6">
         <h2 className="mb-4 font-bold text-[#1D3C42]">Add Image</h2>
-        <div className="space-y-3">
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Image URL</label>
-            <input
-              type="text"
-              value={urlInput}
-              onChange={(e) => setUrlInput(e.target.value)}
-              className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
-              placeholder="https://example.com/image.jpg"
-            />
+
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          disabled={uploading}
+          className="flex h-36 w-full items-center justify-center rounded-xl border-2 border-dashed border-[#D4AF37]/30 bg-[#FFF8E4] text-[#7A6262] transition hover:border-[#D4AF37] hover:text-[#1D3C42] disabled:opacity-50"
+        >
+          <div className="text-center">
+            <Upload size={32} className="mx-auto mb-2" />
+            <span className="text-sm font-semibold">{uploading ? "Uploading..." : "Click to upload from device"}</span>
+            <p className="mt-1 text-xs text-[#7A6262]/70">JPG, PNG, WebP &middot; Showcases your custom cakes</p>
           </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Caption (optional)</label>
-            <input
-              type="text"
-              value={captionInput}
-              onChange={(e) => setCaptionInput(e.target.value)}
-              className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
-              placeholder="Cake description..."
-            />
-          </div>
-          <div className="flex gap-3">
-            <button
-              onClick={() => addImage(urlInput, captionInput)}
-              disabled={!urlInput.trim()}
-              className="rounded-full bg-[#1D3C42] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:opacity-50"
-            >
-              Add Image
-            </button>
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploading}
-              className="inline-flex items-center gap-2 rounded-full border border-[#F4CFC8] px-6 py-3 text-sm font-semibold text-[#7A6262] transition hover:bg-[#F4CFC8]/30 disabled:opacity-50"
-            >
-              <Upload size={16} />
-              {uploading ? "Uploading..." : "Upload"}
-            </button>
-            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
-          </div>
+        </button>
+        <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
+
+        <div className="mt-4">
+          <button
+            type="button"
+            onClick={() => setShowUrlInput(!showUrlInput)}
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#7A6262] hover:text-[#1D3C42]"
+          >
+            <Link size={14} />
+            {showUrlInput ? "Hide URL input" : "Add via URL instead"}
+          </button>
+
+          {showUrlInput && (
+            <div className="mt-3 space-y-3">
+              <input
+                type="text"
+                value={urlInput}
+                onChange={(e) => setUrlInput(e.target.value)}
+                className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
+                placeholder="https://example.com/image.jpg"
+              />
+              <input
+                type="text"
+                value={captionInput}
+                onChange={(e) => setCaptionInput(e.target.value)}
+                className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
+                placeholder="Caption (optional)"
+              />
+              <button
+                onClick={() => addImage(urlInput, captionInput)}
+                disabled={!urlInput.trim()}
+                className="rounded-full bg-[#1D3C42] px-6 py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:opacity-50"
+              >
+                Add Image
+              </button>
+            </div>
+          )}
         </div>
       </div>
 
+      {/* Gallery Grid */}
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4">
-        {images.map((img, i) => (
+        {sorted.map((img, i) => (
           <div key={img.id} className="group relative overflow-hidden rounded-2xl border border-[#F4CFC8] bg-white shadow-sm">
             <div className="aspect-[4/3] overflow-hidden bg-[#F5E6D3]">
-              <img src={img.url} alt={img.caption || ""} className="h-full w-full object-cover" />
+              <img src={img.url} alt={img.caption || ""} className="h-full w-full object-cover transition duration-300 group-hover:scale-105" />
             </div>
             <div className="p-3">
-              <p className="truncate text-xs text-[#7A6262]">{img.caption || "No caption"}</p>
-              <p className="text-[10px] text-[#7A6262]/60">Order: {img.display_order}</p>
+              {editingCaption === img.id ? (
+                <div className="flex gap-1">
+                  <input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    className="flex-1 rounded-lg border border-[#F4CFC8] px-2 py-1 text-xs outline-none focus:border-[#1D3C42]"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") updateCaption(img.id, editValue);
+                      if (e.key === "Escape") setEditingCaption(null);
+                    }}
+                  />
+                  <button onClick={() => updateCaption(img.id, editValue)} className="rounded p-1 text-green-600 hover:bg-green-50">
+                    <Check size={14} />
+                  </button>
+                  <button onClick={() => setEditingCaption(null)} className="rounded p-1 text-red-500 hover:bg-red-50">
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setEditingCaption(img.id); setEditValue(img.caption || ""); }}
+                  className="w-full text-left truncate text-xs text-[#7A6262] hover:text-[#1D3C42]"
+                  title="Click to edit caption"
+                >
+                  {img.caption || <span className="italic text-[#7A6262]/40">Add caption</span>}
+                </button>
+              )}
             </div>
-            <button
-              onClick={() => deleteImage(img.id)}
-              className="absolute right-2 top-2 rounded-full bg-red-500 p-1.5 text-white opacity-0 transition hover:bg-red-600 group-hover:opacity-100"
-            >
-              <Trash2 size={14} />
-            </button>
+
+            {/* Actions */}
+            <div className="absolute right-2 top-2 flex gap-1 opacity-0 transition group-hover:opacity-100">
+              {i > 0 && (
+                <button onClick={() => moveImage(img.id, "up")} className="rounded-full bg-white/90 p-1.5 text-[#7A6262] shadow backdrop-blur-sm hover:bg-white hover:text-[#1D3C42]">
+                  <ChevronUp size={14} />
+                </button>
+              )}
+              {i < sorted.length - 1 && (
+                <button onClick={() => moveImage(img.id, "down")} className="rounded-full bg-white/90 p-1.5 text-[#7A6262] shadow backdrop-blur-sm hover:bg-white hover:text-[#1D3C42]">
+                  <ChevronDown size={14} />
+                </button>
+              )}
+              <button onClick={() => deleteImage(img.id)} className="rounded-full bg-red-500 p-1.5 text-white shadow hover:bg-red-600">
+                <Trash2 size={14} />
+              </button>
+            </div>
           </div>
         ))}
       </div>
@@ -178,7 +276,7 @@ export default function AdminGalleryPage() {
       {images.length === 0 && (
         <div className="rounded-2xl border-2 border-dashed border-[#D4AF37]/30 p-16 text-center">
           <p className="text-lg font-semibold text-[#1D3C42]">No gallery images</p>
-          <p className="mt-1 text-sm text-[#7A6262]">Add your first image above.</p>
+          <p className="mt-1 text-sm text-[#7A6262]">Upload your first custom cake photo above.</p>
         </div>
       )}
     </div>
