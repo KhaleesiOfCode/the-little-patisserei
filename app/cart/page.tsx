@@ -117,6 +117,19 @@ export default function CartPage() {
 
   const minDate = slotInfo.earliestDate.toLocaleDateString("en-CA");
 
+  const courierTransitDays = useMemo(() => {
+    if (effectiveMode !== "courier" || !form.state) return 0
+    return form.state === "Tamil Nadu" ? 1 : 3
+  }, [effectiveMode, form.state])
+
+  const courierEarliestDate = useMemo(() => {
+    const d = new Date(slotInfo.earliestDate)
+    d.setDate(d.getDate() + courierTransitDays)
+    return d
+  }, [slotInfo.earliestDate, courierTransitDays])
+
+  const courierMinDate = courierEarliestDate.toLocaleDateString("en-CA");
+
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
   const blur = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
@@ -223,8 +236,9 @@ export default function CartPage() {
       quantityLabel: item.selectedQuantity, eggOption: item.selectedEggOption,
       productId: item.originalId || item.id,
     }));
-    const estimatedDeliveryAt = new Date(slotInfo.earliestDate);
-    estimatedDeliveryAt.setHours(slotInfo.earliestHour, 0, 0, 0);
+    const deliveryDate = effectiveMode === "courier" ? courierEarliestDate : slotInfo.earliestDate;
+    const estimatedDeliveryAt = new Date(deliveryDate);
+    estimatedDeliveryAt.setHours(effectiveMode === "courier" ? 0 : slotInfo.earliestHour, 0, 0, 0);
     const order = await createOrder(
       {
         ...form,
@@ -548,19 +562,25 @@ export default function CartPage() {
                     <input value={form.landmark} onChange={(e) => update("landmark", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" placeholder="Area / Landmark (optional)" />
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
-                        <label className="mb-2 block text-sm font-semibold">Preferred delivery date</label>
-                        <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
+                        <label className="mb-2 block text-sm font-semibold">{effectiveMode === "courier" ? "Estimated delivery date" : "Preferred delivery date"}</label>
+                        <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={effectiveMode === "courier" ? courierMinDate : minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
+                        {effectiveMode === "courier" ? (
+                          <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel}) + {courierTransitDays} day{courierTransitDays > 1 ? "s" : ""} courier transit</p>
+                        ) : (
+                          <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
+                        )}
                       </div>
-                      <div>
-                        <label className="mb-2 block text-sm font-semibold">Delivery slot</label>
-                        <select value={form.deliverySlot} onChange={(e) => update("deliverySlot", e.target.value)} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]">
-                          <option value="">Select slot</option>
-                          {deliverySlots.map((slot) => (
-                            <option key={slot.value} value={slot.value}>{slot.label}</option>
-                          ))}
-                        </select>
-                      </div>
+                      {effectiveMode !== "courier" && (
+                        <div>
+                          <label className="mb-2 block text-sm font-semibold">Delivery slot</label>
+                          <select value={form.deliverySlot} onChange={(e) => update("deliverySlot", e.target.value)} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]">
+                            <option value="">Select slot</option>
+                            {deliverySlots.map((slot) => (
+                              <option key={slot.value} value={slot.value}>{slot.label}</option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
                     </div>
 
                     {(effectiveMode === "courier") && !showCourierDetails && (
@@ -569,9 +589,22 @@ export default function CartPage() {
                           <input type="checkbox" checked={sameAsDeliveryAddress} onChange={(e) => setSameAsDeliveryAddress(e.target.checked)} className="mt-1 h-4 w-4 accent-[#1D3C42]" />
                           <span className="text-sm text-[#7A6262]">Courier address is same as delivery address</span>
                         </label>
-                        <button onClick={handleGoToCourierDetails} className="w-full rounded-full bg-orange-600 px-8 py-3.5 text-sm font-bold text-white shadow-lg transition hover:bg-orange-700">
-                          Courier Details →
-                        </button>
+                        {(() => {
+                          const deliveryDone = form.name && validatePhone(form.phone) && form.addressLine1 && form.state && form.district && form.city && form.pincode && validatePincode(form.pincode)
+                          return (
+                            <button
+                              onClick={deliveryDone ? handleGoToCourierDetails : undefined}
+                              disabled={!deliveryDone}
+                              className={`w-full rounded-full px-8 py-3.5 text-sm font-bold text-white shadow-lg transition ${
+                                deliveryDone
+                                  ? "bg-orange-600 hover:bg-orange-700"
+                                  : "bg-orange-600/50 cursor-not-allowed"
+                              }`}
+                            >
+                              Courier Details →
+                            </button>
+                          )
+                        })()}
                       </>
                     )}
 
