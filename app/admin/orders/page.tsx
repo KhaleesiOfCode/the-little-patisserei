@@ -174,6 +174,32 @@ export default function AdminOrdersPage() {
     return result;
   }, [orders, filterStatus, search]);
 
+  const grouped = useMemo(() => {
+    const groups: Record<string, Order[]> = {};
+    for (const order of filtered) {
+      const dateStr = order.preferred_delivery_date || order.pickup_date || order.created_at;
+      const key = dateStr.split("T")[0];
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(order);
+    }
+    for (const key of Object.keys(groups)) {
+      groups[key].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+    }
+    return Object.entries(groups).sort(([a], [b]) => a.localeCompare(b));
+  }, [filtered]);
+
+  const todayStr = new Date().toISOString().split("T")[0];
+  const tomorrowDate = new Date(); tomorrowDate.setDate(tomorrowDate.getDate() + 1);
+  const tomorrowStr = tomorrowDate.toISOString().split("T")[0];
+
+  function getDateLabel(dateKey: string): { label: string; urgent: boolean } {
+    const d = new Date(dateKey + "T00:00:00");
+    const formatted = d.toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "short" });
+    if (dateKey === todayStr) return { label: `⚡ Today — ${formatted}`, urgent: true };
+    if (dateKey === tomorrowStr) return { label: `⏰ Tomorrow — ${formatted}`, urgent: true };
+    return { label: formatted, urgent: false };
+  }
+
   const newCount = orders.filter((o) => o.status === "order_received").length;
 
   return (
@@ -257,8 +283,27 @@ export default function AdminOrdersPage() {
               <p className="font-semibold text-[#7A6262]">No orders found</p>
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2">
-              {filtered.map((order) => {
+            <div className="space-y-8">
+              {grouped.map(([dateKey, dateOrders]) => {
+                const { label, urgent } = getDateLabel(dateKey);
+                const pendingCount = dateOrders.filter((o) => o.status === "order_received" || o.status === "baker_confirmed").length;
+                return (
+                  <div key={dateKey}>
+                    {/* Date header */}
+                    <div className={`mb-4 flex items-center gap-3 ${urgent ? "sticky top-0 z-10 -mx-6 -mt-6 rounded-b-2xl bg-gradient-to-r from-amber-50 to-orange-50 px-6 pb-4 pt-3 shadow-sm" : ""}`}>
+                      <div className={`h-3 w-3 rounded-full ${urgent ? "bg-orange-400 animate-pulse" : "bg-[#D4AF37]"}`} />
+                      <h2 className={`text-lg font-extrabold ${urgent ? "text-[#1D3C42]" : "text-[#7A6262]"}`}>{label}</h2>
+                      <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        pendingCount > 0 ? "bg-amber-100 text-amber-700" : "bg-gray-100 text-gray-500"
+                      }`}>
+                        {dateOrders.length} order{dateOrders.length > 1 ? "s" : ""}
+                        {pendingCount > 0 ? ` · ${pendingCount} to bake` : ""}
+                      </span>
+                    </div>
+
+                    {/* Order cards */}
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {dateOrders.map((order) => {
                 const nextStatuses = getNextStatuses(order.status as OrderStatus, order.delivery_mode);
                 const isSelected = selectedOrder?.id === order.id;
                 return (
@@ -347,6 +392,10 @@ export default function AdminOrdersPage() {
                           </button>
                         )}
                       </div>
+                    </div>
+                  </div>
+                );
+              })}
                     </div>
                   </div>
                 );
