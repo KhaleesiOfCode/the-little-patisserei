@@ -167,6 +167,13 @@ export function getZoneByAreaName(areaName: string): DeliveryZone | null {
   return null
 }
 
+function isPincodeInAnyZone(pin: string): boolean {
+  for (const key of ["zone_1", "zone_2", "zone_3"] as ZoneKey[]) {
+    if (CHENNAI_ZONES[key].pincodes.includes(pin)) return true
+  }
+  return false
+}
+
 export function getDeliveryZone(city: string, pincode: string, areaName?: string): {
   zone: DeliveryZone
   isChennai: boolean
@@ -175,7 +182,7 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
   const cityLower = city.trim().toLowerCase()
   const pin = pincode.trim()
 
-  const isChennai = cityLower === "chennai" || pin.startsWith("600")
+  const isChennai = cityLower === "chennai" || pin.startsWith("600") || isPincodeInAnyZone(pin)
 
   if (!isChennai) {
     return { zone: CHENNAI_ZONES.unsupported, isChennai: false, isSupported: false }
@@ -202,10 +209,7 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
 export function isChennaiPincode(pincode: string): boolean {
   const pin = pincode.trim()
   if (!pin) return false
-  for (const key of ["zone_1", "zone_2", "zone_3"] as ZoneKey[]) {
-    if (CHENNAI_ZONES[key].pincodes.includes(pin)) return true
-  }
-  return false
+  return isPincodeInAnyZone(pin)
 }
 
 export function getDeliveryFeeMessage(zone: DeliveryZone, isChennai: boolean): string {
