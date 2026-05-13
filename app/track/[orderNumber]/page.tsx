@@ -212,46 +212,48 @@ export default function TrackPage() {
             </div>
           )}
 
-          {/* Delivery provider */}
-          {order.delivery_provider_name && (
+          {/* Delivery tracking */}
+          {mode === "local_delivery" && (
             <div className="mt-3 rounded-xl bg-blue-50 p-4 text-center ring-1 ring-blue-200">
               <Truck size={20} className="mx-auto text-blue-600" />
-              <p className="mt-1 text-sm font-bold text-blue-700">{order.delivery_provider_name}</p>
-              {order.delivery_partner_phone && <p className="text-xs text-blue-600">{order.delivery_partner_phone}</p>}
-              {order.delivery_tracking_url && (
-                <a
-                  href={order.delivery_tracking_url}
-                  target="_blank"
-                  className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
-                >
-                  Track delivery <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
-                </a>
+              {order.delivery_provider_name ? (
+                <>
+                  <p className="mt-1 text-sm font-bold text-blue-700">{order.delivery_provider_name}</p>
+                  {order.delivery_partner_phone && <p className="text-xs text-blue-600">{order.delivery_partner_phone}</p>}
+                  {order.delivery_tracking_url ? (
+                    <a href={order.delivery_tracking_url} target="_blank" className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700">
+                      Track delivery <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                    </a>
+                  ) : (
+                    <p className="mt-2 text-xs text-blue-600/70">Tracking link will be available once the order is out for delivery.</p>
+                  )}
+                </>
+              ) : (
+                <p className="mt-1 text-sm text-blue-700/70">Delivery details will appear here once assigned.</p>
               )}
             </div>
           )}
 
-          {/* Courier info */}
-          {order.delivery_mode === "courier" && (
-            <div className="mt-3 rounded-xl bg-indigo-50 p-4 ring-1 ring-indigo-200">
+          {/* Courier tracking */}
+          {mode === "courier" && (
+            <div className="mt-3 rounded-xl bg-indigo-50 p-4 text-center ring-1 ring-indigo-200">
               <Package size={20} className="mx-auto text-indigo-600" />
               {order.courier_company ? (
                 <>
-                  <p className="mt-1 text-center text-sm font-bold text-indigo-700">{order.courier_company}</p>
-                  <p className="text-center text-xs text-indigo-600">{order.courier_tracking_number}</p>
-                  {order.courier_tracking_url && (
-                    <div className="mt-2 text-center">
-                      <a
-                        href={order.courier_tracking_url}
-                        target="_blank"
-                        className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700"
-                      >
+                  <p className="mt-1 text-sm font-bold text-indigo-700">{order.courier_company}</p>
+                  <p className="text-xs text-indigo-600">{order.courier_tracking_number}</p>
+                  {order.courier_tracking_url ? (
+                    <div className="mt-2">
+                      <a href={order.courier_tracking_url} target="_blank" className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700">
                         Track courier <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
                       </a>
                     </div>
+                  ) : (
+                    <p className="mt-2 text-xs text-indigo-600/70">Tracking link will be available once the courier picks up.</p>
                   )}
                 </>
               ) : (
-                <p className="mt-1 text-center text-xs text-indigo-600">Courier details will be added once dispatched.</p>
+                <p className="mt-1 text-sm text-indigo-700/70">Courier details will be added once dispatched.</p>
               )}
               {(order.courier_charge ?? 0) > 0 && (
                 <div className="mt-3 flex items-center justify-between border-t border-indigo-200 pt-3 text-sm">
