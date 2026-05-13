@@ -8,7 +8,7 @@ import { useCart } from "../../components/CartContext";
 import { createOrder } from "../../lib/supabase/orders";
 import type { OrderFormData, DeliveryMode } from "../../types/menu";
 import { getSlotInfo, getAvailableSlots } from "../../lib/slot-logic";
-import { getDeliveryZone, getDeliveryFeeMessage, isChennaiPincode } from "../../lib/delivery-zones";
+import { getDeliveryZone, getDeliveryFeeMessage } from "../../lib/delivery-zones";
 import { calculateCourierCharge, getCourierMessage } from "../../lib/delivery/courierZones";
 import { SOUTH_INDIA_STATES, getDistrictsForState, getCitiesForDistrict } from "../../lib/delivery/southIndiaData";
 import {
@@ -135,21 +135,6 @@ export default function CartPage() {
     });
   }, [effectiveMode, minDate]);
 
-  useEffect(() => {
-    if (effectiveMode !== "local_delivery") return;
-    if (isChennaiPincode(form.pincode) && form.pincode.length === 6) {
-      startTransition(() => {
-        setForm((prev) => ({
-          ...prev,
-          city: prev.city || "Chennai",
-          state: prev.state || "Tamil Nadu",
-        }));
-      });
-    }
-  }, [effectiveMode, form.pincode]);
-
-  const isChennaiLocal = effectiveMode === "local_delivery" && isChennaiPincode(form.pincode);
-
   const update = (field: keyof OrderFormData, value: string) =>
     setForm((prev) => {
       let sanitized = value;
@@ -244,8 +229,8 @@ export default function CartPage() {
       {
         ...form,
         deliveryMode: effectiveMode,
-        city: isChennaiLocal ? "Chennai" : form.city,
-        state: isChennaiLocal ? "Tamil Nadu" : form.state,
+        city: effectiveMode === "local_delivery" ? (form.city || "Chennai") : form.city,
+        state: effectiveMode === "local_delivery" ? "Tamil Nadu" : form.state,
       },
       items,
       total,
@@ -279,7 +264,7 @@ export default function CartPage() {
       if (!form.addressLine1 || !form.pincode) return false;
       if (!validatePincode(form.pincode)) return false;
       if (!deliverySupported) return false;
-      if (!isChennaiLocal && !form.city) return false;
+      if (!form.city) return false;
       return form.deliveryDate !== "";
     }
     return false;
@@ -537,7 +522,8 @@ export default function CartPage() {
                         </div>
                       ) : (
                         <div>
-                          <input value="Chennai" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
+                          <input value={form.city} onChange={(e) => update("city", e.target.value)} onBlur={() => blur("city")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.city && !form.city ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="City *" />
+                          {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Enter your city</p>}
                         </div>
                       )}
                       {effectiveMode !== "courier" && (
