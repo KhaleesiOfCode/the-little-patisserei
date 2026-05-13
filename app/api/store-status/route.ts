@@ -8,6 +8,7 @@ export async function GET() {
   const { data, error } = await supabase
     .from("store_settings")
     .select("*")
+    .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -23,21 +24,28 @@ export async function GET() {
   const start = data.closure_starts_at ? new Date(data.closure_starts_at) : null;
   const end = data.closure_ends_at ? new Date(data.closure_ends_at) : null;
 
-  if (start && end && now >= start && now <= end) {
+  const hasDates = start && end;
+
+  if (hasDates && now >= start && now <= end) {
     return NextResponse.json({
       open: false,
-      reason: data.closure_reason || "Store is currently closed",
+      reason: data.closure_reason || "",
       closesAt: data.closure_ends_at,
+      closureType: "daily",
     }, { headers });
   }
 
-  if (start && now < start) {
+  if (hasDates && now < start) {
     return NextResponse.json({ open: true }, { headers });
   }
 
-  if (end && now > end) {
+  if (hasDates && now > end) {
     return NextResponse.json({ open: true }, { headers });
   }
 
-  return NextResponse.json({ open: !data.manual_closed }, { headers });
+  return NextResponse.json({
+    open: false,
+    reason: data.closure_reason || "",
+    closureType: "manual",
+  }, { headers });
 }

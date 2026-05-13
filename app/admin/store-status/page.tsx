@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
+import { refreshStoreStatus } from "@/lib/store-hours";
 
 interface StoreSettings {
   id?: string;
@@ -11,11 +12,21 @@ interface StoreSettings {
   closure_reason: string | null;
 }
 
-function toLocalDatetime(iso: string | null): string {
+function toISTDatetime(iso: string | null): string {
   if (!iso) return "";
   const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  const opts: Intl.DateTimeFormatOptions = {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  };
+  const parts = new Intl.DateTimeFormat("en-CA", opts).formatToParts(d);
+  const get = (t: string) => parts.find((p) => p.type === t)!.value;
+  return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
 
 export default function AdminStoreStatusPage() {
@@ -26,12 +37,16 @@ export default function AdminStoreStatusPage() {
 
   useEffect(() => {
     fetch("/api/admin/store-status")
-      .then((r) => r.json())
-      .then((data) => {
+      .then(async (r) => {
+        const data = await r.json();
+        if (!r.ok) console.error("[store-status] GET failed:", data);
         setSettings(data);
         setLoading(false);
       })
-      .catch(() => setLoading(false));
+      .catch((err) => {
+        console.error("[store-status] GET error:", err);
+        setLoading(false);
+      });
   }, []);
 
   async function handleSave() {
@@ -47,8 +62,11 @@ export default function AdminStoreStatusPage() {
 
     if (res.ok) {
       setMessage("Settings saved");
+      await refreshStoreStatus();
     } else {
-      setMessage("Failed to save");
+      const errBody = await res.json().catch(() => ({}));
+      console.error("Save store settings failed:", res.status, errBody);
+      setMessage(errBody.error || "Failed to save");
     }
 
     setSaving(false);
@@ -87,8 +105,8 @@ export default function AdminStoreStatusPage() {
                 <p className="font-bold text-[#1D3C42]">Manual Closure</p>
                 <p className="text-xs text-[#7A6262]">
                   {settings?.manual_closed
-                    ? "Orders are manually closed"
-                    : "Orders are accepting based on schedule"}
+                    ? "Orders are paused"
+                    : "Orders are being accepted"}
                 </p>
               </div>
             </div>
@@ -120,10 +138,10 @@ export default function AdminStoreStatusPage() {
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Starts at</label>
                 <input
                   type="datetime-local"
-                  value={toLocalDatetime(settings?.closure_starts_at ?? null)}
+                  value={toISTDatetime(settings?.closure_starts_at ?? null)}
                   onChange={(e) =>
                     setSettings((s) =>
-                      s ? { ...s, closure_starts_at: e.target.value ? new Date(e.target.value).toISOString() : null } : s
+                      s ? { ...s, closure_starts_at: e.target.value ? new Date(e.target.value + "+05:30").toISOString() : null } : s
                     )
                   }
                   className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
@@ -133,10 +151,10 @@ export default function AdminStoreStatusPage() {
                 <label className="mb-1 block text-xs font-bold uppercase tracking-wider text-[#7A6262]">Ends at</label>
                 <input
                   type="datetime-local"
-                  value={toLocalDatetime(settings?.closure_ends_at ?? null)}
+                  value={toISTDatetime(settings?.closure_ends_at ?? null)}
                   onChange={(e) =>
                     setSettings((s) =>
-                      s ? { ...s, closure_ends_at: e.target.value ? new Date(e.target.value).toISOString() : null } : s
+                      s ? { ...s, closure_ends_at: e.target.value ? new Date(e.target.value + "+05:30").toISOString() : null } : s
                     )
                   }
                   className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"

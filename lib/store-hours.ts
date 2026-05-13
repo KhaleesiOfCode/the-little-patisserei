@@ -1,6 +1,7 @@
 let cachedOpen = true;
 let cachedReason = "";
 let cachedClosesAt: string | null = null;
+let cachedClosureType = "manual";
 
 export function isOrderWindowOpen(): boolean {
   return cachedOpen;
@@ -12,6 +13,10 @@ export function getClosureReason(): string {
 
 export function getClosureEndTime(): string | null {
   return cachedClosesAt;
+}
+
+export function getClosureType(): string {
+  return cachedClosureType;
 }
 
 function formatClosureEnd(iso: string | null): string {
@@ -33,14 +38,23 @@ export function getFormattedClosureEnd(): string {
 
 export async function refreshStoreStatus(): Promise<void> {
   try {
-    const res = await fetch("/api/store-status");
+    const res = await fetch(`/api/store-status?_=${Date.now()}`);
     const data = await res.json();
-    cachedOpen = data.open !== false;
+    console.log("[store-hours] /api/store-status response:", res.status, data);
+    if (!res.ok) {
+      console.warn("[store-hours] Non-OK status, defaulting to open");
+      cachedOpen = true;
+    } else {
+      cachedOpen = data.open !== false;
+    }
     cachedReason = data.reason || "";
     cachedClosesAt = data.closesAt || null;
-  } catch {
+    cachedClosureType = data.closureType || "manual";
+  } catch (err) {
+    console.error("[store-hours] /api/store-status fetch failed:", err);
     cachedOpen = true;
     cachedReason = "";
     cachedClosesAt = null;
+    cachedClosureType = "manual";
   }
 }

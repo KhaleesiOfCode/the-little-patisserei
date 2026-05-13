@@ -51,7 +51,9 @@ export default function AdminGalleryPage() {
       setCaptionInput("");
       showMessage("Image added");
     } else {
-      showMessage("Failed to add image");
+      const errBody = await res.json().catch(() => ({}));
+      console.error("Add image failed:", res.status, errBody);
+      showMessage(errBody.error || "Failed to add image");
     }
   }
 

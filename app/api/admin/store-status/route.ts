@@ -11,6 +11,7 @@ export async function GET() {
   const { data, error } = await adminSupabase
     .from("store_settings")
     .select("*")
+    .order("updated_at", { ascending: false })
     .limit(1)
     .maybeSingle();
 
@@ -31,17 +32,28 @@ export async function PUT(request: Request) {
     const body = await request.json();
     const { manual_closed, closure_starts_at, closure_ends_at, closure_reason } = body;
 
+    const { data: existing } = await adminSupabase
+      .from("store_settings")
+      .select("id")
+      .limit(1)
+      .maybeSingle();
+
+    const payload: Record<string, unknown> = {
+      manual_closed,
+      closure_starts_at: closure_starts_at || null,
+      closure_ends_at: closure_ends_at || null,
+      closure_reason: closure_reason || null,
+      updated_at: new Date().toISOString(),
+      updated_by: "admin",
+    };
+
+    if (existing?.id) {
+      payload.id = existing.id;
+    }
+
     const { data, error } = await adminSupabase
       .from("store_settings")
-      .upsert({
-        id: body.id || undefined,
-        manual_closed,
-        closure_starts_at: closure_starts_at || null,
-        closure_ends_at: closure_ends_at || null,
-        closure_reason: closure_reason || null,
-        updated_at: new Date().toISOString(),
-        updated_by: "admin",
-      })
+      .upsert(payload)
       .select()
       .single();
 

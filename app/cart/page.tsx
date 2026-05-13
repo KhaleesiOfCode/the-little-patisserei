@@ -16,7 +16,7 @@ import {
   sanitizeAddress, sanitizePincode, sanitizeEmail,
   validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType } from "../../lib/store-hours";
 
 export default function CartPage() {
   const router = useRouter();
@@ -303,14 +303,21 @@ export default function CartPage() {
             <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
             <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
             <circle cx="60" cy="12" r="3" fill="white"/>
-            <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
-            <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+            <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">PAUSED</text>
+            <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">BACK SOON</text>
           </svg>
-          <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">Store is currently closed</h1>
-          <p className="mt-2 text-sm text-[#7A6262]">
-            {getClosureReason() || "Orders are paused"}
-            {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
-          </p>
+          {getClosureType() === "daily" ? (
+            <>
+              <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">Orders are closed for the day 🌙</h1>
+              <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back tomorrow at 8:00 AM with fresh bakes</p>
+            </>
+          ) : (
+            <>
+              <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">We&apos;re taking a short pause on orders at the moment.</h1>
+              {getClosureReason() && <p className="mt-2 text-sm text-[#7A6262]">{getClosureReason()}</p>}
+              <p className="mt-2 text-sm text-[#7A6262]">Thank you for your patience and support 💛 We&apos;ll be back soon with fresh bakes.</p>
+            </>
+          )}
           <Link href="/" className="mt-6 inline-block rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Back to Home</Link>
         </section>
       </main>
@@ -716,7 +723,7 @@ export default function CartPage() {
 
               {!orderWindowOpen && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
-                  <p className="text-sm font-semibold text-amber-700">{getClosureReason() || "Orders are currently closed"}{getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}</p>
+                  <p className="text-sm font-semibold text-amber-700">{getClosureType() === "daily" ? "Closed for the day — we'll be back tomorrow at 8:00 AM with fresh bakes" : (getClosureReason() || "Orders are paused right now")}</p>
                 </div>
               )}
 

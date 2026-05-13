@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import { formatQuantityLabel } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason } from "../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType } from "../lib/store-hours";
 
 const WHATSAPP_NUMBER = "919488407130";
 
@@ -493,15 +493,22 @@ export default function ProductCard({ product }: { product: MenuItem }) {
               <rect x="10" y="15" width="100" height="55" rx="8" fill="#FEF3C7" stroke="#D4AF37" strokeWidth="2"/>
               <rect x="45" y="5" width="30" height="15" rx="3" fill="#D4AF37"/>
               <circle cx="60" cy="12" r="3" fill="white"/>
-              <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">CLOSED</text>
-              <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">WE&apos;LL BE BACK</text>
+              <text x="60" y="40" textAnchor="middle" fontSize="16" fontWeight="900" fill="#1D3C42" fontFamily="system-ui">PAUSED</text>
+              <text x="60" y="55" textAnchor="middle" fontSize="8" fill="#7A6262" fontFamily="system-ui">BACK SOON</text>
             </svg>
-            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Store is currently closed</h3>
-            <p className="mt-2 text-sm text-[#7A6262]">
-              {getClosureReason() || "Orders are paused"}
-              {getFormattedClosureEnd() ? ` — resumes ${getFormattedClosureEnd()}` : ""}
-            </p>
-            <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Got it</button>
+            {getClosureType() === "daily" ? (
+              <>
+                <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Orders are closed for the day 🌙</h3>
+                <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back tomorrow at 8:00 AM with fresh bakes</p>
+              </>
+            ) : (
+              <>
+                <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">We&apos;re taking a short pause on orders at the moment.</h3>
+                {getClosureReason() && <p className="mt-2 text-sm text-[#7A6262]">{getClosureReason()}</p>}
+                <p className="mt-2 text-sm text-[#7A6262]">Thank you for your patience and support 💛 We&apos;ll be back soon with fresh bakes.</p>
+              </>
+            )}
+            <button onClick={() => setOrderClosedPopup(false)} className="mt-6 rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">Okay</button>
           </div>
         </div>
       )}
