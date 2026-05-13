@@ -127,14 +127,13 @@ export default function CartPage() {
   useEffect(() => {
     if (!effectiveMode) return;
     startTransition(() => {
-      if (effectiveMode === "pickup" && !form.pickupDate) {
+      if (effectiveMode === "pickup") {
         setForm((prev) => ({ ...prev, pickupDate: minDate }));
-      }
-      if (effectiveMode !== "pickup" && !form.deliveryDate) {
+      } else {
         setForm((prev) => ({ ...prev, deliveryDate: minDate }));
       }
     });
-  }, [effectiveMode, minDate, form.pickupDate, form.deliveryDate]);
+  }, [effectiveMode, minDate]);
 
   const isChennaiLocal = effectiveMode === "local_delivery" && form.pincode.startsWith("600");
 
