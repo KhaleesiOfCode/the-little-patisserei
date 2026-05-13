@@ -212,16 +212,28 @@ export default function TrackPage() {
           <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
           {/* Info grid */}
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            {(order.delivery_fee ?? 0) > 0 && (
+          {(order.delivery_fee ?? 0) > 0 ? (
+            <div className="mt-4 grid grid-cols-2 gap-3">
               <div className="rounded-xl bg-[#FFF8E4] p-3 text-center ring-1 ring-[#F4CFC8]">
                 <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
                 <p className="mt-0.5 font-mono text-sm font-extrabold text-[#1D3C42]">₹{order.delivery_fee}</p>
                 {order.delivery_fee_status === "estimated" && <p className="text-[10px] text-[#7A6262]">Estimated</p>}
               </div>
-            )}
-            {order.estimated_delivery_at && (
-              <div className="rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+              {order.estimated_delivery_at && (
+                <div className="rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+                  <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
+                  <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
+                    {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+                  </p>
+                  {order.preferred_delivery_slot && (
+                    <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : order.estimated_delivery_at ? (
+            <div className="mt-4 flex justify-center">
+              <div className="w-full max-w-xs rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
                 <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
                 <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
                   {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
@@ -230,43 +242,57 @@ export default function TrackPage() {
                   <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
                 )}
               </div>
-            )}
-          </div>
+            </div>
+          ) : null}
 
           {/* Delivery provider */}
           {order.delivery_provider_name && (
-            <div className="mt-3 rounded-xl bg-blue-50 p-3 text-center ring-1 ring-blue-200">
-              <Truck size={16} className="mx-auto text-blue-600" />
-              <p className="mt-0.5 text-sm font-bold text-blue-700">{order.delivery_provider_name}</p>
+            <div className="mt-3 rounded-xl bg-blue-50 p-4 text-center ring-1 ring-blue-200">
+              <Truck size={20} className="mx-auto text-blue-600" />
+              <p className="mt-1 text-sm font-bold text-blue-700">{order.delivery_provider_name}</p>
               {order.delivery_partner_phone && <p className="text-xs text-blue-600">{order.delivery_partner_phone}</p>}
               {order.delivery_tracking_url && (
-                <a href={order.delivery_tracking_url} target="_blank" className="mt-0.5 inline-block text-xs font-bold text-blue-700 underline">Track delivery</a>
+                <a
+                  href={order.delivery_tracking_url}
+                  target="_blank"
+                  className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-blue-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-blue-700"
+                >
+                  Track delivery <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                </a>
               )}
             </div>
           )}
 
           {/* Courier info */}
           {order.delivery_mode === "courier" && (
-            <div className="mt-3 rounded-xl bg-indigo-50 p-3 ring-1 ring-indigo-200">
-              <Package size={16} className="mx-auto text-indigo-600" />
+            <div className="mt-3 rounded-xl bg-indigo-50 p-4 ring-1 ring-indigo-200">
+              <Package size={20} className="mx-auto text-indigo-600" />
               {order.courier_company ? (
                 <>
-                  <p className="mt-0.5 text-center text-sm font-bold text-indigo-700">{order.courier_company}</p>
+                  <p className="mt-1 text-center text-sm font-bold text-indigo-700">{order.courier_company}</p>
                   <p className="text-center text-xs text-indigo-600">{order.courier_tracking_number}</p>
                   {order.courier_tracking_url && (
-                    <p className="text-center"><a href={order.courier_tracking_url} target="_blank" className="mt-0.5 inline-block text-xs font-bold text-indigo-700 underline">Track courier</a></p>
+                    <div className="mt-2 text-center">
+                      <a
+                        href={order.courier_tracking_url}
+                        target="_blank"
+                        className="inline-flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-1.5 text-xs font-bold text-white shadow-sm transition hover:bg-indigo-700"
+                      >
+                        Track courier <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M7 17L17 7M17 7H7M17 7V17"/></svg>
+                      </a>
+                    </div>
                   )}
                 </>
               ) : (
-                <p className="mt-0.5 text-center text-xs text-indigo-600">Courier details will be added once dispatched.</p>
+                <p className="mt-1 text-center text-xs text-indigo-600">Courier details will be added once dispatched.</p>
               )}
               {(order.courier_charge ?? 0) > 0 && (
-                <div className="mt-2 flex items-center justify-between border-t border-indigo-200 pt-2 text-sm">
+                <div className="mt-3 flex items-center justify-between border-t border-indigo-200 pt-3 text-sm">
                   <span className="text-indigo-700">Courier charge</span>
                   <span className="font-extrabold text-indigo-700">₹{order.courier_charge}</span>
                 </div>
               )}
-              {order.courier_notes && <p className="mt-1 text-xs text-indigo-600">{order.courier_notes}</p>}
+              {order.courier_notes && <p className="mt-2 text-xs text-indigo-600">{order.courier_notes}</p>}
             </div>
           )}
 
@@ -377,24 +403,25 @@ export default function TrackPage() {
         </div>
 
         {/* Actions */}
-        <div className="mt-6 text-center">
+        <div className="mt-6 space-y-4 text-center">
           {canCancel && (
             <button
               onClick={() => setShowCancelModal(true)}
-              className="inline-flex items-center gap-1.5 rounded-full border border-red-300 bg-white px-5 py-2.5 text-xs font-bold text-red-600 transition hover:bg-red-50"
+              className="inline-flex items-center gap-2 rounded-full border-2 border-red-200 bg-red-50 px-6 py-3 text-sm font-bold text-red-600 shadow-sm transition hover:border-red-400 hover:bg-red-100"
             >
-              <X size={14} /> Cancel Order
+              <X size={16} /> Cancel Order
             </button>
           )}
-          <div className="mt-4">
+          <div className="space-y-1">
             <a
               href={`https://wa.me/919488407130?text=${encodeURIComponent(`Hi, I have a question about order ${order.order_number}`)}`}
               target="_blank"
-              className="text-xs text-[#7A6262] hover:text-[#1D3C42]"
+              className="inline-flex items-center gap-1.5 rounded-full bg-[#1D3C42] px-5 py-2.5 text-xs font-bold text-white shadow-sm transition hover:bg-[#163136]"
             >
-              Questions? <span className="font-bold underline">WhatsApp us</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp us
             </a>
-            <p className="mt-0.5 text-[9px] text-[#D4AF37]/60">Auto-updates every 15 seconds</p>
+            <p className="text-[10px] text-[#D4AF37]/60">Auto-updates every 15 seconds</p>
           </div>
         </div>
       </section>
