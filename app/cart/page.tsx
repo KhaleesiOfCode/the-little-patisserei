@@ -115,7 +115,7 @@ export default function CartPage() {
   const deliveryZone = effectiveMode === "local_delivery" ? zoneInfo.zone.key : effectiveMode === "courier" ? (courierCalc?.courier_zone ?? null) : null;
   const deliverySupported = effectiveMode !== "local_delivery" || zoneInfo.isSupported;
 
-  const minDate = slotInfo.earliestDate.toISOString().split("T")[0];
+  const minDate = slotInfo.earliestDate.toLocaleDateString("en-CA");
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
