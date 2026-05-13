@@ -12,7 +12,6 @@ const FILTER_STATUSES: { key: string; label: string }[] = [
   { key: "all", label: "All" },
   { key: "order_received", label: "New" },
   { key: "baker_confirmed", label: "Accepted" },
-  { key: "ready_for_pickup", label: "Preparing" },
   { key: "delivered", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
