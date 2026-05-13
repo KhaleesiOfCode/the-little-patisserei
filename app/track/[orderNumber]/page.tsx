@@ -22,21 +22,21 @@ const statusIcons: Record<string, string> = {
   refunded: "✅💰",
 };
 
-function Stamp({ label, color, top, right }: { label: string; color: string; top?: string; right?: string }) {
+function Stamp({ label, color }: { label: string; color: string }) {
   return (
     <div
       className="absolute select-none pointer-events-none"
       style={{
-        transform: "rotate(-12deg)",
-        top: top || "25%",
-        right: right || "8%",
+        top: "38%",
+        left: "50%",
+        marginLeft: "-40px",
         zIndex: 10,
-        opacity: 0.45,
+        opacity: 0.4,
       }}
     >
       <div
-        className="rounded border-2 px-3 py-0.5 text-xs font-black uppercase tracking-[0.2em] shadow-lg"
-        style={{ borderColor: color, color }}
+        className="flex h-20 w-20 items-center justify-center rounded-full border-4 font-black uppercase tracking-[0.15em] shadow-xl"
+        style={{ borderColor: color, color, fontSize: "13px" }}
       >
         {label}
       </div>
@@ -129,7 +129,7 @@ export default function TrackPage() {
         <div className="relative mx-auto max-w-sm rounded-[2rem] border-2 border-dashed border-[#D4AF37]/40 bg-white px-6 pb-6 pt-8 shadow-xl ring-1 ring-[#F4CFC8]">
           {/* Stamps */}
           <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
-            {isPaid && <Stamp label="PAID" color="#16A34A" top="25%" right="6%" />}
+            {isPaid && <Stamp label="PAID" color="#16A34A" />}
           </div>
 
           {/* Top perforation */}

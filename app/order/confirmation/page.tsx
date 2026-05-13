@@ -20,18 +20,18 @@ const statusIcons: Record<string, string> = {
 function Stamp({ label, color }: { label: string; color: string }) {
   return (
     <div
-      className="absolute select-none"
+      className="absolute select-none pointer-events-none"
       style={{
-        transform: "rotate(-12deg)",
-        top: "28%",
-        right: "8%",
+        top: "38%",
+        left: "50%",
+        marginLeft: "-40px",
         zIndex: 10,
-        opacity: 0.5,
+        opacity: 0.4,
       }}
     >
       <div
-        className="rounded border-2 px-4 py-1 text-sm font-black uppercase tracking-[0.2em] shadow-lg"
-        style={{ borderColor: color, color }}
+        className="flex h-20 w-20 items-center justify-center rounded-full border-4 font-black uppercase tracking-[0.15em] shadow-xl"
+        style={{ borderColor: color, color, fontSize: "13px" }}
       >
         {label}
       </div>
@@ -315,12 +315,12 @@ export default function OrderConfirmationPage() {
                   <span>Fragile packaging</span><span>₹{order.fragile_surcharge}</span>
                 </div>
               )}
-              {order.estimated_delivery_at && (
+              {/* {order.estimated_delivery_at && (
                 <div className="flex justify-between font-mono text-sm text-[#D4AF37]">
                   <span>Est. delivery</span>
                   <span className="text-base font-extrabold">{new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
                 </div>
-              )}
+              )} */}
               <div className="flex justify-between font-mono text-xl font-extrabold text-[#1D3C42]">
                 <span>Total</span><span>₹{order.total}</span>
               </div>
