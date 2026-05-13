@@ -115,12 +115,11 @@ export default function TrackPage() {
   return (
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
       <header className="border-b border-[#D4AF37]/30 bg-white px-5 py-4">
-        <div className="mx-auto flex max-w-3xl items-center justify-between">
+        <div className="mx-auto flex max-w-3xl">
           <Link href="/" className="flex items-center gap-2">
             <img src="/logo.png" alt="" className="h-8 w-8 rounded-full object-contain" />
             <span className="text-sm font-bold text-[#1D3C42]">The Little Patisserie</span>
           </Link>
-          <span className="rounded-full bg-[#D4AF37]/20 px-3 py-1 text-xs font-bold text-[#1D3C42]">Track order</span>
         </div>
       </header>
 
