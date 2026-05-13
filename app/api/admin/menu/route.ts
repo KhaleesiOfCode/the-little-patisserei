@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { adminSupabase } from "@/lib/supabase/admin-client";
+import { deleteStorageFiles } from "@/lib/supabase/storage";
 
 function slugify(text: string): string {
   return text
@@ -212,7 +213,14 @@ export async function PUT(request: Request) {
 
     // Remove deleted media
     if (media_to_remove && Array.isArray(media_to_remove) && media_to_remove.length > 0) {
+      const { data: removedMedia } = await adminSupabase
+        .from("menu_item_media")
+        .select("url")
+        .in("id", media_to_remove);
       await adminSupabase.from("menu_item_media").delete().in("id", media_to_remove);
+      if (removedMedia?.length) {
+        await deleteStorageFiles(removedMedia.map((m) => m.url));
+      }
     }
 
     // Add new media
@@ -272,10 +280,23 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  const { error } = await adminSupabase.from("menu_items").delete().eq("id", id);
+  const { data: deletedItem } = await adminSupabase
+    .from("menu_items")
+    .delete()
+    .eq("id", id)
+    .select("id");
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!deletedItem?.length) {
+    return NextResponse.json({ error: "Item not found" }, { status: 404 });
+  }
+
+  const { data: orphanMedia } = await adminSupabase
+    .from("menu_item_media")
+    .select("url")
+    .eq("menu_item_id", id);
+
+  if (orphanMedia?.length) {
+    await deleteStorageFiles(orphanMedia.map((m) => m.url));
   }
 
   return NextResponse.json({ success: true });

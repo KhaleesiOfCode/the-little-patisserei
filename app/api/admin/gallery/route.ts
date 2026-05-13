@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { adminSupabase } from "@/lib/supabase/admin-client";
+import { deleteStorageFile } from "@/lib/supabase/storage";
 
 export async function GET() {
   const session = await getSession();
@@ -106,11 +107,17 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Missing id" }, { status: 400 });
   }
 
-  const { error } = await adminSupabase.from("gallery_images").delete().eq("id", id);
+  const { data: deleted } = await adminSupabase
+    .from("gallery_images")
+    .delete()
+    .eq("id", id)
+    .select("url");
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+  if (!deleted?.length) {
+    return NextResponse.json({ error: "Image not found" }, { status: 404 });
   }
+
+  await deleteStorageFile(deleted[0].url);
 
   return NextResponse.json({ success: true });
 }
