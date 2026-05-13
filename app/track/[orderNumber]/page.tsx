@@ -221,12 +221,14 @@ export default function TrackPage() {
               </div>
             )}
             {order.estimated_delivery_at && (
-              <div className="rounded-xl bg-[#FFF8E4] p-3 text-center ring-1 ring-[#F4CFC8]">
-                <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Estimated</p>
-                <p className="mt-0.5 font-mono text-sm font-extrabold text-[#1D3C42]">
-                  {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+              <div className="rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
+                <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
+                  {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
                 </p>
-                {order.preferred_delivery_slot && <p className="text-[10px] text-[#7A6262]">{order.preferred_delivery_slot}</p>}
+                {order.preferred_delivery_slot && (
+                  <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
+                )}
               </div>
             )}
           </div>

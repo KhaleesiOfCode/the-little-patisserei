@@ -269,6 +269,19 @@ export default function OrderConfirmationPage() {
             {/* Divider */}
             <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
+            {/* Est. delivery — prominent card */}
+            {order.estimated_delivery_at && (
+              <div className="mt-4 rounded-xl bg-[#FFF8E4] p-4 text-center ring-2 ring-[#D4AF37]/30">
+                <p className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">Estimated Delivery</p>
+                <p className="mt-1 font-mono text-lg font-extrabold text-[#1D3C42]">
+                  {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
+                </p>
+                {order.preferred_delivery_slot && (
+                  <p className="mt-0.5 text-sm text-[#7A6262]">Slot: {order.preferred_delivery_slot}</p>
+                )}
+              </div>
+            )}
+
             {/* Items */}
             <div className="mt-4 space-y-3">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Items</p>
@@ -305,7 +318,7 @@ export default function OrderConfirmationPage() {
               {order.estimated_delivery_at && (
                 <div className="flex justify-between font-mono text-sm text-[#D4AF37]">
                   <span>Est. delivery</span>
-                  <span>{new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
+                  <span className="text-base font-extrabold">{new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
                 </div>
               )}
               <div className="flex justify-between font-mono text-xl font-extrabold text-[#1D3C42]">
