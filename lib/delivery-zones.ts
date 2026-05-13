@@ -6,7 +6,7 @@ export interface DeliveryZone {
   areas: string[]
 }
 
-export type ZoneKey = "zone_a" | "zone_b" | "zone_c" | "zone_d" | "zone_e" | "unsupported"
+export type ZoneKey = "zone_1" | "zone_2" | "zone_3" | "unsupported"
 
 export const BAKERY_LOCATION = {
   area: "Arumbakkam",
@@ -14,107 +14,88 @@ export const BAKERY_LOCATION = {
 }
 
 export const CHENNAI_ZONES: Record<ZoneKey, DeliveryZone> = {
-  zone_a: {
-    key: "zone_a",
-    label: "Zone A (0–5 km)",
+  zone_1: {
+    key: "zone_1",
+    label: "Chennai City / Core Delivery",
     fee: 99,
     pincodes: [
-      "600010", "600026", "600029", "600030", "600032",
-      "600034", "600046", "600050", "600051", "600053",
-      "600054", "600078", "600093", "600106",
-    ],
-    areas: [
-      "Alwarthirunagar", "Aminjikarai", "Anna Nagar",
-      "Arumbakkam", "Choolaimedu", "Kilpauk", "KK Nagar",
-      "Koyambedu", "Saligramam", "Shenoy Nagar",
-      "Vadapalani", "Valasaravakkam", "Virugambakkam",
-    ],
-  },
-  zone_b: {
-    key: "zone_b",
-    label: "Zone B (5–10 km)",
-    fee: 149,
-    pincodes: [
       "600001", "600002", "600003", "600005", "600007",
-      "600008", "600011", "600012", "600013", "600014",
-      "600015", "600016", "600017", "600018", "600019",
-      "600021", "600022", "600023", "600024", "600025",
-      "600028", "600031", "600035", "600044", "600045",
-      "600058", "600064", "600066", "600067", "600074",
-      "600075", "600082", "600083", "600084", "600085",
-      "600086", "600087", "600088", "600089", "600090",
-      "600091", "600092", "600094", "600095", "600104",
-      "600107",
+      "600008", "600010", "600011", "600012", "600013",
+      "600014", "600015", "600016", "600017", "600018",
+      "600019", "600021", "600022", "600023", "600024",
+      "600025", "600026", "600028", "600029", "600030",
+      "600031", "600032", "600034", "600035", "600044",
+      "600045", "600046", "600050", "600051", "600053",
+      "600054", "600058", "600064", "600066", "600067",
+      "600074", "600075", "600078", "600082", "600083",
+      "600084", "600085", "600086", "600087", "600088",
+      "600089", "600090", "600091", "600092", "600093",
+      "600094", "600095", "600104", "600106", "600107",
+      "600004", "600009", "600020", "600036", "600040",
+      "600041", "600042", "600048", "600056", "600060",
+      "600061", "600062", "600063", "600065", "600069",
+      "600073", "600076", "600077", "600081", "600096",
+      "600097", "600098", "600099", "600100", "600101",
+      "600102", "600108", "600117",
     ],
     areas: [
-      "Alapakkam", "Ashok Nagar", "Ayanavaram",
-      "Basin Bridge", "Chetpet", "Chintadripet",
-      "Egmore", "Ekkatuthangal", "Flowers Road",
-      "George Town", "Ice House", "ICF", "Karambakkam",
-      "Kellys", "Kodambakkam", "Kolathur",
-      "Maduravoyal", "Mambalam", "Mint Street",
-      "Mogappair", "Nungambakkam", "Otteri", "Park Town",
-      "Pattalam", "Perambur", "Porur", "Purasawalkam",
+      "Adambakkam", "Adyar", "Alandur", "Alapakkam",
+      "Alwarpet", "Alwarthirunagar", "Ambattur",
+      "Aminjikarai", "Anna Nagar", "Arumbakkam",
+      "Ashok Nagar", "Ayanavaram", "Basin Bridge",
+      "Besant Nagar", "Chetpet", "Chintadripet",
+      "Choolaimedu", "Egmore", "Ekkatuthangal",
+      "Flowers Road", "George Town", "Guindy",
+      "Ice House", "ICF", "Iyyappanthal", "Karambakkam",
+      "Kellys", "Kilpauk", "KK Nagar", "Kodambakkam",
+      "Kolathur", "Kotturpuram", "Koyambedu",
+      "Maduravoyal", "Mambalam", "Manapakkam",
+      "Meenambakkam", "Mint Street", "Mogappair",
+      "Mylapore", "Nandambakkam", "Nanganallur",
+      "Nungambakkam", "Otteri", "Park Town", "Pattalam",
+      "Perambur", "Perungudi", "Purasawalkam",
       "Ramapuram", "Royapettah", "Royapuram",
-      "Sowcarpet", "T Nagar", "Teynampet",
-      "Thousand Lights", "Tondiarpet", "Triplicane",
-      "Vanagaram", "Vepery", "Vyasarpadi",
+      "Saidapet", "Saligramam", "Shenoy Nagar",
+      "Sholinganallur", "Siruseri", "Sowcarpet",
+      "St Thomas Mount", "T Nagar", "Taramani",
+      "Teynampet", "Thoraipakkam", "Thousand Lights",
+      "Tondiarpet", "Triplicane", "Vadapalani",
+      "Valasaravakkam", "Vanagaram", "Velachery",
+      "Vepery", "Virugambakkam", "Vyasarpadi",
       "Washermanpet", "West Mambalam",
     ],
   },
-  zone_c: {
-    key: "zone_c",
-    label: "Zone C (10–20 km)",
-    fee: 249,
+  zone_2: {
+    key: "zone_2",
+    label: "Near Chennai Suburbs",
+    fee: 149,
     pincodes: [
-      "600004", "600006", "600009", "600020", "600033",
-      "600036", "600040", "600041", "600042", "600048",
-      "600056", "600060", "600061", "600062", "600063",
-      "600065", "600069", "600073", "600076", "600077",
-      "600081", "600096", "600097", "600098", "600099",
-      "600100", "600101", "600102", "600108", "600117",
+      "600033", "600037", "600038", "600039", "600043",
+      "600047", "600049", "600052", "600055", "600057",
+      "600059", "600068", "600070", "600071", "600072",
+      "600109", "600110", "600113", "600115", "600116",
+      "600118", "600119", "600120", "600122", "600123",
+      "600124", "600125", "600126", "600127", "600128",
+      "600129", "600130",
     ],
     areas: [
-      "Adambakkam", "Adyar", "Alandur",
-      "Alwarpet", "Ambattur", "Chromepet",
-      "Guindy", "Iyyappanthal", "Kotturpuram",
-      "Manapakkam", "Meenambakkam", "Mylapore",
-      "Nandambakkam", "Nanganallur", "Pallavaram",
-      "Poonamallee", "Puzhal", "Saidapet",
-      "St Thomas Mount", "Taramani", "Thoraipakkam",
-      "Tiruvallur", "Velachery",
-    ],
-  },
-  zone_d: {
-    key: "zone_d",
-    label: "Zone D (20–30 km)",
-    fee: 399,
-    pincodes: [
-      "600037", "600038", "600039", "600043", "600047",
-      "600049", "600052", "600055", "600057", "600059",
-      "600068", "600070", "600071", "600072", "600109",
-      "600110", "600113", "600115", "600116", "600118",
-      "600119", "600120", "600122", "600123", "600124",
-      "600125", "600126", "600127", "600128", "600129",
-      "600130",
-    ],
-    areas: [
-      "Avadi", "Chitlapakkam", "Hastinapuram",
-      "Kattuppakkam", "Kolathur", "Korattur",
-      "Kovilambakkam", "Kundrathur", "Madambakkam",
-      "Madipakkam", "Medavakkam", "Mudichur",
-      "Nazerathpettai", "Pallikaranai", "Pammal",
-      "Pattabiram", "Perungalathur", "Perungudi",
+      "Avadi", "Chitlapakkam", "Chromepet",
+      "Hastinapuram", "Kattuppakkam", "Kelambakkam",
+      "Korattur", "Kovilambakkam", "Kundrathur",
+      "Madambakkam", "Madipakkam", "Mangadu",
+      "Medavakkam", "Mudichur", "Navalur",
+      "Nazerathpettai", "Pallavaram", "Pallikaranai",
+      "Pammal", "Pattabiram", "Perungalathur",
+      "Poonamallee", "Porur", "Puzhal",
       "Puzhuthivakkam", "Redhills", "Selaiyur",
-      "Semmancheri", "Sholinganallur", "Siruseri",
-      "Surapet", "Tambaram", "Thalambur",
-      "Thirumullaivoyal", "Thiruporur", "Urapakkam",
-      "Vandalur",
+      "Semmancheri", "Surapet", "Tambaram",
+      "Thalambur", "Thirumullaivoyal", "Thiruporur",
+      "Thiruverkadu", "Urapakkam", "Vandalur",
     ],
   },
-  zone_e: {
-    key: "zone_e",
-    label: "Zone E (30+ km — manual)",
+  zone_3: {
+    key: "zone_3",
+    label: "Extended Chennai / CMA",
     fee: null,
     pincodes: [
       "600103", "601201", "601202",
@@ -131,10 +112,13 @@ export const CHENNAI_ZONES: Record<ZoneKey, DeliveryZone> = {
       "603314", "603319",
     ],
     areas: [
-      "Chengalpattu", "Guduvancheri", "Kazhipattur",
-      "Kelambakkam", "Mahabalipuram", "Maraimalai Nagar",
-      "Navalur", "Padur", "Siruseri",
-      "Thaiyur",
+      "Chengalpattu", "Guduvancheri", "Guduvanchery",
+      "Kanchipuram", "Kazhipattur", "Mahabalipuram",
+      "Mahindra World City", "Maraimalai Nagar",
+      "Minjur", "Oragadam", "Padappai",
+      "Padur", "Ponneri", "Singaperumal Koil",
+      "Siruseri", "Sriperumbudur", "Thaiyur",
+      "Tiruvallur",
     ],
   },
   unsupported: {
@@ -150,7 +134,7 @@ let _areaCache: { area: string; zoneKey: ZoneKey }[] | null = null
 
 function buildAreaIndex(): { area: string; zoneKey: ZoneKey }[] {
   if (_areaCache) return _areaCache
-  const keys: ZoneKey[] = ["zone_a", "zone_b", "zone_c", "zone_d", "zone_e", "unsupported"]
+  const keys: ZoneKey[] = ["zone_1", "zone_2", "zone_3", "unsupported"]
   _areaCache = []
   for (const key of keys) {
     for (const area of CHENNAI_ZONES[key].areas) {
@@ -198,7 +182,7 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
   }
 
   // Check by pincode first
-  for (const key of ["zone_a", "zone_b", "zone_c", "zone_d", "zone_e"] as ZoneKey[]) {
+  for (const key of ["zone_1", "zone_2", "zone_3"] as ZoneKey[]) {
     if (CHENNAI_ZONES[key].pincodes.includes(pin)) {
       return { zone: CHENNAI_ZONES[key], isChennai: true, isSupported: true }
     }
@@ -217,6 +201,7 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
 
 export function getDeliveryFeeMessage(zone: DeliveryZone, isChennai: boolean): string {
   if (!isChennai) return "Courier orders outside Chennai require at least 48 hours. Courier charges will be confirmed separately after booking."
+  if (zone.key === "zone_3") return "This area needs manual pre-order confirmation. We will contact you."
   if (!zone.fee) return "This area needs manual confirmation. We will contact you."
   return `Delivery fee: ₹${zone.fee}`
 }
