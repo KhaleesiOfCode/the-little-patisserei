@@ -58,12 +58,38 @@ export default function AdminOrdersPage() {
   const [dPhone, setDPhone] = useState("");
   const [dUrl, setDUrl] = useState("");
   const [dNotes, setDNotes] = useState("");
+  const [dErrors, setDErrors] = useState<Record<string, string>>({});
 
   const [cCompany, setCCompany] = useState("");
   const [cTracking, setCTracking] = useState("");
   const [cUrl, setCUrl] = useState("");
   const [cCharge, setCCharge] = useState(0);
   const [cNotes, setCNotes] = useState("");
+  const [cErrors, setCErrors] = useState<Record<string, string>>({});
+
+  function isValidUrl(val: string): boolean {
+    try { return !!new URL(val); } catch { return false; }
+  }
+
+  function validateDelivery(): boolean {
+    const e: Record<string, string> = {};
+    if (!dProvider.trim()) e.provider = "Provider name is required";
+    if (dPhone.trim() && !/^\d{10}$/.test(dPhone.trim())) e.phone = "Contact must be exactly 10 digits";
+    if (!dUrl.trim()) e.url = "Tracking URL is required";
+    else if (!isValidUrl(dUrl.trim())) e.url = "Enter a valid URL (e.g. https://...)";
+    setDErrors(e);
+    return Object.keys(e).length === 0;
+  }
+
+  function validateCourier(): boolean {
+    const e: Record<string, string> = {};
+    if (!cCompany.trim()) e.company = "Company name is required";
+    if (!cTracking.trim()) e.tracking = "Tracking number is required";
+    if (!cUrl.trim()) e.url = "Tracking URL is required";
+    else if (!isValidUrl(cUrl.trim())) e.url = "Enter a valid URL (e.g. https://...)";
+    setCErrors(e);
+    return Object.keys(e).length === 0;
+  }
 
   useEffect(() => {
     async function load() {
@@ -118,7 +144,7 @@ export default function AdminOrdersPage() {
   };
 
   const saveDeliveryInfo = async () => {
-    if (!deliveryModal) return;
+    if (!deliveryModal || !validateDelivery()) return;
     await updateDeliveryInfo(deliveryModal.id, {
       provider_name: dProvider, partner_phone: dPhone,
       tracking_url: dUrl, notes: dNotes,
@@ -141,7 +167,7 @@ export default function AdminOrdersPage() {
   };
 
   const saveCourierInfo = async () => {
-    if (!courierModal) return;
+    if (!courierModal || !validateCourier()) return;
     await updateCourierInfo(courierModal.id, {
       company: cCompany, tracking_number: cTracking,
       tracking_url: cUrl, charge: cCharge, notes: cNotes,
@@ -757,14 +783,23 @@ export default function AdminOrdersPage() {
             </div>
             <p className="mt-2 text-sm text-[#7A6262]">Enter delivery provider details. Status will be set to Out for Delivery.</p>
             <div className="mt-4 grid gap-3">
-              <input value={dProvider} onChange={(e) => setDProvider(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Provider/app name *" />
-              <input value={dPhone} onChange={(e) => setDPhone(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery partner contact (optional)" />
-              <input value={dUrl} onChange={(e) => setDUrl(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL *" />
+              <div>
+                <input value={dProvider} onChange={(e) => { setDProvider(e.target.value); setDErrors((p) => ({ ...p, provider: "" })); }} onBlur={() => { if (!dProvider.trim()) setDErrors((p) => ({ ...p, provider: "Provider name is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.provider ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Provider/app name *" />
+                {dErrors.provider && <p className="mt-1 text-xs text-red-500">{dErrors.provider}</p>}
+              </div>
+              <div>
+                <input value={dPhone} onChange={(e) => { setDPhone(e.target.value); setDErrors((p) => ({ ...p, phone: "" })); }} onBlur={() => { if (dPhone.trim() && !/^\d{10}$/.test(dPhone.trim())) setDErrors((p) => ({ ...p, phone: "Contact must be exactly 10 digits" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.phone ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Delivery partner contact (optional, 10 digits)" />
+                {dErrors.phone && <p className="mt-1 text-xs text-red-500">{dErrors.phone}</p>}
+              </div>
+              <div>
+                <input value={dUrl} onChange={(e) => { setDUrl(e.target.value); setDErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!dUrl.trim()) setDErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(dUrl.trim())) setDErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
+                {dErrors.url && <p className="mt-1 text-xs text-red-500">{dErrors.url}</p>}
+              </div>
               <textarea value={dNotes} onChange={(e) => setDNotes(e.target.value)} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery notes (optional)" />
             </div>
             <div className="mt-4 flex gap-3">
-              <button onClick={() => setDeliveryModal(null)} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
-              <button onClick={saveDeliveryInfo} disabled={!dProvider || !dUrl} className="flex-1 rounded-xl bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Out for Delivery</button>
+              <button onClick={() => { setDeliveryModal(null); setDErrors({}); }} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={saveDeliveryInfo} disabled={!dProvider.trim() || !dUrl.trim() || Object.values(dErrors).some(Boolean)} className="flex-1 rounded-xl bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Out for Delivery</button>
             </div>
           </div>
         </div>
@@ -780,9 +815,18 @@ export default function AdminOrdersPage() {
             </div>
             <p className="mt-2 text-sm text-[#7A6262]">Enter courier company and tracking. Status will be set to Courier Booked.</p>
             <div className="mt-4 grid gap-3">
-              <input value={cCompany} onChange={(e) => setCCompany(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier company name *" />
-              <input value={cTracking} onChange={(e) => setCTracking(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking number *" />
-              <input value={cUrl} onChange={(e) => setCUrl(e.target.value)} className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Tracking URL *" />
+              <div>
+                <input value={cCompany} onChange={(e) => { setCCompany(e.target.value); setCErrors((p) => ({ ...p, company: "" })); }} onBlur={() => { if (!cCompany.trim()) setCErrors((p) => ({ ...p, company: "Company name is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.company ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Courier company name *" />
+                {cErrors.company && <p className="mt-1 text-xs text-red-500">{cErrors.company}</p>}
+              </div>
+              <div>
+                <input value={cTracking} onChange={(e) => { setCTracking(e.target.value); setCErrors((p) => ({ ...p, tracking: "" })); }} onBlur={() => { if (!cTracking.trim()) setCErrors((p) => ({ ...p, tracking: "Tracking number is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.tracking ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking number *" />
+                {cErrors.tracking && <p className="mt-1 text-xs text-red-500">{cErrors.tracking}</p>}
+              </div>
+              <div>
+                <input value={cUrl} onChange={(e) => { setCUrl(e.target.value); setCErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!cUrl.trim()) setCErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(cUrl.trim())) setCErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
+                {cErrors.url && <p className="mt-1 text-xs text-red-500">{cErrors.url}</p>}
+              </div>
               <div className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6262]">Courier charge (₹)</label>
                 <input value={cCharge} onChange={(e) => setCCharge(Number(e.target.value))} type="number" className="mt-1 w-full text-lg font-extrabold outline-none" placeholder="0" />
@@ -790,8 +834,8 @@ export default function AdminOrdersPage() {
               <textarea value={cNotes} onChange={(e) => setCNotes(e.target.value)} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
             </div>
             <div className="mt-4 flex gap-3">
-              <button onClick={() => setCourierModal(null)} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
-              <button onClick={saveCourierInfo} disabled={!cCompany || !cTracking || !cUrl} className="flex-1 rounded-xl bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Courier Booked</button>
+              <button onClick={() => { setCourierModal(null); setCErrors({}); }} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
+              <button onClick={saveCourierInfo} disabled={!cCompany.trim() || !cTracking.trim() || !cUrl.trim() || Object.values(cErrors).some(Boolean)} className="flex-1 rounded-xl bg-[#1D3C42] py-3 text-sm font-bold text-white transition hover:bg-[#163136] disabled:cursor-not-allowed disabled:opacity-50">Mark Courier Booked</button>
             </div>
           </div>
         </div>
