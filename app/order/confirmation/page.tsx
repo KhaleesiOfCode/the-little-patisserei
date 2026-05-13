@@ -163,13 +163,6 @@ export default function OrderConfirmationPage() {
 
             {/* Stamps */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[2rem]">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={showStamps ? { opacity: 1, scale: 1 } : {}}
-                transition={{ duration: 0.5, delay: 0.2 }}
-              >
-                <Stamp label="ORDERED" color="#1D3C42" />
-              </motion.div>
               {isPaid && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
@@ -191,12 +184,12 @@ export default function OrderConfirmationPage() {
             </div>
 
             {/* Order number & date */}
-            <div className="mt-5 border-t border-dashed border-[#F4CFC8] pt-4 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Bill No.</p>
-              <p className="font-mono text-lg font-extrabold text-[#1D3C42]">{order.order_number}</p>
-              <p className="mt-1 font-mono text-xs text-[#7A6262]">{orderDate} &middot; {orderTime}</p>
+            <div className="mt-4 border-t border-dashed border-[#F4CFC8] pt-3 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Bill No.</p>
+              <p className="font-mono text-xl font-extrabold text-[#1D3C42]">{order.order_number}</p>
+              <p className="mt-1 font-mono text-sm text-[#7A6262]">{orderDate} &middot; {orderTime}</p>
               {mode && (
-                <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-[10px] font-bold ${
+                <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${
                   mode === "pickup" ? "bg-teal-100 text-teal-700" : mode === "courier" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"
                 }`}>
                   {mode === "pickup" ? "Pickup" : mode === "courier" ? "Courier" : "Local Delivery"}
@@ -205,8 +198,8 @@ export default function OrderConfirmationPage() {
             </div>
 
             {/* Customer */}
-            <div className="mt-4 border-t border-dashed border-[#F4CFC8] pt-4">
-              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-xs">
+            <div className="mt-3 border-t border-dashed border-[#F4CFC8] pt-3">
+              <div className="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 text-sm">
                 <span className="text-[#7A6262]">Customer</span>
                 <span className="font-semibold text-right">{order.customer_name}</span>
                 <span className="text-[#7A6262]">Phone</span>
@@ -249,9 +242,9 @@ export default function OrderConfirmationPage() {
 
             {/* Status */}
             {status && (
-              <div className="mt-4 border-t border-dashed border-[#F4CFC8] pt-4 text-center">
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Status</p>
-                <p className="mt-1 text-base font-extrabold text-[#1D3C42]">
+              <div className="mt-3 border-t border-dashed border-[#F4CFC8] pt-3 text-center">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Status</p>
+                <p className="mt-1 text-lg font-extrabold text-[#1D3C42]">
                   {statusIcons[status]} {ORDER_STATUS_LABELS[status] || status}
                 </p>
                 {showFlow && (
@@ -261,10 +254,10 @@ export default function OrderConfirmationPage() {
                       const isLast = i === flow.length - 1;
                       return (
                         <div key={step} className="flex items-center">
-                          <div className={`grid h-6 w-6 place-items-center rounded-full text-[10px] transition ${
+                          <div className={`grid h-7 w-7 place-items-center rounded-full text-xs transition ${
                             isActive ? "bg-[#1D3C42] text-white" : "bg-[#FFF8E4] text-[#7A6262]"
                           }`}>{statusIcons[step]}</div>
-                          {!isLast && <div className={`mx-0.5 h-px w-3 ${i < statusIndex ? "bg-[#1D3C42]" : "bg-[#F4CFC8]"}`} />}
+                          {!isLast && <div className={`mx-0.5 h-px w-4 ${i < statusIndex ? "bg-[#1D3C42]" : "bg-[#F4CFC8]"}`} />}
                         </div>
                       );
                     })}
@@ -274,28 +267,28 @@ export default function OrderConfirmationPage() {
             )}
 
             {/* Divider */}
-            <div className="mt-5 border-t border-dashed border-[#D4AF37]/40" />
+            <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
             {/* Items */}
-            <div className="mt-5 space-y-3">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Items</p>
+            <div className="mt-4 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Items</p>
               {order.items?.map((item) => (
                 <div key={item.id} className="flex items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-[#3A2A2A]">{item.item_name}</p>
-                    <p className="font-mono text-[11px] text-[#7A6262]">
+                    <p className="text-base font-semibold text-[#3A2A2A]">{item.item_name}</p>
+                    <p className="font-mono text-sm text-[#7A6262]">
                       ₹{Number(item.unit_price)} x {item.quantity}
                       {item.quantity_label ? ` (${item.quantity_label})` : ""}
                       {item.egg_option ? ` · ${item.egg_option}` : ""}
                     </p>
                   </div>
-                  <p className="mt-0.5 whitespace-nowrap font-mono text-sm font-bold text-[#1D3C42]">₹{Number(item.line_total)}</p>
+                  <p className="whitespace-nowrap font-mono text-base font-bold text-[#1D3C42]">₹{Number(item.line_total)}</p>
                 </div>
               ))}
             </div>
 
             {/* Totals */}
-            <div className="mt-5 space-y-1.5 border-t border-dashed border-[#F4CFC8] pt-4">
+            <div className="mt-4 space-y-1.5 border-t border-dashed border-[#F4CFC8] pt-3">
               <div className="flex justify-between font-mono text-sm text-[#7A6262]">
                 <span>Subtotal</span><span>₹{order.subtotal}</span>
               </div>
@@ -310,15 +303,15 @@ export default function OrderConfirmationPage() {
                 </div>
               )}
               {order.estimated_delivery_at && (
-                <div className="flex justify-between font-mono text-xs text-[#D4AF37]">
+                <div className="flex justify-between font-mono text-sm text-[#D4AF37]">
                   <span>Est. delivery</span>
                   <span>{new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span>
                 </div>
               )}
-              <div className="flex justify-between font-mono text-lg font-extrabold text-[#1D3C42]">
+              <div className="flex justify-between font-mono text-xl font-extrabold text-[#1D3C42]">
                 <span>Total</span><span>₹{order.total}</span>
               </div>
-              <div className="flex justify-between font-mono text-[10px] text-[#7A6262]">
+              <div className="flex justify-between font-mono text-xs text-[#7A6262]">
                 <span>Payment</span>
                 <span className={isPaid ? "text-green-600 font-bold" : "text-amber-600 font-bold"}>
                   {isPaid ? "Paid" : "Pending"}
@@ -327,9 +320,9 @@ export default function OrderConfirmationPage() {
             </div>
 
             {/* Bottom tear line */}
-            <div className="mt-6 border-t-2 border-dashed border-[#D4AF37]/30 pt-4 text-center">
-              <p className="font-mono text-[10px] text-[#7A6262]">Thank you for your order! 💛</p>
-              <p className="mt-0.5 font-mono text-[9px] text-[#D4AF37]/60">The Little Patisserie &middot; Chennai</p>
+            <div className="mt-5 border-t-2 border-dashed border-[#D4AF37]/30 pt-3 text-center">
+              <p className="font-mono text-sm text-[#7A6262]">Thank you for your order! 💛</p>
+              <p className="mt-0.5 font-mono text-xs text-[#D4AF37]/60">The Little Patisserie &middot; Chennai</p>
             </div>
 
             {/* Perforation dots bottom */}

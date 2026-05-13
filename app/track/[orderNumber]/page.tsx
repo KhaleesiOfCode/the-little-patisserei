@@ -129,8 +129,7 @@ export default function TrackPage() {
         <div className="relative mx-auto max-w-sm rounded-[2rem] border-2 border-dashed border-[#D4AF37]/40 bg-white px-6 pb-6 pt-8 shadow-xl ring-1 ring-[#F4CFC8]">
           {/* Stamps */}
           <div className="absolute inset-0 overflow-hidden rounded-[2rem]">
-            <Stamp label="ORDERED" color="#1D3C42" top="18%" right="6%" />
-            {isPaid && <Stamp label="PAID" color="#16A34A" top="32%" right="6%" />}
+            {isPaid && <Stamp label="PAID" color="#16A34A" top="25%" right="6%" />}
           </div>
 
           {/* Top perforation */}
@@ -148,7 +147,7 @@ export default function TrackPage() {
             <h1 className="mt-3 font-display text-lg font-extrabold text-[#1D3C42]">{order.order_number}</h1>
             <p className="mt-0.5 text-xs text-[#7A6262]">{order.customer_name}</p>
             {mode && (
-              <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-[10px] font-bold ${
+              <span className={`mt-2 inline-block rounded-full px-3 py-0.5 text-xs font-bold ${
                 mode === "pickup" ? "bg-teal-100 text-teal-700" : mode === "courier" ? "bg-orange-100 text-orange-700" : "bg-green-100 text-green-700"
               }`}>
                 {mode === "pickup" ? "Pickup" : mode === "courier" ? "Courier" : "Local Delivery"}
@@ -157,14 +156,14 @@ export default function TrackPage() {
           </div>
 
           {/* Divider */}
-          <div className="mt-5 border-t border-dashed border-[#D4AF37]/40" />
+          <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
           {/* Status */}
           {status && (
-            <div className="mt-5 text-center">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Current status</p>
+            <div className="mt-4 text-center">
+              <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Current status</p>
               <div
-                className={`mt-2 inline-block rounded-xl px-5 py-2 text-sm font-extrabold ring-1 ${STATUS_COLORS[status] || "bg-[#FFF8E4] text-[#1D3C42] ring-[#F4CFC8]"}`}
+                className={`mt-2 inline-block rounded-xl px-5 py-2 text-base font-extrabold ring-1 ${STATUS_COLORS[status] || "bg-[#FFF8E4] text-[#1D3C42] ring-[#F4CFC8]"}`}
               >
                 {statusIcons[status]} {ORDER_STATUS_LABELS[status] || status}
               </div>
@@ -172,7 +171,7 @@ export default function TrackPage() {
           )}
 
           {showFlow && (
-            <div className="mt-5">
+            <div className="mt-4">
               <div className="flex items-center justify-center">
                 {flow.map((step, index) => {
                   const isActive = index <= statusIndex;
@@ -180,14 +179,14 @@ export default function TrackPage() {
                   return (
                     <div key={step} className="flex items-center">
                       <div className="flex flex-col items-center">
-                        <div className={`grid h-7 w-7 place-items-center rounded-full text-[11px] transition ${
+                        <div className={`grid h-8 w-8 place-items-center rounded-full text-sm transition ${
                           isActive ? "bg-[#1D3C42] text-white shadow-sm" : "bg-[#FFF8E4] text-[#7A6262]"
                         }`}>{statusIcons[step]}</div>
-                        <p className={`mt-1 max-w-12 text-center text-[7px] font-bold leading-tight ${
+                        <p className={`mt-1 max-w-14 text-center text-[10px] font-bold leading-tight ${
                           isActive ? "text-[#1D3C42]" : "text-[#7A6262]"
                         }`}>{ORDER_STATUS_LABELS[step]}</p>
                       </div>
-                      {!isLast && <div className={`mx-1 h-0.5 w-3 sm:mx-2 sm:w-6 ${index < statusIndex ? "bg-[#1D3C42]" : "bg-[#F4CFC8]"}`} />}
+                      {!isLast && <div className={`mx-1 h-0.5 w-4 sm:mx-2 sm:w-8 ${index < statusIndex ? "bg-[#1D3C42]" : "bg-[#F4CFC8]"}`} />}
                     </div>
                   );
                 })}
@@ -196,7 +195,7 @@ export default function TrackPage() {
           )}
 
           {isTerminal && (
-            <div className={`mt-4 rounded-xl p-3 text-center text-xs font-semibold ring-1 ${
+            <div className={`mt-3 rounded-xl p-3 text-center text-sm font-semibold ring-1 ${
               status === "cancelled" || status === "refunded" ? "bg-red-50 text-red-600 ring-red-200" :
               status === "refund_initiated" ? "bg-pink-50 text-pink-600 ring-pink-200" :
               "bg-yellow-50 text-yellow-700 ring-yellow-200"
@@ -210,24 +209,24 @@ export default function TrackPage() {
           )}
 
           {/* Divider */}
-          <div className="mt-5 border-t border-dashed border-[#D4AF37]/40" />
+          <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
           {/* Info grid */}
-          <div className="mt-5 grid grid-cols-2 gap-3">
+          <div className="mt-4 grid grid-cols-2 gap-3">
             {(order.delivery_fee ?? 0) > 0 && (
               <div className="rounded-xl bg-[#FFF8E4] p-3 text-center ring-1 ring-[#F4CFC8]">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Delivery fee</p>
                 <p className="mt-0.5 font-mono text-sm font-extrabold text-[#1D3C42]">₹{order.delivery_fee}</p>
-                {order.delivery_fee_status === "estimated" && <p className="text-[8px] text-[#7A6262]">Estimated</p>}
+                {order.delivery_fee_status === "estimated" && <p className="text-[10px] text-[#7A6262]">Estimated</p>}
               </div>
             )}
             {order.estimated_delivery_at && (
               <div className="rounded-xl bg-[#FFF8E4] p-3 text-center ring-1 ring-[#F4CFC8]">
-                <p className="text-[9px] font-bold uppercase tracking-wider text-[#D4AF37]">Estimated</p>
+                <p className="text-xs font-bold uppercase tracking-wider text-[#D4AF37]">Estimated</p>
                 <p className="mt-0.5 font-mono text-sm font-extrabold text-[#1D3C42]">
                   {new Date(order.estimated_delivery_at).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
                 </p>
-                {order.preferred_delivery_slot && <p className="text-[8px] text-[#7A6262]">{order.preferred_delivery_slot}</p>}
+                {order.preferred_delivery_slot && <p className="text-[10px] text-[#7A6262]">{order.preferred_delivery_slot}</p>}
               </div>
             )}
           </div>
@@ -236,10 +235,10 @@ export default function TrackPage() {
           {order.delivery_provider_name && (
             <div className="mt-3 rounded-xl bg-blue-50 p-3 text-center ring-1 ring-blue-200">
               <Truck size={16} className="mx-auto text-blue-600" />
-              <p className="mt-0.5 text-xs font-bold text-blue-700">{order.delivery_provider_name}</p>
-              {order.delivery_partner_phone && <p className="text-[10px] text-blue-600">{order.delivery_partner_phone}</p>}
+              <p className="mt-0.5 text-sm font-bold text-blue-700">{order.delivery_provider_name}</p>
+              {order.delivery_partner_phone && <p className="text-xs text-blue-600">{order.delivery_partner_phone}</p>}
               {order.delivery_tracking_url && (
-                <a href={order.delivery_tracking_url} target="_blank" className="mt-0.5 inline-block text-[10px] font-bold text-blue-700 underline">Track delivery</a>
+                <a href={order.delivery_tracking_url} target="_blank" className="mt-0.5 inline-block text-xs font-bold text-blue-700 underline">Track delivery</a>
               )}
             </div>
           )}
@@ -250,35 +249,35 @@ export default function TrackPage() {
               <Package size={16} className="mx-auto text-indigo-600" />
               {order.courier_company ? (
                 <>
-                  <p className="mt-0.5 text-center text-xs font-bold text-indigo-700">{order.courier_company}</p>
-                  <p className="text-center text-[10px] text-indigo-600">{order.courier_tracking_number}</p>
+                  <p className="mt-0.5 text-center text-sm font-bold text-indigo-700">{order.courier_company}</p>
+                  <p className="text-center text-xs text-indigo-600">{order.courier_tracking_number}</p>
                   {order.courier_tracking_url && (
-                    <p className="text-center"><a href={order.courier_tracking_url} target="_blank" className="mt-0.5 inline-block text-[10px] font-bold text-indigo-700 underline">Track courier</a></p>
+                    <p className="text-center"><a href={order.courier_tracking_url} target="_blank" className="mt-0.5 inline-block text-xs font-bold text-indigo-700 underline">Track courier</a></p>
                   )}
                 </>
               ) : (
-                <p className="mt-0.5 text-center text-[10px] text-indigo-600">Courier details will be added once dispatched.</p>
+                <p className="mt-0.5 text-center text-xs text-indigo-600">Courier details will be added once dispatched.</p>
               )}
               {(order.courier_charge ?? 0) > 0 && (
-                <div className="mt-2 flex items-center justify-between border-t border-indigo-200 pt-2 text-[11px]">
+                <div className="mt-2 flex items-center justify-between border-t border-indigo-200 pt-2 text-sm">
                   <span className="text-indigo-700">Courier charge</span>
                   <span className="font-extrabold text-indigo-700">₹{order.courier_charge}</span>
                 </div>
               )}
-              {order.courier_notes && <p className="mt-1 text-[10px] text-indigo-600">{order.courier_notes}</p>}
+              {order.courier_notes && <p className="mt-1 text-xs text-indigo-600">{order.courier_notes}</p>}
             </div>
           )}
 
           {/* Divider */}
-          <div className="mt-5 border-t border-dashed border-[#D4AF37]/40" />
+          <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
           {/* Address & Schedule */}
-          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
             <div>
-              <h3 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
-                <MapPin size={12} /> {mode === "pickup" ? "Pickup" : "Delivery"}
+              <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
+                <MapPin size={14} /> {mode === "pickup" ? "Pickup" : "Delivery"}
               </h3>
-              <div className="mt-2 space-y-0.5 text-xs">
+              <div className="mt-2 space-y-0.5 text-sm">
                 <p className="font-semibold text-[#3A2A2A]">{order.customer_name}</p>
                 <p className="text-[#7A6262]">{order.customer_phone}</p>
                 {mode !== "pickup" && order.address_line_1 && (
@@ -290,16 +289,16 @@ export default function TrackPage() {
               </div>
               {mode !== "pickup" && order.delivery_mode === "courier" && order.receiver_name && (
                 <div className="mt-2 rounded-xl bg-orange-50 p-2 ring-1 ring-orange-200">
-                  <p className="text-[9px] font-bold uppercase tracking-wider text-orange-600">Receiver</p>
-                  <p className="text-[11px] font-semibold">{order.receiver_name} · {order.receiver_phone}</p>
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-orange-600">Receiver</p>
+                  <p className="text-sm font-semibold">{order.receiver_name} · {order.receiver_phone}</p>
                 </div>
               )}
             </div>
             <div>
-              <h3 className="flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
-                <Clock size={12} /> Schedule
+              <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
+                <Clock size={14} /> Schedule
               </h3>
-              <div className="mt-2 space-y-0.5 text-xs">
+              <div className="mt-2 space-y-0.5 text-sm">
                 {order.preferred_delivery_date && <p className="text-[#7A6262]">Date: <span className="font-semibold text-[#3A2A2A]">{new Date(order.preferred_delivery_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span></p>}
                 {order.preferred_delivery_slot && <p className="text-[#7A6262]">Slot: <span className="font-semibold text-[#3A2A2A]">{order.preferred_delivery_slot}</span></p>}
                 {order.pickup_date && <p className="text-[#7A6262]">Pickup: <span className="font-semibold text-[#3A2A2A]">{new Date(order.pickup_date).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}</span></p>}
@@ -308,28 +307,28 @@ export default function TrackPage() {
           </div>
 
           {/* Divider */}
-          <div className="mt-5 border-t border-dashed border-[#D4AF37]/40" />
+          <div className="mt-4 border-t border-dashed border-[#D4AF37]/40" />
 
           {/* Items */}
-          <div className="mt-5 space-y-3">
-            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Items</p>
+          <div className="mt-4 space-y-3">
+            <p className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">Items</p>
             {order.items?.map((item) => (
               <div key={item.id} className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold text-[#3A2A2A]">{item.item_name}</p>
-                  <p className="font-mono text-[11px] text-[#7A6262]">
+                  <p className="text-base font-semibold text-[#3A2A2A]">{item.item_name}</p>
+                  <p className="font-mono text-sm text-[#7A6262]">
                     ₹{Number(item.unit_price)} x {item.quantity}
                     {item.quantity_label ? ` (${item.quantity_label})` : ""}
                     {item.egg_option ? ` · ${item.egg_option}` : ""}
                   </p>
                 </div>
-                <p className="mt-0.5 whitespace-nowrap font-mono text-sm font-bold text-[#1D3C42]">₹{Number(item.line_total)}</p>
+                <p className="whitespace-nowrap font-mono text-base font-bold text-[#1D3C42]">₹{Number(item.line_total)}</p>
               </div>
             ))}
           </div>
 
           {/* Totals */}
-          <div className="mt-5 space-y-1.5 border-t border-dashed border-[#F4CFC8] pt-4">
+          <div className="mt-4 space-y-1.5 border-t border-dashed border-[#F4CFC8] pt-3">
             <div className="flex justify-between font-mono text-sm text-[#7A6262]">
               <span>Subtotal</span><span>₹{order.subtotal}</span>
             </div>
@@ -348,10 +347,10 @@ export default function TrackPage() {
                 <span>Courier charge</span><span className="italic">Pending</span>
               </div>
             )}
-            <div className="flex justify-between font-mono text-lg font-extrabold text-[#1D3C42]">
+            <div className="flex justify-between font-mono text-xl font-extrabold text-[#1D3C42]">
               <span>Total</span><span>₹{order.total}</span>
             </div>
-            <div className="flex justify-between font-mono text-[10px] text-[#7A6262]">
+            <div className="flex justify-between font-mono text-xs text-[#7A6262]">
               <span>Payment</span>
               <span className={isPaid ? "text-green-600 font-bold" : "text-amber-600 font-bold"}>
                 {isPaid ? "Paid" : order.payment_status === "refunded" ? "Refunded" : "Pending"}
@@ -360,9 +359,9 @@ export default function TrackPage() {
           </div>
 
           {/* Bottom tear */}
-          <div className="mt-6 border-t-2 border-dashed border-[#D4AF37]/30 pt-4 text-center">
-            <p className="font-mono text-[10px] text-[#7A6262]">The Little Patisserie &middot; Chennai</p>
-            <p className="mt-0.5 font-mono text-[9px] text-[#D4AF37]/60">
+          <div className="mt-5 border-t-2 border-dashed border-[#D4AF37]/30 pt-3 text-center">
+            <p className="font-mono text-sm text-[#7A6262]">The Little Patisserie &middot; Chennai</p>
+            <p className="mt-0.5 font-mono text-xs text-[#D4AF37]/60">
               Ordered {orderDate} &middot; {orderTime}
             </p>
           </div>
