@@ -331,9 +331,9 @@ export default function CartPage() {
                         </div>
                         <div className="mt-3 flex items-center justify-between">
                           <div className="flex items-center rounded-full border border-[#F08C9B] bg-[#FFF8E4]">
-                            <button onClick={() => updateQty(item.id, item.qty - 1)} className="flex h-8 w-8 items-center justify-center text-sm font-bold text-[#D4AF37] transition hover:bg-[#FADCD4] rounded-l-full">−</button>
+                            <button onClick={() => updateQty(item.id, item.qty - 1)} className="flex h-8 w-8 items-center justify-center rounded-l-full text-sm font-bold text-[#D4AF37] transition hover:bg-[#FADCD4]">−</button>
                             <span className="flex h-8 w-8 items-center justify-center text-sm font-bold text-[#3A2A2A]">{item.qty}</span>
-                            <button onClick={() => updateQty(item.id, item.qty + 1)} className="flex h-8 w-8 items-center justify-center text-sm font-bold text-[#D4AF37] transition hover:bg-[#FADCD4] rounded-r-full">+</button>
+                            <button onClick={() => updateQty(item.id, item.qty + 1)} className="flex h-8 w-8 items-center justify-center rounded-r-full text-sm font-bold text-[#D4AF37] transition hover:bg-[#FADCD4]">+</button>
                           </div>
                           <p className="text-lg font-extrabold text-[#1D3C42]">₹{item.price * item.qty}</p>
                         </div>

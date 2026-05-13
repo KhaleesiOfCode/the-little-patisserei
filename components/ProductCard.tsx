@@ -321,7 +321,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
                 <div className="flex items-center rounded-full border-2 border-[#1D3C42]">
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty - 1)}
-                    className="px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
+                    className="rounded-l-full px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
                   >
                     −
                   </button>
@@ -332,7 +332,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
 
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty + 1)}
-                    className="px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
+                    className="rounded-r-full px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
                   >
                     +
                   </button>
