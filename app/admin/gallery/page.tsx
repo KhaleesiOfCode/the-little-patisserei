@@ -20,6 +20,7 @@ export default function AdminGalleryPage() {
   const [editingCaption, setEditingCaption] = useState<string | null>(null);
   const [editValue, setEditValue] = useState("");
   const [message, setMessage] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -268,7 +269,7 @@ export default function AdminGalleryPage() {
                   <ChevronDown size={14} />
                 </button>
               )}
-              <button onClick={() => deleteImage(img.id)} className="rounded-full bg-red-500 p-1.5 text-white shadow hover:bg-red-600">
+              <button onClick={() => setDeleteTarget(img.id)} className="rounded-full bg-red-500 p-1.5 text-white shadow hover:bg-red-600">
                 <Trash2 size={14} />
               </button>
             </div>
@@ -280,6 +281,23 @@ export default function AdminGalleryPage() {
         <div className="rounded-2xl border-2 border-dashed border-[#D4AF37]/30 p-16 text-center">
           <p className="text-lg font-semibold text-[#1D3C42]">No gallery images</p>
           <p className="mt-1 text-sm text-[#7A6262]">Upload your first custom cake photo above.</p>
+        </div>
+      )}
+
+      {/* Delete confirmation modal */}
+      {deleteTarget && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setDeleteTarget(null)}>
+          <div className="w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl text-center" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-red-100">
+              <Trash2 size={24} className="text-red-500" />
+            </div>
+            <h3 className="mt-4 text-lg font-extrabold text-[#1D3C42]">Delete image?</h3>
+            <p className="mt-2 text-sm text-[#7A6262]">This will permanently remove this image from the gallery.</p>
+            <div className="mt-6 flex gap-3">
+              <button onClick={() => setDeleteTarget(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold text-[#7A6262] transition hover:bg-[#FFF8E4]">Cancel</button>
+              <button onClick={() => { deleteImage(deleteTarget); setDeleteTarget(null); }} className="flex-1 rounded-full bg-red-500 py-3 text-sm font-bold text-white transition hover:bg-red-600">Delete</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
