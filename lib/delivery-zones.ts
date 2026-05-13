@@ -96,7 +96,7 @@ export const CHENNAI_ZONES: Record<ZoneKey, DeliveryZone> = {
   zone_3: {
     key: "zone_3",
     label: "Extended Chennai / CMA",
-    fee: null,
+    fee: 299,
     pincodes: [
       "600103", "601201", "601202",
       "601203", "602001", "602002", "602003",
@@ -201,7 +201,7 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
 
 export function getDeliveryFeeMessage(zone: DeliveryZone, isChennai: boolean): string {
   if (!isChennai) return "Courier orders outside Chennai require at least 48 hours. Courier charges will be confirmed separately after booking."
-  if (zone.key === "zone_3") return "This area needs manual pre-order confirmation. We will contact you."
+  if (zone.key === "zone_3") return `Delivery fee: ₹${zone.fee} — Extended Chennai / CMA`
   if (!zone.fee) return "This area needs manual confirmation. We will contact you."
   return `Delivery fee: ₹${zone.fee}`
 }
