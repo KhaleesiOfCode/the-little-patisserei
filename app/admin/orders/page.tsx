@@ -75,8 +75,12 @@ export default function AdminOrdersPage() {
     load();
     document.addEventListener("click", initAudioOnUserGesture, { once: true });
 
-    const newSub = subscribeToOrders((newOrder) => {
-      setOrders((prev) => [newOrder, ...prev]);
+    const newSub = subscribeToOrders(async (newOrder) => {
+      const { data: items } = await supabase
+        .from("order_items")
+        .select("*")
+        .eq("order_id", newOrder.id);
+      setOrders((prev) => [{ ...newOrder, items: items || [] }, ...prev]);
       setNotification(`New order: ${newOrder.order_number}`);
       playNotificationSound();
       setTimeout(() => setNotification(null), 5000);
