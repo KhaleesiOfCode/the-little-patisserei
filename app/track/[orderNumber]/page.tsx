@@ -27,16 +27,16 @@ function Stamp({ label, color }: { label: string; color: string }) {
     <div
       className="absolute select-none pointer-events-none"
       style={{
-        top: "38%",
-        left: "50%",
-        marginLeft: "-40px",
+        transform: "rotate(-12deg)",
+        bottom: "18%",
+        right: "6%",
         zIndex: 10,
-        opacity: 0.4,
+        opacity: 0.5,
       }}
     >
       <div
-        className="flex h-20 w-20 items-center justify-center rounded-full border-4 font-black uppercase tracking-[0.15em] shadow-xl"
-        style={{ borderColor: color, color, fontSize: "13px" }}
+        className="rounded border-2 px-4 py-1 text-sm font-black uppercase tracking-[0.2em] shadow-lg"
+        style={{ borderColor: color, color }}
       >
         {label}
       </div>
