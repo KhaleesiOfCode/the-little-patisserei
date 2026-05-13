@@ -25,6 +25,7 @@ export default function CartPage() {
   const [submitting, setSubmitting] = useState(false);
   const [paid, setPaid] = useState(false);
   const [confirmRemoveId, setConfirmRemoveId] = useState<string | null>(null);
+  const [showCourierPopup, setShowCourierPopup] = useState(false);
   const [orderWindowOpen, setOrderWindowOpen] = useState(true);
 
   useEffect(() => {
@@ -387,7 +388,7 @@ export default function CartPage() {
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Within Chennai</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Delivered within Chennai</p>
                   </button>
-                  <button onClick={() => selectSubMode("courier")} disabled={cart.some((item) => item.category !== "Brownies")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md disabled:cursor-not-allowed disabled:opacity-40">
+                  <button onClick={() => { if (cart.some((item) => item.category !== "Brownies")) { setShowCourierPopup(true); } else { selectSubMode("courier"); } }} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Courier — Brownies only</p>
@@ -717,6 +718,26 @@ export default function CartPage() {
             <div className="mt-6 flex gap-3">
               <button onClick={() => setConfirmRemoveId(null)} className="flex-1 rounded-full border border-[#F4CFC8] py-3 text-sm font-bold text-[#3A2A2A] transition hover:bg-[#FFF8E4]">Cancel</button>
               <button onClick={() => { removeFromCart(confirmRemoveId); setConfirmRemoveId(null); }} className="flex-1 rounded-full bg-red-500 py-3 text-sm font-bold text-white transition hover:bg-red-600">Remove</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showCourierPopup && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" onClick={() => setShowCourierPopup(false)}>
+          <div className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-amber-50"><TruckIcon size={24} className="text-orange-500" /></div>
+            <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Courier is for Brownies Only</h3>
+            <p className="mt-2 text-sm leading-6 text-[#7A6262]">
+              At the moment, courier delivery is available only for <strong>Brownies</strong>. Non-brownie items like cakes, pastries, and cupcakes are too delicate to courier.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-[#7A6262]">
+              You can choose <strong>pickup</strong> or <strong>local delivery within Chennai</strong> for orders with other items.
+            </p>
+            <div className="mt-6">
+              <button onClick={() => setShowCourierPopup(false)} className="w-full rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white transition hover:bg-[#163136]">
+                Got it
+              </button>
             </div>
           </div>
         </div>
