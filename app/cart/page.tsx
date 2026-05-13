@@ -102,25 +102,35 @@ export default function CartPage() {
     [form.deliveryDate, slotInfo],
   );
 
-  const courierDeliveryEstimate = useMemo(() => {
-    if (effectiveMode !== "courier" || !form.state) return ""
-    if (form.state === "Tamil Nadu") return "Estimated delivery: 1 day"
-    return "Estimated delivery: 2-3 days"
-  }, [effectiveMode, form.state])
+  const courierZoneKey = effectiveMode === "courier" ? (courierCalc?.courier_zone ?? null) : null
+
+  const COURIER_TRANSIT: Record<string, { min: number; max: number; label: string }> = {
+    zone_a: { min: 1, max: 1, label: "1 day" },
+    zone_b: { min: 1, max: 2, label: "1-2 days" },
+    zone_c: { min: 2, max: 3, label: "2-3 days" },
+    zone_d: { min: 3, max: 4, label: "3-4 days" },
+    zone_e: { min: 4, max: 5, label: "4-5 days" },
+  }
+
+  const courierTransit = useMemo(() => {
+    if (effectiveMode !== "courier" || !courierZoneKey) return null
+    return COURIER_TRANSIT[courierZoneKey] || { min: 3, max: 5, label: "3-5 days" }
+  }, [effectiveMode, courierZoneKey])
+
+  const courierDeliveryEstimate = courierTransit
+    ? `Estimated delivery: ${courierTransit.label}`
+    : ""
 
   const courierCharge = courierCalc?.courier_charge ?? 0
   const fragileSurcharge = courierCalc?.fragile_surcharge ?? 0
 
   const deliveryFee = effectiveMode === "pickup" ? 0 : effectiveMode === "courier" ? courierCharge : (zoneInfo.zone.fee ?? 0);
-  const deliveryZone = effectiveMode === "local_delivery" ? zoneInfo.zone.key : effectiveMode === "courier" ? (courierCalc?.courier_zone ?? null) : null;
+  const deliveryZone = effectiveMode === "local_delivery" ? zoneInfo.zone.key : effectiveMode === "courier" ? courierZoneKey : null;
   const deliverySupported = effectiveMode !== "local_delivery" || zoneInfo.isSupported;
 
   const minDate = slotInfo.earliestDate.toLocaleDateString("en-CA");
 
-  const courierTransitDays = useMemo(() => {
-    if (effectiveMode !== "courier" || !form.state) return 0
-    return form.state === "Tamil Nadu" ? 1 : 3
-  }, [effectiveMode, form.state])
+  const courierTransitDays = courierTransit?.max ?? 0
 
   const courierEarliestDate = useMemo(() => {
     const d = new Date(slotInfo.earliestDate)
