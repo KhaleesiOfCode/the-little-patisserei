@@ -8,7 +8,7 @@ import { useCart } from "../../components/CartContext";
 import { createOrder } from "../../lib/supabase/orders";
 import type { OrderFormData, DeliveryMode } from "../../types/menu";
 import { getSlotInfo, getAvailableSlots } from "../../lib/slot-logic";
-import { getDeliveryZone, getDeliveryFeeMessage } from "../../lib/delivery-zones";
+import { getDeliveryZone, getDeliveryFeeMessage, isChennaiPincode } from "../../lib/delivery-zones";
 import { calculateCourierCharge, getCourierMessage } from "../../lib/delivery/courierZones";
 import { SOUTH_INDIA_STATES, getDistrictsForState, getCitiesForDistrict } from "../../lib/delivery/southIndiaData";
 import {
@@ -135,7 +135,20 @@ export default function CartPage() {
     });
   }, [effectiveMode, minDate]);
 
-  const isChennaiLocal = effectiveMode === "local_delivery" && form.pincode.startsWith("600");
+  useEffect(() => {
+    if (effectiveMode !== "local_delivery") return;
+    if (isChennaiPincode(form.pincode) && form.pincode.length === 6) {
+      startTransition(() => {
+        setForm((prev) => ({
+          ...prev,
+          city: prev.city || "Chennai",
+          state: prev.state || "Tamil Nadu",
+        }));
+      });
+    }
+  }, [effectiveMode, form.pincode]);
+
+  const isChennaiLocal = effectiveMode === "local_delivery" && isChennaiPincode(form.pincode);
 
   const update = (field: keyof OrderFormData, value: string) =>
     setForm((prev) => {
@@ -522,24 +535,14 @@ export default function CartPage() {
                           </select>
                           {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Select a city</p>}
                         </div>
-                      ) : isChennaiLocal ? (
-                        <>
-                          <div>
-                            <input value="Chennai" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
-                          </div>
-                          <div>
-                            <input value="Tamil Nadu" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
-                          </div>
-                        </>
                       ) : (
                         <div>
-                          <input value={form.city} onChange={(e) => update("city", e.target.value)} onBlur={() => blur("city")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.city && !form.city ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="City *" />
-                          {touched.city && !form.city && <p className="mt-1 text-xs text-red-500">Enter your city</p>}
+                          <input value="Chennai" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
                         </div>
                       )}
-                      {effectiveMode !== "courier" && !isChennaiLocal && (
+                      {effectiveMode !== "courier" && (
                         <div>
-                          <input value={form.state} onChange={(e) => update("state", e.target.value)} className="rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42]" placeholder="State" />
+                          <input value="Tamil Nadu" disabled className="rounded-2xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-3 outline-none w-full text-[#7A6262] cursor-not-allowed" />
                         </div>
                       )}
                       {effectiveMode === "courier" && (

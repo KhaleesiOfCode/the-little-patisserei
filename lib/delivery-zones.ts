@@ -199,6 +199,15 @@ export function getDeliveryZone(city: string, pincode: string, areaName?: string
   return { zone: CHENNAI_ZONES.unsupported, isChennai: true, isSupported: false }
 }
 
+export function isChennaiPincode(pincode: string): boolean {
+  const pin = pincode.trim()
+  if (!pin) return false
+  for (const key of ["zone_1", "zone_2", "zone_3"] as ZoneKey[]) {
+    if (CHENNAI_ZONES[key].pincodes.includes(pin)) return true
+  }
+  return false
+}
+
 export function getDeliveryFeeMessage(zone: DeliveryZone, isChennai: boolean): string {
   if (!isChennai) return "Courier orders outside Chennai require at least 48 hours. Courier charges will be confirmed separately after booking."
   if (zone.key === "zone_3") return `Delivery fee: ₹${zone.fee} — Extended Chennai / CMA`
