@@ -4,7 +4,7 @@ import { adminSupabase } from "@/lib/supabase/admin-client";
 
 const BUCKET = "menu-images";
 const MAX_SIZE = 10 * 1024 * 1024;
-const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp", "image/gif", "video/mp4", "video/webm"];
+const ALLOWED_PREFIXES = ["image/", "video/"];
 
 async function ensureBucket(): Promise<string | null> {
   const { data: buckets } = await adminSupabase.storage.listBuckets();
@@ -28,8 +28,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Missing file or menuItemId" }, { status: 400 });
     }
 
-    if (!ALLOWED_TYPES.includes(file.type)) {
-      return NextResponse.json({ error: "Invalid file type. Allowed: JPEG, PNG, WebP, GIF, MP4, WebM" }, { status: 400 });
+    if (!ALLOWED_PREFIXES.some((p) => file.type.startsWith(p))) {
+      return NextResponse.json({ error: "Invalid file type. Only images and videos are allowed." }, { status: 400 });
     }
 
     if (file.size > MAX_SIZE) {

@@ -128,7 +128,8 @@ export default function AdminGalleryPage() {
       const { url } = await res.json();
       await addImage(url, "");
     } else {
-      showMessage("Upload failed");
+      const err = await res.json().catch(() => ({ error: "Upload failed" }));
+      showMessage(err.error || "Upload failed");
     }
 
     setUploading(false);
