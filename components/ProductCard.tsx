@@ -14,7 +14,7 @@ import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import { formatQuantityLabel } from "../types/menu";
 import LiveDesignStudio from "./LiveDesignStudio";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType } from "../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../lib/store-hours";
 
 const WHATSAPP_NUMBER = "919488407130";
 
@@ -499,7 +499,7 @@ export default function ProductCard({ product }: { product: MenuItem }) {
             {getClosureType() === "daily" ? (
               <>
                 <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Orders are closed for the day 🌙</h3>
-                <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back tomorrow at 8:00 AM with fresh bakes</p>
+                <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back {getClosureEndMessage()} with fresh bakes</p>
               </>
             ) : (
               <>

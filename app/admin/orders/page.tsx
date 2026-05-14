@@ -12,6 +12,9 @@ const FILTER_STATUSES: { key: string; label: string }[] = [
   { key: "all", label: "All" },
   { key: "order_received", label: "New" },
   { key: "baker_confirmed", label: "Accepted" },
+  { key: "ready_for_pickup", label: "Ready for Pickup" },
+  { key: "out_for_delivery", label: "Out for Delivery" },
+  { key: "courier_booked", label: "Courier Booked" },
   { key: "delivered", label: "Completed" },
   { key: "cancelled", label: "Cancelled" },
 ];
@@ -44,6 +47,7 @@ export default function AdminOrdersPage() {
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("order_received");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [deliveryMode, setDeliveryMode] = useState<"all" | "pickup" | "local_delivery" | "courier">("all");
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [notification, setNotification] = useState<string | null>(null);
 
@@ -133,6 +137,8 @@ export default function AdminOrdersPage() {
     if (!ok) return;
     setOrders((prev) => prev.map((o) => o.id === id ? { ...o, status } : o));
     setSelectedOrder((prev) => prev?.id === id ? { ...prev, status } : prev);
+    const msg = STATUS_NOTIFICATIONS[status];
+    if (msg) { setNotification(msg); setTimeout(() => setNotification(null), 4000); }
   };
 
   const openDeliveryModal = (order: Order) => {
@@ -187,6 +193,9 @@ export default function AdminOrdersPage() {
     if (filterStatus !== "all") {
       result = result.filter((o) => o.status === filterStatus);
     }
+    if (deliveryMode !== "all") {
+      result = result.filter((o) => o.delivery_mode === deliveryMode);
+    }
     if (search.trim()) {
       const q = search.toLowerCase().trim();
       result = result.filter(
@@ -198,7 +207,7 @@ export default function AdminOrdersPage() {
       );
     }
     return result;
-  }, [orders, filterStatus, search]);
+  }, [orders, filterStatus, deliveryMode, search]);
 
   const grouped = useMemo(() => {
     const groups: Record<string, Order[]> = {};
@@ -228,6 +237,57 @@ export default function AdminOrdersPage() {
 
   const newCount = orders.filter((o) => o.status === "order_received").length;
 
+  const ORDER_STATUS_ACTIONS: Record<string, string> = {
+    baker_confirmed: "Accept",
+    ready_for_pickup: "Ready for Pickup",
+    picked_up: "Picked Up",
+    out_for_delivery: "Out for Delivery",
+    courier_booked: "Courier Booked",
+    delivered: "Completed",
+  };
+
+  const STATUS_NOTIFICATIONS: Record<string, string> = {
+    baker_confirmed: "Baker accepted the order",
+    ready_for_pickup: "Order is ready for pickup",
+    picked_up: "Order picked up by customer",
+    out_for_delivery: "Order is out for delivery",
+    courier_booked: "Courier booked for order",
+    delivered: "Order delivered successfully",
+    cancelled: "Order cancelled",
+  };
+
+  const MODE_TABS: { key: typeof deliveryMode; label: string }[] = [
+    { key: "all", label: "All" },
+    { key: "pickup", label: "Pickup" },
+    { key: "local_delivery", label: "Delivery in Chennai" },
+    { key: "courier", label: "Courier" },
+  ];
+
+  const FILTER_OPTIONS: { key: string; label: string }[] = useMemo(() => {
+    if (deliveryMode === "all") return FILTER_STATUSES;
+    if (deliveryMode === "pickup") return [
+      { key: "order_received", label: "New" },
+      { key: "baker_confirmed", label: "Accepted" },
+      { key: "ready_for_pickup", label: "Ready for Pickup" },
+      { key: "delivered", label: "Completed" },
+      { key: "cancelled", label: "Cancelled" },
+    ];
+    if (deliveryMode === "local_delivery") return [
+      { key: "order_received", label: "New" },
+      { key: "baker_confirmed", label: "Accepted" },
+      { key: "out_for_delivery", label: "Out for Delivery" },
+      { key: "delivered", label: "Completed" },
+      { key: "cancelled", label: "Cancelled" },
+    ];
+    return [
+      { key: "order_received", label: "New" },
+      { key: "baker_confirmed", label: "Accepted" },
+      { key: "courier_booked", label: "Courier Booked" },
+      { key: "delivered", label: "Completed" },
+      { key: "cancelled", label: "Cancelled" },
+    ];
+  }, [deliveryMode]);
+
   return (
     <div className="flex min-h-screen">
       {notification && (
@@ -235,6 +295,28 @@ export default function AdminOrdersPage() {
           🛎️ {notification}
         </div>
       )}
+
+      {/* Left sidebar — delivery mode tabs */}
+      <aside className="hidden w-60 shrink-0 border-r border-[#F4CFC8]/50 bg-white lg:flex lg:flex-col">
+        <div className="px-4 pt-6 pb-3">
+          <h2 className="text-xs font-bold uppercase tracking-wider text-[#7A6262]">Delivery Mode</h2>
+        </div>
+        <nav className="space-y-1 px-3">
+          {MODE_TABS.map((tab) => (
+            <button
+              key={tab.key}
+              onClick={() => { setDeliveryMode(tab.key); setFilterStatus("order_received"); }}
+              className={`flex w-full items-center rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+                deliveryMode === tab.key
+                  ? "bg-[#F4CFC8]/40 text-[#1D3C42]"
+                  : "text-[#7A6262] hover:bg-[#FFF8E4] hover:text-[#1D3C42]"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </nav>
+      </aside>
 
       {/* Main orders area */}
       <div className="flex flex-1 flex-col">
@@ -264,14 +346,14 @@ export default function AdminOrdersPage() {
                 onClick={() => setFilterOpen(!filterOpen)}
                 className="flex items-center gap-2 rounded-xl border border-[#F4CFC8] bg-white px-4 py-2.5 text-sm font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
               >
-                {FILTER_STATUSES.find((f) => f.key === filterStatus)?.label || "All"}
+                {FILTER_OPTIONS.find((f) => f.key === filterStatus)?.label || "All"}
                 <ChevronDown size={14} />
               </button>
               {filterOpen && (
                 <>
                   <div className="fixed inset-0 z-10" onClick={() => setFilterOpen(false)} />
                   <div className="absolute right-0 top-full z-20 mt-1 w-44 rounded-2xl border border-[#F4CFC8] bg-white py-2 shadow-lg">
-                    {FILTER_STATUSES.map((f) => (
+                    {FILTER_OPTIONS.map((f) => (
                       <button
                         key={f.key}
                         onClick={() => { setFilterStatus(f.key); setFilterOpen(false); }}
@@ -284,6 +366,8 @@ export default function AdminOrdersPage() {
                             f.key === "order_received" ? "bg-amber-500" :
                             f.key === "baker_confirmed" ? "bg-blue-500" :
                             f.key === "ready_for_pickup" ? "bg-yellow-500" :
+                            f.key === "out_for_delivery" ? "bg-orange-500" :
+                            f.key === "courier_booked" ? "bg-indigo-500" :
                             f.key === "delivered" ? "bg-green-500" :
                             f.key === "cancelled" ? "bg-red-500" : "bg-gray-400"
                           }`} />
@@ -414,7 +498,7 @@ export default function AdminOrdersPage() {
                             }}
                             className="rounded-lg bg-[#1D3C42] px-3 py-1.5 text-[11px] font-bold text-white transition hover:bg-[#163136]"
                           >
-                            {ORDER_STATUS_LABELS[nextStatuses[0]]}
+                            {ORDER_STATUS_ACTIONS[nextStatuses[0]] || ORDER_STATUS_LABELS[nextStatuses[0]]}
                           </button>
                         )}
                       </div>
@@ -485,6 +569,30 @@ export default function AdminOrdersPage() {
                     {selectedOrder.delivery_mode === "pickup" ? "Pickup" : selectedOrder.delivery_mode === "courier" ? "Courier" : "Local Delivery"}
                   </span>
                 </div>
+                {selectedOrder.delivery_mode === "pickup" && selectedOrder.pickup_date && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Pickup Date</span>
+                    <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.pickup_date)}</span>
+                  </div>
+                )}
+                {selectedOrder.delivery_mode === "pickup" && selectedOrder.pickup_slot && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Pickup Slot</span>
+                    <span className="font-semibold text-[#1D3C42]">{selectedOrder.pickup_slot}</span>
+                  </div>
+                )}
+                {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_date && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Delivery Date</span>
+                    <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
+                  </div>
+                )}
+                {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_slot && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Delivery Slot</span>
+                    <span className="font-semibold text-[#1D3C42]">{selectedOrder.preferred_delivery_slot}</span>
+                  </div>
+                )}
               </section>
 
               {/* Address */}
@@ -619,11 +727,11 @@ export default function AdminOrdersPage() {
                       }}
                       className="flex items-center gap-1.5 rounded-lg bg-[#1D3C42] px-3 py-2 text-[11px] font-bold text-white transition hover:bg-[#163136]"
                     >
-                      {ORDER_STATUS_LABELS[s]}
-                    </button>
-                  ));
-                })()}
-                <button
+                        {ORDER_STATUS_ACTIONS[s] || ORDER_STATUS_LABELS[s]}
+                      </button>
+                    ));
+                  })()}
+                  <button
                   onClick={() => { setEditingNotes(selectedOrder.id); setNotesValue(selectedOrder.baker_notes || ""); }}
                   className="flex items-center gap-1.5 rounded-lg border border-[#F4CFC8] px-3 py-2 text-[11px] font-bold text-[#7A6262] transition hover:bg-[#FFF8E4]"
                 >
@@ -671,8 +779,34 @@ export default function AdminOrdersPage() {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-[#7A6262]">Method</span>
-                    <span className="font-semibold capitalize text-[#1D3C42]">{selectedOrder.delivery_mode}</span>
+                    <span className="font-semibold capitalize text-[#1D3C42]">
+                      {selectedOrder.delivery_mode === "pickup" ? "Pickup" : selectedOrder.delivery_mode === "courier" ? "Courier" : "Local Delivery"}
+                    </span>
                   </div>
+                  {selectedOrder.delivery_mode === "pickup" && selectedOrder.pickup_date && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Pickup Date</span>
+                      <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.pickup_date)}</span>
+                    </div>
+                  )}
+                  {selectedOrder.delivery_mode === "pickup" && selectedOrder.pickup_slot && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Pickup Slot</span>
+                      <span className="font-semibold text-[#1D3C42]">{selectedOrder.pickup_slot}</span>
+                    </div>
+                  )}
+                  {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_date && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Delivery Date</span>
+                      <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
+                    </div>
+                  )}
+                  {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_slot && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Delivery Slot</span>
+                      <span className="font-semibold text-[#1D3C42]">{selectedOrder.preferred_delivery_slot}</span>
+                    </div>
+                  )}
                 </div>
                 <div className="mb-5 h-px bg-[#F4CFC8]/50" />
                 <section className="mb-5">
@@ -721,7 +855,7 @@ export default function AdminOrdersPage() {
                         }}
                         className="flex-1 rounded-lg bg-[#1D3C42] py-2.5 text-xs font-bold text-white transition hover:bg-[#163136]"
                       >
-                        {ORDER_STATUS_LABELS[s]}
+                        {ORDER_STATUS_ACTIONS[s] || ORDER_STATUS_LABELS[s]}
                       </button>
                     ));
                   })()}

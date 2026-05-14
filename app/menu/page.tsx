@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType } from "../../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../../lib/store-hours";
 import type { MenuCategory } from "../../types/menu";
 
 export default function MenuPage() {
@@ -257,7 +257,7 @@ export default function MenuPage() {
             {getClosureType() === "daily" ? (
               <>
                 <h3 className="mt-4 font-display text-xl font-bold text-[#3A2A2A]">Orders are closed for the day 🌙</h3>
-                <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back tomorrow at 8:00 AM with fresh bakes</p>
+                <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back {getClosureEndMessage()} with fresh bakes</p>
               </>
             ) : (
               <>

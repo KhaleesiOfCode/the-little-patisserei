@@ -36,6 +36,22 @@ export function getFormattedClosureEnd(): string {
   return formatClosureEnd(cachedClosesAt);
 }
 
+export function getClosureEndMessage(): string {
+  if (!cachedClosesAt) return "";
+  const now = new Date();
+  const end = new Date(cachedClosesAt);
+  const timeStr = end.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", hour12: true });
+  if (now.toDateString() === end.toDateString()) {
+    return `today at ${timeStr}`;
+  }
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  if (end.toDateString() === tomorrow.toDateString()) {
+    return `tomorrow at ${timeStr}`;
+  }
+  return getFormattedClosureEnd();
+}
+
 export async function refreshStoreStatus(): Promise<void> {
   try {
     const res = await fetch(`/api/store-status?_=${Date.now()}`);

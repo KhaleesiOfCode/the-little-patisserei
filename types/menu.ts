@@ -139,7 +139,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 }
 
 export const STATUS_FLOW_PICKUP: OrderStatus[] = [
-  "order_received", "baker_confirmed", "ready_for_pickup", "picked_up",
+  "order_received", "baker_confirmed", "ready_for_pickup", "delivered",
 ]
 
 export const STATUS_FLOW_LOCAL: OrderStatus[] = [
@@ -161,7 +161,7 @@ export function getNextStatuses(current: OrderStatus, mode: DeliveryMode | null 
     const m: Record<string, OrderStatus[]> = {
       order_received: ["baker_confirmed", "cancelled"],
       baker_confirmed: ["ready_for_pickup", "cancelled"],
-      ready_for_pickup: ["picked_up"],
+      ready_for_pickup: ["delivered"],
       cancelled: ["refund_initiated"],
       refund_initiated: ["refunded"],
     }

@@ -16,7 +16,7 @@ import {
   sanitizeAddress, sanitizePincode, sanitizeEmail,
   validatePhone, validatePincode, validateEmail,
 } from "../../lib/validation";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType } from "../../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../../lib/store-hours";
 
 export default function CartPage() {
   const router = useRouter();
@@ -309,7 +309,7 @@ export default function CartPage() {
           {getClosureType() === "daily" ? (
             <>
               <h1 className="mt-6 font-display text-2xl font-bold text-[#1D3C42]">Orders are closed for the day 🌙</h1>
-              <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back tomorrow at 8:00 AM with fresh bakes</p>
+              <p className="mt-2 text-sm text-[#7A6262]">We&apos;ll be back {getClosureEndMessage()} with fresh bakes</p>
             </>
           ) : (
             <>
@@ -723,7 +723,7 @@ export default function CartPage() {
 
               {!orderWindowOpen && (
                 <div className="mt-4 rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
-                  <p className="text-sm font-semibold text-amber-700">{getClosureType() === "daily" ? "Closed for the day — we'll be back tomorrow at 8:00 AM with fresh bakes" : (getClosureReason() || "Orders are paused right now")}</p>
+                  <p className="text-sm font-semibold text-amber-700">{getClosureType() === "daily" ? `Closed for the day — we'll be back ${getClosureEndMessage()} with fresh bakes` : (getClosureReason() || "Orders are paused right now")}</p>
                 </div>
               )}
 
