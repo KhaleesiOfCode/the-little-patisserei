@@ -30,6 +30,10 @@ interface DbMenuItemRow {
   category: { name: string } | null;
   prices: DbPriceRow[] | null;
   media: DbMediaRow[] | null;
+  courier_supported: boolean | null;
+  courier_weight_grams: number | null;
+  courier_fragile: boolean | null;
+  courier_category: string | null;
 }
 
 const fallbackImages: Record<string, string[]> = {}
@@ -109,6 +113,10 @@ function transformRow(item: DbMenuItemRow): MenuItem {
     prices,
     badges: [...new Set(badgeTags as string[])],
     category: item.category?.name ?? "Others",
+    courier_supported: item.courier_supported ?? false,
+    courier_weight_grams: item.courier_weight_grams ?? null,
+    courier_fragile: item.courier_fragile ?? false,
+    courier_category: item.courier_category ?? null,
   };
 }
 
@@ -124,6 +132,10 @@ const MENU_SELECT = `
   is_new_launch,
   is_available,
   display_order,
+  courier_supported,
+  courier_weight_grams,
+  courier_fragile,
+  courier_category,
   category:menu_categories(name),
   prices:menu_item_prices(quantity_label, price, display_order),
   media:menu_item_media(media_type, url, display_order)

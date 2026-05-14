@@ -18,7 +18,7 @@ import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosu
 
 const WHATSAPP_NUMBER = "919488407130";
 
-export default function ProductCard({ product }: { product: MenuItem }) {
+export default function ProductCard({ product, modeRequired, onModeRequired }: { product: MenuItem; modeRequired?: boolean; onModeRequired?: () => void }) {
   const { cart, addToCart, updateQty } = useCart();
 
   const prices = product.prices || [];
@@ -47,6 +47,10 @@ export default function ProductCard({ product }: { product: MenuItem }) {
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
 
   const handleAddToCart = async () => {
+    if (modeRequired) {
+      onModeRequired?.();
+      return;
+    }
     await refreshStoreStatus();
     if (!isOrderWindowOpen()) {
       setOrderClosedPopup(true);

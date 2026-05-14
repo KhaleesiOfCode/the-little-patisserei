@@ -30,15 +30,9 @@ export default function CartPage() {
   const [sameAsDeliveryAddress, setSameAsDeliveryAddress] = useState(true);
   const [showCourierDetails, setShowCourierDetails] = useState(false);
   const [orderWindowOpen, setOrderWindowOpen] = useState(true);
-
-  useEffect(() => {
-    refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
-    const interval = setInterval(() => {
-      refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
-    }, 60000)
-    return () => clearInterval(interval)
-  }, [])
-
+  const [menuMode] = useState<string | null>(() => {
+    try { return sessionStorage.getItem("menuMode"); } catch { return null; }
+  });
   const [mode, setMode] = useState<DeliveryMode | null>(null);
   const [form, setForm] = useState<OrderFormData>({
     deliveryMode: "local_delivery",
@@ -64,6 +58,26 @@ export default function CartPage() {
     courierNotes: "",
     confirmCourierRisk: false,
   });
+
+  useEffect(() => {
+    refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
+    const interval = setInterval(() => {
+      refreshStoreStatus().then(() => setOrderWindowOpen(isOrderWindowOpen()));
+    }, 60000)
+    return () => clearInterval(interval)
+  }, [])
+
+  useEffect(() => {
+    if (menuMode === "courier") {
+      startTransition(() => {
+        setMode("courier");
+        setForm((prev) => ({ ...prev, deliveryMode: "courier" }));
+        setShowCheckout(true);
+        setShowCourierDetails(false);
+        setSameAsDeliveryAddress(true);
+      });
+    }
+  }, [menuMode])
 
   const zoneInfo = useMemo(
     () => getDeliveryZone(form.city, form.pincode, form.landmark),
@@ -199,6 +213,14 @@ export default function CartPage() {
 
   const startCheckout = (m: DeliveryMode) => {
     if (m === "local_delivery") {
+      if (menuMode === "local") {
+        setMode("local_delivery");
+        setForm((prev) => ({ ...prev, deliveryMode: "local_delivery" }));
+        setShowCheckout(true);
+        setShowCourierDetails(false);
+        setSameAsDeliveryAddress(true);
+        return;
+      }
       setAwaitingSubMode(true);
       setShowCheckout(true);
       return;
@@ -211,6 +233,7 @@ export default function CartPage() {
   };
 
   const selectSubMode = (subMode: "local_delivery" | "courier") => {
+    if (subMode === "courier" && menuMode === "local") return;
     setMode(subMode);
     setForm((prev) => ({ ...prev, deliveryMode: subMode }));
     setAwaitingSubMode(false);
@@ -404,7 +427,7 @@ export default function CartPage() {
                   <button onClick={() => startCheckout("local_delivery")} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
                     <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Delivery</h3>
-                    <p className="mt-1 text-sm text-[#7A6262]">Within Chennai or courier</p>
+                    <p className="mt-1 text-sm text-[#7A6262]">{menuMode === "local" ? "Within Chennai" : "Within Chennai or courier"}</p>
                   </button>
                 </div>
               </div>
@@ -420,11 +443,13 @@ export default function CartPage() {
                     <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Within Chennai</h3>
                     <p className="mt-1 text-sm text-[#7A6262]">Delivered within Chennai</p>
                   </button>
-                  <button onClick={() => { if (cart.some((item) => item.category !== "Brownies")) { setShowCourierPopup(true); } else { selectSubMode("courier"); } }} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
-                    <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
-                    <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
-                    <p className="mt-1 text-sm text-[#7A6262]">Courier — Brownies only</p>
-                  </button>
+                  {menuMode !== "local" && (
+                    <button onClick={() => { if (cart.some((item) => item.category !== "Brownies")) { setShowCourierPopup(true); } else { selectSubMode("courier"); } }} className="rounded-[2rem] border-2 border-[#D4AF37] bg-white p-6 text-center transition hover:bg-[#FFF8E4] hover:shadow-md">
+                      <TruckIcon size={32} className="mx-auto text-[#D4AF37]" />
+                      <h3 className="mt-3 font-display text-lg font-bold text-[#1D3C42]">Outside Chennai</h3>
+                      <p className="mt-1 text-sm text-[#7A6262]">Courier — Brownies only</p>
+                    </button>
+                  )}
                 </div>
                 <button onClick={() => { setAwaitingSubMode(false); setShowCheckout(false); }} className="mt-4 text-xs font-bold text-[#D4AF37] underline">Back</button>
               </div>
