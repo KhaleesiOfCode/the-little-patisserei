@@ -59,14 +59,12 @@ export default function HeroBanner() {
             >
               Explore Menu
             </Link>
-            <a
-              href={`https://wa.me/919488407130?text=${encodeURIComponent("Hi! I'd like to enquire about your desserts.")}`}
-              target="_blank"
-              rel="noopener noreferrer"
+            <Link
+              href="/custom-cake"
               className="rounded-full border-2 border-white/50 bg-white/10 px-7 py-3 text-xs font-bold uppercase tracking-wider text-white shadow-sm backdrop-blur-sm transition hover:scale-[1.03] hover:border-white hover:bg-white/20 hover:shadow-lg"
             >
               Custom Cake
-            </a>
+            </Link>
           </motion.div>
         </motion.div>
       </div>

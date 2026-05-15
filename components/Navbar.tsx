@@ -38,9 +38,9 @@ export default function Navbar() {
         <div className="hidden items-center gap-6 text-sm font-semibold text-[#1D3C42] md:flex">
           <Link href="/">Home</Link>
           <Link href="/menu">Menu</Link>
+          <Link href="/custom-cake">Custom Cakes</Link>
           <Link href="/gallery">Gallery</Link>
           <Link href="/about">About</Link>
-          <Link href="/contact">Contact</Link>
 
           {storeOpen ? (
             <Link
@@ -99,9 +99,9 @@ export default function Navbar() {
           <div className="flex flex-col gap-1 text-sm font-semibold text-[#1D3C42]">
             <Link href="/" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Home</Link>
             <Link href="/menu" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Menu</Link>
+            <Link href="/custom-cake" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Custom Cakes</Link>
             <Link href="/gallery" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Gallery</Link>
             <Link href="/about" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">About</Link>
-            <Link href="/contact" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Contact</Link>
           </div>
         </div>
       )}
