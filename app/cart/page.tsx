@@ -270,12 +270,27 @@ export default function CartPage() {
       productId: item.originalId || item.id,
     }));
     const selectedDate = effectiveMode === "pickup" ? form.pickupDate : form.deliveryDate;
-    const estimatedDeliveryAt = selectedDate
-      ? new Date(selectedDate + "T12:00:00")
-      : new Date(effectiveMode === "courier" ? courierEarliestDate : slotInfo.earliestDate);
+
+    // For courier: preferred_delivery_date = dispatch date (arrival − transit),
+    // estimated_delivery_at = arrival date. This way the baker's workflow
+    // shows the correct dispatch deadline, not the customer arrival date.
+    let dbDeliveryDate = selectedDate;
+    let estimatedDeliveryAt: Date;
+    if (effectiveMode === "courier" && selectedDate) {
+      estimatedDeliveryAt = new Date(selectedDate + "T12:00:00");
+      const dispatchDate = new Date(estimatedDeliveryAt);
+      dispatchDate.setDate(dispatchDate.getDate() - courierTransitDays);
+      dbDeliveryDate = dispatchDate.toLocaleDateString("en-CA");
+    } else {
+      estimatedDeliveryAt = selectedDate
+        ? new Date(selectedDate + "T12:00:00")
+        : new Date(effectiveMode === "courier" ? courierEarliestDate : slotInfo.earliestDate);
+    }
+
     const order = await createOrder(
       {
         ...form,
+        deliveryDate: dbDeliveryDate,
         deliveryMode: effectiveMode,
         city: effectiveMode === "local_delivery" ? (form.city || "Chennai") : form.city,
         state: effectiveMode === "local_delivery" ? "Tamil Nadu" : form.state,

@@ -586,13 +586,25 @@ export default function AdminOrdersPage() {
                     <span className="font-semibold text-[#1D3C42]">{selectedOrder.pickup_slot}</span>
                   </div>
                 )}
-                {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_date && (
+                {selectedOrder.delivery_mode === "courier" && selectedOrder.preferred_delivery_date && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Dispatch by</span>
+                    <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
+                  </div>
+                )}
+                {selectedOrder.delivery_mode === "courier" && selectedOrder.estimated_delivery_at && (
+                  <div className="flex justify-between">
+                    <span className="text-[#7A6262]">Est. Arrival</span>
+                    <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.estimated_delivery_at)}</span>
+                  </div>
+                )}
+                {selectedOrder.delivery_mode === "local_delivery" && selectedOrder.preferred_delivery_date && (
                   <div className="flex justify-between">
                     <span className="text-[#7A6262]">Delivery Date</span>
                     <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
                   </div>
                 )}
-                {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_slot && (
+                {selectedOrder.delivery_mode === "local_delivery" && selectedOrder.preferred_delivery_slot && (
                   <div className="flex justify-between">
                     <span className="text-[#7A6262]">Delivery Slot</span>
                     <span className="font-semibold text-[#1D3C42]">{selectedOrder.preferred_delivery_slot}</span>
@@ -800,13 +812,25 @@ export default function AdminOrdersPage() {
                       <span className="font-semibold text-[#1D3C42]">{selectedOrder.pickup_slot}</span>
                     </div>
                   )}
-                  {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_date && (
+                  {selectedOrder.delivery_mode === "courier" && selectedOrder.preferred_delivery_date && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Dispatch by</span>
+                      <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
+                    </div>
+                  )}
+                  {selectedOrder.delivery_mode === "courier" && selectedOrder.estimated_delivery_at && (
+                    <div className="flex justify-between">
+                      <span className="text-[#7A6262]">Est. Arrival</span>
+                      <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.estimated_delivery_at)}</span>
+                    </div>
+                  )}
+                  {selectedOrder.delivery_mode === "local_delivery" && selectedOrder.preferred_delivery_date && (
                     <div className="flex justify-between">
                       <span className="text-[#7A6262]">Delivery Date</span>
                       <span className="font-semibold text-[#1D3C42]">{formatDate(selectedOrder.preferred_delivery_date)}</span>
                     </div>
                   )}
-                  {(selectedOrder.delivery_mode === "local_delivery" || selectedOrder.delivery_mode === "courier") && selectedOrder.preferred_delivery_slot && (
+                  {selectedOrder.delivery_mode === "local_delivery" && selectedOrder.preferred_delivery_slot && (
                     <div className="flex justify-between">
                       <span className="text-[#7A6262]">Delivery Slot</span>
                       <span className="font-semibold text-[#1D3C42]">{selectedOrder.preferred_delivery_slot}</span>
