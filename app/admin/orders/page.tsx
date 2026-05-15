@@ -72,7 +72,12 @@ export default function AdminOrdersPage() {
   const [cErrors, setCErrors] = useState<Record<string, string>>({});
 
   function isValidUrl(val: string): boolean {
-    try { return !!new URL(val); } catch { return false; }
+    try {
+      const url = new URL(val);
+      return (url.protocol === "http:" || url.protocol === "https:") && url.hostname.includes(".");
+    } catch {
+      return false;
+    }
   }
 
   function validateDelivery(): boolean {
@@ -918,18 +923,18 @@ export default function AdminOrdersPage() {
             <p className="mt-2 text-sm text-[#7A6262]">Enter delivery provider details. Status will be set to Out for Delivery.</p>
             <div className="mt-4 grid gap-3">
               <div>
-                <input value={dProvider} onChange={(e) => { setDProvider(e.target.value); setDErrors((p) => ({ ...p, provider: "" })); }} onBlur={() => { if (!dProvider.trim()) setDErrors((p) => ({ ...p, provider: "Provider name is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.provider ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Provider/app name *" />
+                <input value={dProvider} onChange={(e) => { setDProvider(e.target.value); setDErrors((p) => ({ ...p, provider: "" })); }} onBlur={() => { if (!dProvider.trim()) setDErrors((p) => ({ ...p, provider: "Provider name is required" })); }} maxLength={100} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.provider ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Provider/app name *" />
                 {dErrors.provider && <p className="mt-1 text-xs text-red-500">{dErrors.provider}</p>}
               </div>
               <div>
-                <input value={dPhone} onChange={(e) => { setDPhone(e.target.value); setDErrors((p) => ({ ...p, phone: "" })); }} onBlur={() => { if (dPhone.trim() && !/^\d{10}$/.test(dPhone.trim())) setDErrors((p) => ({ ...p, phone: "Contact must be exactly 10 digits" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.phone ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Delivery partner contact (optional, 10 digits)" />
+                <input value={dPhone} onChange={(e) => { setDPhone(e.target.value.replace(/\D/g, "").slice(0, 10)); setDErrors((p) => ({ ...p, phone: "" })); }} onBlur={() => { if (dPhone.trim() && !/^\d{10}$/.test(dPhone.trim())) setDErrors((p) => ({ ...p, phone: "Contact must be exactly 10 digits" })); }} maxLength={10} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.phone ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Delivery partner contact (optional, 10 digits)" />
                 {dErrors.phone && <p className="mt-1 text-xs text-red-500">{dErrors.phone}</p>}
               </div>
               <div>
-                <input value={dUrl} onChange={(e) => { setDUrl(e.target.value); setDErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!dUrl.trim()) setDErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(dUrl.trim())) setDErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
+                <input value={dUrl} onChange={(e) => { setDUrl(e.target.value); setDErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!dUrl.trim()) setDErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(dUrl.trim())) setDErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} maxLength={500} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${dErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
                 {dErrors.url && <p className="mt-1 text-xs text-red-500">{dErrors.url}</p>}
               </div>
-              <textarea value={dNotes} onChange={(e) => setDNotes(e.target.value)} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery notes (optional)" />
+              <textarea value={dNotes} onChange={(e) => setDNotes(e.target.value)} maxLength={500} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Delivery notes (optional)" />
             </div>
             <div className="mt-4 flex gap-3">
               <button onClick={() => { setDeliveryModal(null); setDErrors({}); }} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>
@@ -950,22 +955,22 @@ export default function AdminOrdersPage() {
             <p className="mt-2 text-sm text-[#7A6262]">Enter courier company and tracking. Status will be set to Courier Booked.</p>
             <div className="mt-4 grid gap-3">
               <div>
-                <input value={cCompany} onChange={(e) => { setCCompany(e.target.value); setCErrors((p) => ({ ...p, company: "" })); }} onBlur={() => { if (!cCompany.trim()) setCErrors((p) => ({ ...p, company: "Company name is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.company ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Courier company name *" />
+                <input value={cCompany} onChange={(e) => { setCCompany(e.target.value); setCErrors((p) => ({ ...p, company: "" })); }} onBlur={() => { if (!cCompany.trim()) setCErrors((p) => ({ ...p, company: "Company name is required" })); }} maxLength={100} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.company ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Courier company name *" />
                 {cErrors.company && <p className="mt-1 text-xs text-red-500">{cErrors.company}</p>}
               </div>
               <div>
-                <input value={cTracking} onChange={(e) => { setCTracking(e.target.value); setCErrors((p) => ({ ...p, tracking: "" })); }} onBlur={() => { if (!cTracking.trim()) setCErrors((p) => ({ ...p, tracking: "Tracking number is required" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.tracking ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking number *" />
+                <input value={cTracking} onChange={(e) => { setCTracking(e.target.value); setCErrors((p) => ({ ...p, tracking: "" })); }} onBlur={() => { if (!cTracking.trim()) setCErrors((p) => ({ ...p, tracking: "Tracking number is required" })); }} maxLength={100} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.tracking ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking number *" />
                 {cErrors.tracking && <p className="mt-1 text-xs text-red-500">{cErrors.tracking}</p>}
               </div>
               <div>
-                <input value={cUrl} onChange={(e) => { setCUrl(e.target.value); setCErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!cUrl.trim()) setCErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(cUrl.trim())) setCErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
+                <input value={cUrl} onChange={(e) => { setCUrl(e.target.value); setCErrors((p) => ({ ...p, url: "" })); }} onBlur={() => { if (!cUrl.trim()) setCErrors((p) => ({ ...p, url: "Tracking URL is required" })); else if (!isValidUrl(cUrl.trim())) setCErrors((p) => ({ ...p, url: "Enter a valid URL (e.g. https://...)" })); }} maxLength={500} className={`w-full rounded-xl border bg-white px-4 py-3 text-sm outline-none transition focus:border-[#1D3C42] ${cErrors.url ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Tracking URL *" />
                 {cErrors.url && <p className="mt-1 text-xs text-red-500">{cErrors.url}</p>}
               </div>
               <div className="rounded-xl border border-[#F4CFC8] bg-white px-4 py-3">
                 <label className="text-[10px] font-bold uppercase tracking-wider text-[#7A6262]">Courier charge (₹)</label>
-                <input value={cCharge} onChange={(e) => setCCharge(Number(e.target.value))} type="number" className="mt-1 w-full text-lg font-extrabold outline-none" placeholder="0" />
+                <input value={cCharge} onChange={(e) => setCCharge(Math.max(0, Number(e.target.value)))} type="number" min={0} className="mt-1 w-full text-lg font-extrabold outline-none" placeholder="0" />
               </div>
-              <textarea value={cNotes} onChange={(e) => setCNotes(e.target.value)} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
+              <textarea value={cNotes} onChange={(e) => setCNotes(e.target.value)} maxLength={500} className="min-h-16 rounded-xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]" placeholder="Courier notes (optional)" />
             </div>
             <div className="mt-4 flex gap-3">
               <button onClick={() => { setCourierModal(null); setCErrors({}); }} className="flex-1 rounded-xl border border-[#F4CFC8] py-3 text-sm font-bold">Cancel</button>

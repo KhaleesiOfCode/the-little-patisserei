@@ -674,21 +674,32 @@ export default function CartPage() {
                   <span className="text-[#7A6262]">Items ({cart.length})</span>
                   <span className="font-bold text-[#3A2A2A]">₹{total}</span>
                 </div>
-                {cart.length > 0 && (
-                  <div className="flex items-center justify-between">
-                    <span className="text-[#7A6262]">{effectiveMode === "pickup" ? "Pickup" : effectiveMode === "courier" ? "Courier" : "Delivery"}</span>
-                    <span className="font-bold text-[#3A2A2A]">
-                      {effectiveMode === "pickup" ? "Free" : effectiveMode === "courier" ? `₹${deliveryFee}` : deliverySupported ? `₹${deliveryFee}` : "Manual"}
-                    </span>
-                  </div>
-                )}
+                {cart.length > 0 && (() => {
+                  const hasDetails =
+                    effectiveMode === "pickup" ||
+                    (effectiveMode === "local_delivery" && form.pincode.length >= 6) ||
+                    (effectiveMode === "courier" && form.state && form.district);
+                  if (!hasDetails) return null;
+                  return (
+                    <div className="flex items-center justify-between">
+                      <span className="text-[#7A6262]">{effectiveMode === "pickup" ? "Pickup" : effectiveMode === "courier" ? "Courier" : "Delivery"}</span>
+                      <span className="font-bold text-[#3A2A2A]">
+                        {effectiveMode === "pickup" ? "Free" : effectiveMode === "courier" ? `₹${deliveryFee}` : deliverySupported ? `₹${deliveryFee}` : "Manual"}
+                      </span>
+                    </div>
+                  );
+                })()}
                 {effectiveMode === "courier" && fragileSurcharge > 0 && (
                   <div className="flex items-center justify-between">
                     <span className="text-[#7A6262]">Fragile packaging</span>
                     <span className="font-bold text-[#3A2A2A]">₹{fragileSurcharge}</span>
                   </div>
                 )}
-                {effectiveMode === "local_delivery" && deliverySupported && (
+                <div className="flex items-center justify-between text-[#7A6262]">
+                  <span>GST (to be added)</span>
+                  <span className="font-bold">—</span>
+                </div>
+                {effectiveMode === "local_delivery" && form.pincode.length >= 6 && deliverySupported && (
                   <div className="rounded-2xl border border-green-200 bg-green-50 p-4">
                     <div className="flex items-center justify-between">
                       <p className="text-sm font-bold text-green-800">Local delivery</p>
@@ -697,14 +708,14 @@ export default function CartPage() {
                     <p className="mt-1 text-xs text-green-600">Chennai — estimated fee</p>
                   </div>
                 )}
-                {effectiveMode === "local_delivery" && !deliverySupported && (
+                {effectiveMode === "local_delivery" && form.pincode.length >= 6 && !deliverySupported && (
                   <div className="rounded-2xl bg-amber-50 p-4 text-center ring-1 ring-amber-200">
                     <p className="text-sm font-semibold text-amber-700">This location needs manual confirmation. We will contact you.</p>
                   </div>
                 )}
               </div>
 
-              {effectiveMode === "courier" && courierCalc && courierCalc.courier_charge && (
+              {effectiveMode === "courier" && form.state && form.district && courierCalc && courierCalc.courier_charge && (
                 <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4">
                   <div className="flex items-center justify-between">
                     <div>
