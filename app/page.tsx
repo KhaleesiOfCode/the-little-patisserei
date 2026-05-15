@@ -3,7 +3,6 @@
 import HeroBanner from "../components/HeroBanner";
 import CategoriesSection from "../components/CategoriesSection";
 import BestSellersSection from "../components/BestSellersSection";
-import CustomCakeSignature from "../components/CustomCakeSignature";
 import AboutSection from "../components/AboutSection";
 
 export default function HomePage() {
@@ -12,7 +11,6 @@ export default function HomePage() {
       <HeroBanner />
       <CategoriesSection />
       <BestSellersSection />
-      <CustomCakeSignature />
       <AboutSection />
     </main>
   );
