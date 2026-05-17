@@ -39,7 +39,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               key={item.href}
               href={item.href}
               onClick={() => setMobileOpen(false)}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold transition-all ${
+              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-bold transition-all ${
                 active
                   ? "bg-[#F4CFC8]/40 text-[#1D3C42]"
                   : "text-[#7A6262] hover:bg-[#FFF8E4] hover:text-[#1D3C42]"
@@ -59,7 +59,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               window.location.href = "/admin/login";
             });
           }}
-          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-sm font-bold text-[#7A6262] transition hover:bg-red-50 hover:text-red-500"
+          className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-[15px] font-bold text-[#7A6262] transition hover:bg-red-50 hover:text-red-500"
         >
           <LogOut size={18} />
           Logout

@@ -43,10 +43,10 @@ export default function AdminLoginPage() {
         <div className="mx-auto grid h-14 w-14 place-items-center rounded-full bg-[#1D3C42]/10">
           <Lock size={24} className="text-[#1D3C42]" />
         </div>
-        <h1 className="mt-4 text-center font-display text-2xl font-bold text-[#1D3C42]">
+        <h1 className="mt-4 text-center font-display text-[clamp(1.5rem,3vw,2rem)] font-bold text-[#1D3C42]">
           Admin Login
         </h1>
-        <p className="mt-1 text-center text-sm text-[#7A6262]">
+        <p className="mt-1 text-center text-[15px] text-[#7A6262]">
           Enter the admin password to continue
         </p>
 
@@ -58,7 +58,7 @@ export default function AdminLoginPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="Password"
               autoFocus
-              className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-sm outline-none focus:border-[#1D3C42]"
+              className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 text-[15px] outline-none focus:border-[#1D3C42]"
             />
           </div>
 
@@ -71,7 +71,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={loading || !password}
-            className="w-full rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] disabled:opacity-50"
+            className="w-full rounded-full bg-[#1D3C42] px-8 py-3 text-[15px] font-bold text-white shadow-sm transition hover:bg-[#163136] disabled:opacity-50"
           >
             {loading ? "Signing in..." : "Sign in"}
           </button>

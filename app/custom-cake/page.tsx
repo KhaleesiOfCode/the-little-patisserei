@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, ChevronLeft, MessageCircle } from "lucide-react";
+import { Check, ChevronLeft, MessageCircle, X } from "lucide-react";
 import { getMenuCategories } from "../../lib/supabase/menu";
 import type { MenuItem } from "../../types/menu";
 import { formatQuantityLabel } from "../../types/menu";
@@ -31,6 +31,7 @@ export default function CustomCakeStudioPage() {
   const [cakeMessage, setCakeMessage] = useState("");
   const [cakeOccasion, setCakeOccasion] = useState("");
   const [cakeDesign, setCakeDesign] = useState("");
+  const [detailCake, setDetailCake] = useState<MenuItem | null>(null);
 
   useEffect(() => {
     async function load() {
@@ -97,7 +98,7 @@ export default function CustomCakeStudioPage() {
           <div className="absolute bottom-0 left-0 h-[300px] w-[300px] rounded-full bg-[#F4CFC8]/20 blur-3xl" />
         </div>
 
-        <div className="relative mx-auto max-w-3xl text-center">
+        <div className="relative mx-auto max-w-4xl text-center">
           <span className="inline-block rounded-full bg-[#D4AF37]/20 px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
             Custom Cakes
           </span>
@@ -147,7 +148,7 @@ export default function CustomCakeStudioPage() {
       </section>
 
       {/* Step content */}
-      <section className="mx-auto max-w-5xl px-5 py-10">
+      <section className="mx-auto max-w-7xl px-5 py-10">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -175,65 +176,55 @@ export default function CustomCakeStudioPage() {
                   <p className="mt-2 text-sm text-[#7A6262]">Check back later or browse our menu.</p>
                 </div>
               ) : (
-              <div className="mt-8 grid gap-5 md:grid-cols-3">
-                {celebrationCakes.map((cake) => {
-                  const isSelected = selectedCake?.id === cake.id;
-                  return (
+            <div className="mt-8 grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {celebrationCakes.map((cake) => {
+                const isSelected = selectedCake?.id === cake.id;
+                return (
+                  <div key={cake.id} className="group relative flex aspect-square w-full flex-col overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-[#F4CFC8] transition-all hover:-translate-y-1 hover:shadow-lg">
                     <button
-                      key={cake.id}
                       onClick={() => selectCake(cake)}
-                      className={`group relative overflow-hidden rounded-[2rem] bg-white p-5 text-left shadow-sm ring-1 transition-all hover:-translate-y-1 hover:shadow-lg ${
-                        isSelected
-                          ? "ring-2 ring-[#D4AF37] shadow-lg shadow-[#D4AF37]/20"
-                          : "ring-[#F4CFC8]"
+                      className={`flex-1 overflow-hidden ${
+                        isSelected ? "" : ""
                       }`}
                     >
-                      <div className="aspect-square overflow-hidden rounded-xl">
-                        <img
-                          src={cake.image}
-                          alt={cake.name}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-                        />
+                      <img
+                        src={cake.image}
+                        alt={cake.name}
+                        className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      />
+                    </button>
+
+                    {isSelected && (
+                      <div className="absolute right-3 top-3 z-10 grid h-6 w-6 place-items-center rounded-full bg-[#D4AF37] text-white shadow">
+                        <Check size={14} />
                       </div>
+                    )}
 
-                      {isSelected && (
-                        <div className="absolute right-4 top-4 grid h-7 w-7 place-items-center rounded-full bg-[#D4AF37] text-white shadow">
-                          <Check size={16} />
-                        </div>
-                      )}
-
-                      <h3 className="mt-4 font-display text-lg font-bold text-[#1D3C42]">
+                    <div className="flex shrink-0 flex-col justify-center px-4 py-3 sm:px-5 sm:py-3.5">
+                      <h3 className="font-display text-sm font-bold leading-tight text-[#1D3C42] sm:text-[17px]">
                         {cake.name}
                       </h3>
-                      <p className="mt-1 text-sm leading-relaxed text-[#7A6262] line-clamp-2">
+                      <p className="mt-0.5 text-xs leading-relaxed text-[#7A6262] line-clamp-1 sm:text-sm">
                         {cake.description}
                       </p>
-
-                      {cake.keywords && cake.keywords.length > 0 && (
-                        <div className="mt-3 flex flex-wrap gap-1.5">
-                          {cake.keywords.map((kw) => (
-                            <span
-                              key={kw}
-                              className="rounded-full bg-[#FFF8E4] px-2.5 py-0.5 text-[10px] font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
-                            >
-                              {kw}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      <div className="mt-4 flex items-center justify-between border-t border-[#F4CFC8]/50 pt-4">
-                        <span className="text-sm text-[#7A6262]">
-                          Starts from
-                        </span>
-                        <span className="text-xl font-extrabold text-[#1D3C42]">
+                      <button
+                        type="button"
+                        onClick={(e) => { e.stopPropagation(); setDetailCake(cake); }}
+                        className="mt-0.5 text-left text-[11px] font-semibold text-[#D4AF37] underline-offset-2 transition hover:underline sm:text-xs"
+                      >
+                        View more &rsaquo;
+                      </button>
+                      <div className="mt-1.5 flex items-center justify-between border-t border-[#F4CFC8]/50 pt-1.5 sm:pt-2">
+                        <span className="text-[11px] text-[#7A6262] sm:text-xs">From</span>
+                        <span className="text-sm font-extrabold text-[#1D3C42] sm:text-[17px]">
                           ₹{cake.price}
                         </span>
                       </div>
-                    </button>
-                  );
-                })}
-              </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
               )}
             </motion.div>
           )}
@@ -561,6 +552,60 @@ export default function CustomCakeStudioPage() {
           )}
         </div>
       </section>
+
+      {detailCake && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 px-4 py-6"
+          onClick={() => setDetailCake(null)}
+        >
+          <div
+            className="relative w-full max-w-md rounded-[2rem] bg-white p-6 shadow-2xl sm:p-8"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setDetailCake(null)}
+              className="absolute right-4 top-4 grid h-8 w-8 place-items-center rounded-full bg-[#FFF8E4] text-[#1D3C42] transition hover:bg-[#FADCD4]"
+            >
+              <X size={18} />
+            </button>
+
+            <h2 className="pr-8 font-display text-xl font-bold text-[#1D3C42]">
+              {detailCake.name}
+            </h2>
+
+            <p className="mt-3 text-sm leading-7 text-[#7A6262]">
+              {detailCake.description}
+            </p>
+
+            {detailCake.keywords && detailCake.keywords.length > 0 && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {detailCake.keywords.map((kw) => (
+                  <span
+                    key={kw}
+                    className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
+                  >
+                    {kw}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="mt-5 flex items-center justify-between border-t border-[#F4CFC8]/50 pt-4">
+              <span className="text-sm text-[#7A6262]">Starting price</span>
+              <span className="text-xl font-extrabold text-[#1D3C42]">
+                ₹{detailCake.price}
+              </span>
+            </div>
+
+            <button
+              onClick={() => { selectCake(detailCake); setDetailCake(null); }}
+              className="mt-5 w-full rounded-full bg-[#D4AF37] px-8 py-3 text-sm font-bold text-[#1D3C42] shadow-sm transition hover:bg-[#D4AF37]/90"
+            >
+              Choose this flavour
+            </button>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

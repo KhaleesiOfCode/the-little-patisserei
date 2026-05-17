@@ -251,19 +251,19 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                   <button
                     type="button"
                     onClick={() => setIsDropdownOpen((prev) => !prev)}
-                    className="flex items-center gap-1 rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2 py-1 text-[10px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
+                    className="flex items-center gap-1.5 rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-3 py-1.5 text-xs font-bold text-[#1D3C42] transition hover:bg-white sm:gap-2 sm:px-4 sm:py-2 sm:text-sm"
                   >
                     <span>{formatQuantityLabel(selectedPrice.quantity_label)}</span>
                     <ChevronDown
-                      size={10}
-                      className={`shrink-0 transition sm:size-[12px] ${
+                      size={14}
+                      className={`shrink-0 transition ${
                         isDropdownOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute bottom-full right-0 z-30 mb-2 w-40 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
+                    <div className="absolute bottom-full right-0 z-30 mb-2 w-44 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
                       {prices.map((p) => {
                         const isSelected =
                           selectedPrice.quantity_label === p.quantity_label;
@@ -276,7 +276,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                               setSelectedPrice(p);
                               setIsDropdownOpen(false);
                             }}
-                            className={`flex w-full items-center justify-between px-4 py-2.5 text-left text-sm font-bold transition ${
+                            className={`flex w-full items-center justify-between px-4 py-3 text-left text-sm font-bold transition ${
                               isSelected
                                 ? "bg-[#1D3C42] text-white"
                                 : "text-[#1D3C42] hover:bg-[#FFF8E4]"
@@ -291,7 +291,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                   )}
                 </div>
               ) : prices.length === 1 ? (
-                <span className="inline-flex items-center rounded-full border border-[#D4AF37]/20 bg-[#FFF8E4] px-2 py-1 text-[10px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
+                <span className="inline-flex items-center rounded-full border border-[#D4AF37]/20 bg-[#FFF8E4] px-3 py-1.5 text-xs font-bold text-[#1D3C42] sm:px-4 sm:py-2 sm:text-sm">
                   {formatQuantityLabel(selectedPrice.quantity_label)}
                 </span>
               ) : null}
@@ -359,15 +359,25 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 </div>
               </div>
 
-              <button
-                onClick={() => {
-                  addToCart(cartProduct);
-                  setCustomizationOpen(false);
-                }}
-                className="mt-3 w-full rounded-full bg-[#1D3C42] px-6 py-2.5 text-[15px] font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
-              >
-                Add to Cart
-              </button>
+              <div className="mt-3 flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsDetailsOpen(true)}
+                  className="text-[12px] font-semibold text-[#D4AF37] underline-offset-2 transition hover:underline sm:text-[13px]"
+                >
+                  View more details &rsaquo;
+                </button>
+
+                <button
+                  onClick={() => {
+                    addToCart(cartProduct);
+                    setCustomizationOpen(false);
+                  }}
+                  className="rounded-full bg-[#1D3C42] px-6 py-2 text-[15px] font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </motion.div>
           )}
         </div>
