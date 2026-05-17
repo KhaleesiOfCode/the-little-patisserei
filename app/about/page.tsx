@@ -68,7 +68,7 @@ const contactCards = [
     icon: Camera,
     title: "Instagram",
     content: "Follow us for daily bakes and updates",
-    action: { label: "Follow on Instagram", href: "https://instagram.com/thelittlepatisserie" },
+    action: { label: "Follow on Instagram", href: "https://www.instagram.com/thelittle_patisserie/" },
   },
   {
     icon: Mail,

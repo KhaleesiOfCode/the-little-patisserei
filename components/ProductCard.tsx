@@ -13,10 +13,10 @@ import { useCart } from "./CartContext";
 import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import { formatQuantityLabel } from "../types/menu";
-import LiveDesignStudio from "./LiveDesignStudio";
+
 import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../lib/store-hours";
 
-const WHATSAPP_NUMBER = "919488407130";
+
 
 function highlightKeywords(text: string, keywords: string[]): ReactNode {
   if (!keywords?.length) return text;
@@ -53,8 +53,6 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const [cakeMessage, setCakeMessage] = useState("");
-  const [cakeOccasion, setCakeOccasion] = useState("");
-  const [cakeDesign, setCakeDesign] = useState("");
   const [customizationOpen, setCustomizationOpen] = useState(false);
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
 
@@ -77,7 +75,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
 
   const baseCartId = `${product.id}-${selectedPrice.quantity_label}-${
     eggOption || "default"
-  }`;
+  }${cakeMessage ? `-${cakeMessage}` : ""}`;
 
   const cartId = baseCartId;
 
@@ -87,6 +85,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
     originalId: product.id,
     selectedQuantity: selectedPrice.quantity_label,
     selectedEggOption: eggOption,
+    cakeMessage: cakeMessage || undefined,
     price: Number(selectedPrice.price),
     qty: 1,
   };
@@ -342,33 +341,30 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="mt-4 space-y-3"
             >
-              <LiveDesignStudio
-                cakeMessage={cakeMessage}
-                setCakeMessage={setCakeMessage}
-                cakeOccasion={cakeOccasion}
-                setCakeOccasion={setCakeOccasion}
-                cakeDesign={cakeDesign}
-                setCakeDesign={setCakeDesign}
-                productName={product.name}
-              />
+              <div>
+                <label className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
+                  Message on cake
+                </label>
+                <input
+                  value={cakeMessage}
+                  onChange={(e) => setCakeMessage(e.target.value.slice(0, 50))}
+                  placeholder="e.g. Happy Birthday!"
+                  className="mt-1.5 w-full rounded-xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-2.5 text-sm outline-none focus:border-[#1D3C42]"
+                />
+                <p className="mt-1 text-right text-xs text-[#7A6262]">{cakeMessage.length}/50</p>
+              </div>
 
-              <motion.button
-                whileTap={cakeMessage || cakeOccasion ? { scale: 0.95 } : {}}
-                onClick={() => {
-                  if (!cakeMessage && !cakeOccasion) return;
-                  const msg = encodeURIComponent(
-                    `Hi, I'd like to enquire about the ${product.name} (${formatQuantityLabel(selectedPrice.quantity_label)} · ₹${Number(selectedPrice.price)}) for a celebration.\n\nMessage on cake: ${cakeMessage || "Not specified"}\nOccasion: ${cakeOccasion || "Not specified"}\nDesign description: ${cakeDesign || "Not specified"}\n\nPlease let me know the customization options, pricing, and delivery details.`
-                  );
-                  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${msg}`, "_blank");
-                }}
-                className={`w-full rounded-full px-6 py-3 text-sm font-extrabold shadow-sm transition ${
-                  cakeMessage || cakeOccasion
-                    ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90 cursor-pointer"
-                    : "bg-[#D4AF37]/40 text-[#1D3C42]/50 cursor-not-allowed"
-                }`}
-              >
-                Enquire on WhatsApp
-              </motion.button>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => {
+                    addToCart(cartProduct);
+                    setCustomizationOpen(false);
+                  }}
+                  className="flex-1 rounded-full bg-[#1D3C42] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136]"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </motion.div>
           )}
         </div>

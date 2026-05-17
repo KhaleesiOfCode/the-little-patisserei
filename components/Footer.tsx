@@ -16,6 +16,9 @@ export default function Footer() {
             <h3 className="font-display text-lg font-bold tracking-wide">
               The Little Patisserie
             </h3>
+            <p className="mt-0.5 text-xs italic tracking-wide text-[#D4AF37]">
+              true to the flavours
+            </p>
             <p className="mt-3 text-sm leading-relaxed text-white/70">
               Handcrafted cakes, pastries, and desserts made fresh with love
               for every celebration.
@@ -88,7 +91,7 @@ export default function Footer() {
             <ul className="mt-4 space-y-3">
               <li>
                 <a
-                  href="https://instagram.com/thelittlepatisserie"
+                  href="https://www.instagram.com/thelittle_patisserie/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-white/70 transition hover:text-white"

@@ -14,8 +14,8 @@ export default function BrandLoader() {
           The Little Patisserie
         </h1>
 
-        <p className="mt-2 text-sm uppercase tracking-[0.3em] text-white/70">
-          Baking something sweet
+        <p className="mt-2 text-sm italic tracking-wide text-[#D4AF37]">
+          true to the flavours
         </p>
 
         <div className="mx-auto mt-6 h-1 w-32 overflow-hidden rounded-full bg-white/15">
