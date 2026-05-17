@@ -14,9 +14,7 @@ import { motion } from "framer-motion";
 import type { MenuItem, CartItem } from "../types/menu";
 import { formatQuantityLabel } from "../types/menu";
 
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../lib/store-hours";
-
-
+import { isOrderWindowOpen, refreshStoreStatus, getClosureReason, getClosureType, getClosureEndMessage } from "../lib/store-hours";
 
 function highlightKeywords(text: string, keywords: string[]): ReactNode {
   if (!keywords?.length) return text;
@@ -138,14 +136,14 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
 
   return (
     <>
-      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-5">
+      <article className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg grid-cols-[90px_1fr] sm:gap-5 sm:p-5 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-6">
         <button
           type="button"
           onClick={() => {
             setActiveIndex(0);
             setIsGalleryOpen(true);
           }}
-          className="relative aspect-square overflow-hidden rounded-xl bg-[#FADCD4] p-1.5 text-left sm:rounded-[1.5rem] sm:p-2"
+          className="relative aspect-square overflow-hidden rounded-xl bg-[#FFF8E4] sm:rounded-[1.5rem]"
         >
           <img
             src={mediaItems[0]?.src || fallbackImage}
@@ -166,11 +164,11 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
           )}
         </button>
 
-        <div className="flex min-w-0 flex-col justify-between">
+        <div className="flex min-w-0 flex-col justify-between gap-2 sm:gap-3">
           <div>
-            <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-                <h3 className="font-serif text-sm font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
+                <h3 className="font-serif text-base font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
                   {product.name}
                 </h3>
 
@@ -195,7 +193,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
               {product.badges.map((badge) => (
                 <span
                   key={badge}
-                  className="rounded-full bg-[#D4AF37]/20 px-2.5 py-1 text-xs font-bold text-[#1D3C42]"
+                  className="rounded-full bg-[#D4AF37]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#D4AF37] sm:px-3 sm:py-1 sm:text-xs"
                 >
                   {badge}
                 </span>
@@ -203,33 +201,33 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
             </div>
           )}
 
-          <p className="mt-1.5 overflow-hidden text-sm leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-sm sm:leading-6">
+          <p className="mt-2 overflow-hidden text-sm leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-sm sm:leading-6">
             {highlightKeywords(product.description, product.keywords || [])}
           </p>
 
           <button
             type="button"
             onClick={() => setIsDetailsOpen(true)}
-            className="mt-1 text-left text-xs font-bold text-[#1D3C42] underline-offset-4 hover:underline sm:text-sm"
+            className="mt-0.5 text-left text-xs font-semibold text-[#D4AF37] underline-offset-2 transition hover:underline sm:text-sm"
           >
-            View more
+            View more &rsaquo;
           </button>
 
           </div>
 
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 sm:mt-3">
+          <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
             {hasEggChoice ? (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-xs">
                   VARIANT
                 </span>
-                <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
+                <div className="flex rounded-full bg-[#FFF8E4] p-0.5 ring-1 ring-[#F4CFC8] sm:p-1">
                   {["Eggfree", "Egg-based"].map((option) => (
                     <button
                       key={option}
                       type="button"
                       onClick={() => setEggOption(option)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-extrabold transition ${
+                      className={`rounded-full px-2.5 py-1 text-[10px] font-extrabold transition sm:px-3 sm:py-1.5 sm:text-xs ${
                         eggOption === option
                           ? "bg-[#1D3C42] text-white shadow-sm"
                           : "text-[#1D3C42] hover:bg-white"
@@ -241,31 +239,31 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 </div>
               </div>
             ) : product.shelf_life ? (
-              <p className="flex items-center gap-1 text-xs font-semibold text-[#7A6262] sm:gap-2">
-                <Clock size={14} />
+              <p className="flex items-center gap-1 text-[10px] font-semibold text-[#7A6262] sm:gap-1.5 sm:text-xs">
+                <Clock size={12} className="sm:size-[14px]" />
                 Shelf life: {product.shelf_life}
               </p>
             ) : <span />}
 
-            <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               {prices.length > 1 ? (
                 <div className="relative" ref={dropdownRef}>
                   <button
                     type="button"
                     onClick={() => setIsDropdownOpen((prev) => !prev)}
-                    className="flex items-center gap-1 rounded-full border border-[#D4AF37]/40 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
+                    className="flex items-center gap-1 rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2 py-1 text-[10px] font-bold text-[#1D3C42] transition hover:bg-white sm:gap-1.5 sm:px-3 sm:py-1.5 sm:text-xs"
                   >
                     <span>{formatQuantityLabel(selectedPrice.quantity_label)}</span>
                     <ChevronDown
-                      size={12}
-                      className={`shrink-0 transition sm:size-[14px] ${
+                      size={10}
+                      className={`shrink-0 transition sm:size-[12px] ${
                         isDropdownOpen ? "rotate-180" : ""
                       }`}
                     />
                   </button>
 
                   {isDropdownOpen && (
-                    <div className="absolute bottom-full right-0 z-30 mb-2 w-44 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
+                    <div className="absolute bottom-full right-0 z-30 mb-2 w-40 overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-[#F4CFC8]">
                       {prices.map((p) => {
                         const isSelected =
                           selectedPrice.quantity_label === p.quantity_label;
@@ -293,12 +291,12 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                   )}
                 </div>
               ) : prices.length === 1 ? (
-                <span className="inline-flex items-center rounded-full border border-[#D4AF37]/30 bg-[#FFF8E4] px-2.5 py-1 text-[11px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
+                <span className="inline-flex items-center rounded-full border border-[#D4AF37]/20 bg-[#FFF8E4] px-2 py-1 text-[10px] font-bold text-[#1D3C42] sm:px-3 sm:py-1.5 sm:text-xs">
                   {formatQuantityLabel(selectedPrice.quantity_label)}
                 </span>
               ) : null}
 
-              <p className="text-base font-black text-[#1D3C42] sm:text-xl">
+              <p className="text-lg font-black text-[#1D3C42] sm:text-xl">
                 ₹{Number(selectedPrice.price)}
               </p>
 
@@ -306,7 +304,11 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={handleAddToCart}
-                  className="rounded-full bg-[#1D3C42] px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] sm:px-7 sm:py-3"
+                  className={`rounded-full px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:shadow-md sm:px-7 sm:py-3 ${
+                    isCelebrationCake
+                      ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90"
+                      : "bg-[#1D3C42] hover:bg-[#163136]"
+                  }`}
                 >
                   {isCelebrationCake ? "Customize" : "Add"}
                 </motion.button>
@@ -314,18 +316,18 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 <div className="flex items-center rounded-full border-2 border-[#1D3C42]">
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty - 1)}
-                    className="rounded-l-full px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
+                    className="rounded-l-full px-3 py-1.5 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4] sm:px-4 sm:py-2"
                   >
                     −
                   </button>
 
-                  <span className="min-w-[2rem] px-2 py-2 text-center text-sm font-bold text-[#3A2A2A]">
+                  <span className="min-w-[1.5rem] px-2 py-1.5 text-center text-sm font-bold text-[#3A2A2A] sm:min-w-[2rem] sm:px-2 sm:py-2">
                     {itemInCart.qty}
                   </span>
 
                   <button
                     onClick={() => updateQty(cartId, itemInCart.qty + 1)}
-                    className="rounded-r-full px-4 py-2 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4]"
+                    className="rounded-r-full px-3 py-1.5 text-base font-bold text-[#1D3C42] transition hover:bg-[#FFF8E4] sm:px-4 sm:py-2"
                   >
                     +
                   </button>
@@ -339,32 +341,33 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-              className="mt-4 space-y-3"
+              className="mt-3 rounded-2xl bg-[#FFF8E4] p-4 ring-1 ring-[#D4AF37]/20 sm:mt-4 sm:p-5"
             >
-              <div>
-                <label className="text-xs font-bold uppercase tracking-[0.15em] text-[#D4AF37]">
-                  Message on cake
-                </label>
+              <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-xs">
+                Personalise your cake
+              </p>
+              <div className="mt-3">
                 <input
                   value={cakeMessage}
                   onChange={(e) => setCakeMessage(e.target.value.slice(0, 50))}
                   placeholder="e.g. Happy Birthday!"
-                  className="mt-1.5 w-full rounded-xl border border-[#F4CFC8] bg-[#FFF8E4] px-4 py-2.5 text-sm outline-none focus:border-[#1D3C42]"
+                  className="w-full rounded-xl border border-[#F4CFC8] bg-white px-4 py-2.5 text-sm outline-none transition focus:border-[#1D3C42] focus:ring-1 focus:ring-[#1D3C42]/20"
                 />
-                <p className="mt-1 text-right text-xs text-[#7A6262]">{cakeMessage.length}/50</p>
+                <div className="mt-1.5 flex items-center justify-between">
+                  <p className="text-[10px] italic text-[#7A6262] sm:text-xs">Message on cake</p>
+                  <p className="text-[10px] text-[#7A6262] sm:text-xs">{cakeMessage.length}/50</p>
+                </div>
               </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => {
-                    addToCart(cartProduct);
-                    setCustomizationOpen(false);
-                  }}
-                  className="flex-1 rounded-full bg-[#1D3C42] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136]"
-                >
-                  Add to Cart
-                </button>
-              </div>
+              <button
+                onClick={() => {
+                  addToCart(cartProduct);
+                  setCustomizationOpen(false);
+                }}
+                className="mt-3 w-full rounded-full bg-[#1D3C42] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
+              >
+                Add to Cart
+              </button>
             </motion.div>
           )}
         </div>

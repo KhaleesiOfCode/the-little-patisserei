@@ -29,9 +29,9 @@ export default function CategoriesSection() {
   if (display.length === 0) return null;
 
   return (
-    <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
+    <section className="bg-[#FFF8E4] px-0 pb-10 pt-6 sm:pb-16 sm:pt-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-14 text-center">
+        <div className="mb-10 text-center">
           <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
             What We Offer
           </span>

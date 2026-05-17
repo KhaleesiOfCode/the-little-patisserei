@@ -27,9 +27,9 @@ export default function BestSellersSection() {
   if (items.length === 0) return null;
 
   return (
-    <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
+    <section className="bg-[#FFF8E4] px-0 pb-10 pt-6 sm:pb-16 sm:pt-8">
       <div className="mx-auto max-w-7xl">
-        <div className="mb-14 text-center">
+        <div className="mb-10 text-center">
           <span className="font-display text-sm italic tracking-wide text-[#D4AF37]">
             Only the best for you, and yes, your diets end here!
           </span>
@@ -58,24 +58,24 @@ export default function BestSellersSection() {
               >
                 <Link
                   href={`/menu?category=${encodeURIComponent(item.category)}&product=${item.id}`}
-                  className="group relative flex aspect-square overflow-hidden rounded-2xl ring-1 ring-[#3A2A2A]/5 transition-all duration-300 hover:-translate-y-1.5 hover:shadow-lg hover:ring-[#D4AF37]/20"
+                  className="group relative flex aspect-square overflow-hidden rounded-2xl transition-all duration-500 hover:-translate-y-1.5 hover:shadow-xl"
                 >
                   <img
                     src={item.image || "/cakes/chocolate-cake-1.jpg"}
                     alt={item.name}
-                    className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-110"
+                    className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-110"
                   />
 
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent" />
 
                   {isBestSeller && (
-                    <span className="absolute right-2 top-2 z-10 rounded-full bg-[#D4AF37] px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-white shadow-sm sm:right-3 sm:top-3 sm:px-3 sm:py-1 sm:text-[10px]">
+                    <span className="absolute right-3 top-3 z-10 rounded-full bg-[#D4AF37] px-3 py-1 text-[10px] font-bold uppercase tracking-[0.1em] text-white shadow-lg sm:right-4 sm:top-4 sm:px-4 sm:py-1.5 sm:text-xs">
                       Best Seller
                     </span>
                   )}
 
-                  <div className="relative mt-auto px-3 pb-3 pt-8 sm:px-4 sm:pb-4">
-                    <h3 className="truncate font-display text-xs font-bold uppercase leading-tight text-white sm:text-sm">
+                  <div className="relative mt-auto px-4 pb-4 pt-12 sm:px-5 sm:pb-5">
+                    <h3 className="font-display text-sm font-bold uppercase leading-tight text-white drop-shadow-sm sm:text-base">
                       {item.name}
                     </h3>
                   </div>
@@ -90,7 +90,7 @@ export default function BestSellersSection() {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3, duration: 0.5 }}
-          className="mt-14 text-center"
+          className="mt-10 text-center"
         >
           <Link
             href="/menu"

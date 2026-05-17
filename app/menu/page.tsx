@@ -124,12 +124,12 @@ export default function MenuPage() {
           </div>
         ) : (
           <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
-            <aside className="h-fit rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8] lg:sticky lg:top-24">
+            <aside className="h-fit rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-[#F4CFC8] lg:sticky lg:top-24">
               <button
                 onClick={() => setCategoriesOpen(!categoriesOpen)}
                 className="flex w-full items-center justify-between lg:cursor-default"
               >
-                <h2 className="text-sm font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
+                <h2 className="text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37] sm:text-sm">
                   Categories
                 </h2>
                 <ChevronDown size={16} className={`text-[#D4AF37] transition lg:hidden ${categoriesOpen ? "rotate-180" : ""}`} />
@@ -174,7 +174,7 @@ export default function MenuPage() {
                 </div>
               )}
 
-              <div className="mb-6 rounded-[2rem] bg-white p-4 shadow-sm ring-1 ring-[#F4CFC8]">
+              <div className="mb-6 rounded-[2rem] bg-white p-5 shadow-sm ring-1 ring-[#F4CFC8]">
                 <LayoutGroup>
                   <div className="mx-auto flex w-fit items-center gap-0 rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
                     {[
@@ -200,14 +200,14 @@ export default function MenuPage() {
                     ))}
                   </div>
                 </LayoutGroup>
-                <div className="mt-4 border-t border-[#F4CFC8] pt-4">
+                <div className="mt-4 border-t border-[#F4CFC8] pt-5">
                 <div className="grid gap-4 md:grid-cols-[1fr_auto]">
                   <div className="relative">
                       <input
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                         placeholder="Search cakes, pastries, brownies..."
-                        className="w-full rounded-full border border-[#F4CFC8] bg-[#FFF8E4] px-5 py-3 pr-11 text-[#3A2A2A] outline-none placeholder:text-[#7A6262] focus:border-[#1D3C42]"
+                        className="w-full rounded-full border border-[#F4CFC8] bg-[#FFF8E4] px-5 py-3 pr-11 text-[#3A2A2A] outline-none placeholder:text-[#7A6262] transition focus:border-[#1D3C42] focus:ring-1 focus:ring-[#1D3C42]/10"
                       />
 
                       {search && (
@@ -244,14 +244,14 @@ export default function MenuPage() {
                 </div>
               </div>
 
-              <div className="mb-5 flex items-end justify-between">
+              <div className="mb-6 flex items-end justify-between border-b border-[#F4CFC8] pb-4">
                 <div>
-                  <h2 className="font-serif text-3xl font-bold text-[#1D3C42]">
+                  <h2 className="font-display text-2xl font-bold text-[#1D3C42] sm:text-3xl">
                     {activeCategory}
                   </h2>
                 </div>
 
-                <p className="text-sm text-[#7A6262]">
+                <p className="text-xs font-semibold text-[#7A6262] sm:text-sm">
                   {activeItems.length} item{activeItems.length !== 1 ? "s" : ""}
                 </p>
               </div>
