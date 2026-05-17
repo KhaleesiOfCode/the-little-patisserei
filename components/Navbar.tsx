@@ -35,7 +35,7 @@ export default function Navbar() {
             <span className="hidden sm:inline">The Little Patisserie</span>
         </Link>
 
-        <div className="hidden items-center gap-6 text-sm font-semibold text-[#1D3C42] md:flex">
+        <div className="hidden items-center gap-7 text-[15px] font-serif font-semibold text-[#1D3C42] md:flex">
           <Link href="/">Home</Link>
           <Link href="/menu">Menu</Link>
           <Link href="/custom-cake">Custom Cakes</Link>
@@ -96,7 +96,7 @@ export default function Navbar() {
 
       {mobileOpen && (
         <div className="border-t border-[#D4AF37]/20 bg-[#FFF8E4] px-4 pb-4 pt-3 md:hidden">
-          <div className="flex flex-col gap-1 text-sm font-semibold text-[#1D3C42]">
+          <div className="flex flex-col gap-1 text-[15px] font-serif font-semibold text-[#1D3C42]">
             <Link href="/" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Home</Link>
             <Link href="/menu" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Menu</Link>
             <Link href="/custom-cake" onClick={() => setMobileOpen(false)} className="rounded-2xl px-4 py-3 transition hover:bg-[#FADCD4]">Custom Cakes</Link>

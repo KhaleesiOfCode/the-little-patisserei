@@ -30,13 +30,13 @@ export default function BestSellersSection() {
     <section className="bg-[#FFF8E4] px-0 pb-10 pt-6 sm:pb-16 sm:pt-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 text-center">
-          <span className="font-display text-sm italic tracking-wide text-[#D4AF37]">
+          <span className="font-display text-[15px] italic tracking-wide text-[#D4AF37]">
             Only the best for you, and yes, your diets end here!
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold uppercase tracking-[0.08em] text-[#1D3C42] sm:text-4xl">
+          <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold uppercase tracking-[0.06em] text-[#1D3C42]">
             The repeat-order champions!!
           </h2>
-          <p className="mx-auto mt-4 max-w-xl font-serif text-sm italic leading-6 text-[#7A6262]">
+          <p className="mx-auto mt-4 max-w-xl font-serif leading-7 text-[#7A6262] sm:text-[16.5px] sm:leading-8">
             Too good to be a one-time thing!!<br />
             Discover the crowd favourites, the ones that are too good for just one bite, one order or
             even one serving!!

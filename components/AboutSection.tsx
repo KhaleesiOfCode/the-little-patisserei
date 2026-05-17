@@ -6,22 +6,22 @@ const usps = [
   {
     icon: Sun,
     title: "Freshly Baked Daily",
-    desc: "Did you know we bake everything fresh, only on order? Yes, we make every dessert specifically with the person receiving it in mind. Your dessert isn&apos;t just one among hundreds. It&apos;s the one made just for you.",
+    desc: "Did you know we bake everything fresh, only on order? Yes, we make every dessert specifically with the person receiving it in mind. Your dessert isn&apos;t just one among hundreds. It's the one made just for you.",
   },
   {
     icon: Heart,
     title: "Egg & Eggless Options",
-    desc: "Egg based or Egg free desserts, the magic stays the same that you&apos;ll hardly know the difference.",
+    desc: "Egg based or Egg free desserts, the magic stays the same that you'll hardly know the difference.",
   },
   {
     icon: Star,
     title: "Quality Over Anything",
-    desc: "We believe a dessert is only as good as the ingredients that go into it, which is why compromising on quality is something we simply cannot do. Anything that doesn&apos;t satisfy us in taste, texture, or quality never leaves our kitchen.",
+    desc: "We believe a dessert is only as good as the ingredients that go into it, which is why compromising on quality is something we simply cannot do. Anything that doesn't satisfy us in taste, texture, or quality never leaves our kitchen.",
   },
   {
     icon: Sparkles,
     title: "Custom Creations",
-    desc: "We create celebration cakes that don&apos;t just carry your name, they tell your story. ❤️",
+    desc: "We create celebration cakes that don't just carry your name, they tell your story. ❤️",
   },
 ];
 
@@ -44,13 +44,13 @@ export default function AboutSection() {
             <div className="flex flex-col justify-center px-6 py-8 md:col-span-3 md:px-12 md:py-14">
               <div className="flex items-center gap-3">
                 <div className="h-0.5 w-8 rounded-full bg-[#D4AF37]" />
-                <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-[#D4AF37]">Our Story</span>
+                <span className="text-[13px] font-bold uppercase tracking-[0.25em] text-[#D4AF37]">Our Story</span>
               </div>
-              <h2 className="mt-3 font-display text-2xl font-bold leading-tight text-[#1D3C42] sm:text-3xl md:text-4xl">
+              <h2 className="mt-3 font-display text-[clamp(1.6rem,3.5vw,2.5rem)] font-bold leading-tight text-[#1D3C42]">
                 A Girl, a TV Show, and a
                 <span className="text-[#D4AF37]"> Sweet Obsession</span>
               </h2>
-              <div className="mt-4 space-y-3 text-sm leading-relaxed text-[#7A6262] md:text-[15px] md:leading-8">
+              <div className="mt-4 space-y-3 leading-7 text-[#7A6262] md:text-[16.5px] md:leading-8">
                 <p>
                   Behind The Little Patisserie is just a girl from Chennai with a big love for French pastries,
                   warm desserts, and making people smile through food. Coming from a family of food lovers,
@@ -78,8 +78,8 @@ export default function AboutSection() {
                   <div className="h-8 w-8 rounded-full bg-[#1D3C42]/10 ring-2 ring-white" />
                   <div className="h-8 w-8 rounded-full bg-[#F4CFC8] ring-2 ring-white" />
                 </div>
-                <p className="text-xs italic text-[#7A6262]">
-                  &ldquo;We don&apos;t just bake desserts. We create moments worth remembering.&rdquo;
+                <p className="text-xs italic text-[#7A6262] sm:text-[13px]">
+                  &ldquo;We don't just bake desserts. We create moments worth remembering.&rdquo;
                 </p>
               </div>
             </div>
@@ -103,7 +103,7 @@ export default function AboutSection() {
               <h3 className="font-display text-base font-bold text-[#1D3C42]">
                 {usp.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-[#7A6262]">
+              <p className="mt-2 leading-relaxed text-[#7A6262]">
                 {usp.desc}
               </p>
             </div>

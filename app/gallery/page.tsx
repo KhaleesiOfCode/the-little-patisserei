@@ -73,21 +73,21 @@ export default function GalleryPage() {
 
         <div className="relative mx-auto max-w-6xl px-5 pt-20 pb-10 md:pt-28 md:pb-14">
           <div className="mx-auto h-1 w-16 rounded-full bg-[#D4AF37]" />
-          <p className="mt-4 text-center text-xs font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
+          <p className="mt-4 text-center text-[13px] font-semibold uppercase tracking-[0.25em] text-[#D4AF37]">
             Your stories, our creations
           </p>
-          <h1 className="mt-4 text-center font-display text-4xl font-bold leading-tight text-[#1D3C42] md:text-5xl">
+          <h1 className="mt-4 text-center font-display text-[clamp(1.75rem,4vw,3rem)] font-bold leading-tight text-[#1D3C42]">
             Every Cake Tells a Story,{" "}
             <span className="text-[#D4AF37]">Your Story!!</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-center text-[15px] leading-8 text-[#7A6262]">
+          <p className="mx-auto mt-5 max-w-2xl text-center leading-8 text-[#7A6262]">
             At The Little Patisserie, custom cakes are more than just desserts, they are stories, your
             stories thoughtfully brought to life. We believe custom cakes should feel deeply personal.
             From adding elements that feel personal and meaningful to designing cakes that reflect your
             vision, every creation is made with care, intention, and heart. Each cake is handcrafted to
             suit your preferences, themes, colours, and intricate details.
           </p>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-[15px] leading-8 text-[#7A6262]">
+          <p className="mx-auto mt-4 max-w-2xl text-center leading-8 text-[#7A6262]">
             Browse through our collection of past creations and find inspiration for your own special
             celebration.
           </p>

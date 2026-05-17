@@ -112,8 +112,8 @@ export default function MenuPage() {
     <main className="min-h-screen bg-[#FFF8E4] text-[#3A2A2A]">
       <section className="mx-auto max-w-7xl px-5 py-10">
         <div className="mb-8">
-          <h1 className="font-display text-3xl font-bold text-[#1D3C42] sm:text-4xl">Our Sweet Playlist</h1>
-          <p className="mt-2 text-sm italic text-[#D4AF37]">
+          <h1 className="font-display text-[clamp(1.75rem,4vw,3rem)] font-bold text-[#1D3C42]">Our Sweet Playlist</h1>
+          <p className="mt-3 text-[15px] italic text-[#D4AF37]">
             Warning: Below mentioned items are highly reorderable!!
           </p>
         </div>

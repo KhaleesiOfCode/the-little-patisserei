@@ -32,10 +32,10 @@ export default function CategoriesSection() {
     <section className="bg-[#FFF8E4] px-0 pb-10 pt-6 sm:pb-16 sm:pt-8">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 text-center">
-          <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
+          <span className="text-[13px] font-bold uppercase tracking-[0.25em] text-[#D4AF37]">
             What We Offer
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold text-[#1D3C42] sm:text-4xl">
+          <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold text-[#1D3C42]">
             Our Categories
           </h2>
         </div>
@@ -70,7 +70,7 @@ export default function CategoriesSection() {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
 
                   <div className="relative mt-auto px-3 pb-3 pt-8 sm:px-4 sm:pb-4">
-                    <h3 className="font-display text-base font-bold leading-tight text-white sm:text-lg">
+                    <h3 className="font-display text-lg font-bold leading-tight text-white sm:text-xl">
                       {cat.name}
                     </h3>
                   </div>

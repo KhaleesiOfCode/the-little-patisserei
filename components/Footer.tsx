@@ -19,7 +19,7 @@ export default function Footer() {
             <p className="mt-0.5 text-xs italic tracking-wide text-[#D4AF37]">
               true to the flavours
             </p>
-            <p className="mt-3 text-sm leading-relaxed text-white/70">
+            <p className="mt-3 text-[15px] leading-relaxed text-white/70">
               Handcrafted cakes, pastries, and desserts made fresh with love
               for every celebration.
             </p>
@@ -35,7 +35,7 @@ export default function Footer() {
                   href={`https://wa.me/${WHATSAPP_NUMBER}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-white/70 transition hover:text-white"
+                  className="flex items-center gap-2 text-[14px] text-white/70 transition hover:text-white"
                 >
                   <MessageCircle size={14} />
                   +91 94884 07130
@@ -44,13 +44,13 @@ export default function Footer() {
               <li>
                 <a
                   href="mailto:hello@thelittlepatisserie.com"
-                  className="flex items-center gap-2 text-sm text-white/70 transition hover:text-white"
+                  className="flex items-center gap-2 text-[14px] text-white/70 transition hover:text-white"
                 >
                   <Mail size={14} />
                   hello@thelittlepatisserie.com
                 </a>
               </li>
-              <li className="text-sm text-white/70">
+              <li className="text-[14px] text-white/70">
                 Chennai, Tamil Nadu
               </li>
             </ul>
@@ -62,22 +62,22 @@ export default function Footer() {
             </h4>
             <ul className="mt-4 space-y-3">
               <li>
-                <Link href="/menu" className="text-sm text-white/70 transition hover:text-white">
+                <Link href="/menu" className="text-[14px] text-white/70 transition hover:text-white">
                   Menu
                 </Link>
               </li>
               <li>
-                <Link href="/about" className="text-sm text-white/70 transition hover:text-white">
+                <Link href="/about" className="text-[14px] text-white/70 transition hover:text-white">
                   About Us
                 </Link>
               </li>
               <li>
-                <Link href="/contact" className="text-sm text-white/70 transition hover:text-white">
+                <Link href="/contact" className="text-[14px] text-white/70 transition hover:text-white">
                   Contact
                 </Link>
               </li>
               <li>
-                <Link href="/custom-cake" className="text-sm text-white/70 transition hover:text-white">
+                <Link href="/custom-cake" className="text-[14px] text-white/70 transition hover:text-white">
                   Custom Cake
                 </Link>
               </li>
@@ -94,7 +94,7 @@ export default function Footer() {
                   href="https://www.instagram.com/thelittle_patisserie/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-2 text-sm text-white/70 transition hover:text-white"
+                  className="flex items-center gap-2 text-[14px] text-white/70 transition hover:text-white"
                 >
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
                   @thelittlepatisserie
@@ -105,7 +105,7 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 border-t border-white/10 pt-6 text-center">
-          <p className="text-sm text-white/50">
+          <p className="text-[14px] text-white/50">
             &copy; {year} The Little Patisserie. All rights reserved.
           </p>
         </div>

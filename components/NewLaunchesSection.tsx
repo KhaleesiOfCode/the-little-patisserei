@@ -156,10 +156,10 @@ export default function NewLaunchesSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 flex flex-col items-start justify-between gap-2 sm:flex-row sm:items-end">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
+            <p className="text-[13px] font-semibold uppercase tracking-[0.2em] text-[#D4AF37]">
               Fresh from the oven
             </p>
-            <h2 className="mt-2 font-serif text-2xl font-bold tracking-tight text-[#1D3C42] sm:text-3xl md:text-4xl">
+            <h2 className="mt-2 font-serif text-[clamp(1.5rem,3.5vw,2.5rem)] font-bold tracking-tight text-[#1D3C42]">
               New Launches
             </h2>
           </div>

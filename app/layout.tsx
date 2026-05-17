@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Fraunces, Nunito_Sans } from "next/font/google";
+import { Fraunces, Quicksand } from "next/font/google";
 import "./globals.css";
 import { CartProvider } from "../components/CartContext";
 import AdminAwareNavbar from "../components/AdminAwareNavbar";
@@ -14,9 +14,9 @@ const fraunces = Fraunces({
   variable: "--font-display",
 });
 
-const nunito = Nunito_Sans({
+const quicksand = Quicksand({
   subsets: ["latin"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   variable: "--font-sans",
 });
 
@@ -45,7 +45,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fraunces.variable} ${nunito.variable}`}>
+    <html lang="en" className={`${fraunces.variable} ${quicksand.variable}`}>
       <body>
         <script
           type="application/ld+json"

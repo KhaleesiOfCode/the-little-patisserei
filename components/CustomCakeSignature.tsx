@@ -27,10 +27,10 @@ export default function CustomCakeSignature() {
             <span className="inline-block rounded-full bg-[#D4AF37]/20 px-4 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
               Our Signature
             </span>
-            <h2 className="mt-4 font-display text-3xl font-bold leading-tight text-[#1D3C42] md:text-4xl">
-              Custom Cakes — Where It All Began
+            <h2 className="mt-4 font-display text-[clamp(1.5rem,3.5vw,2.5rem)] font-bold leading-tight text-[#1D3C42]">
+              Custom Cakes <span className="text-[#D4AF37]">—</span> Where It All Began
             </h2>
-            <p className="mt-5 leading-relaxed text-[#7A6262]">
+            <p className="mt-5 leading-7 text-[#7A6262] sm:text-[16.5px]">
               Every cake is designed from scratch, hand-decorated, and made just
               for your celebration — whether it&apos;s a birthday, anniversary,
               or a moment worth frosting.

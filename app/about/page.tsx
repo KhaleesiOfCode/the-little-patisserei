@@ -83,19 +83,19 @@ export default function AboutPage() {
           <p className="mt-4 text-center text-xs font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
             About
           </p>
-          <h1 className="mt-4 text-center font-display text-4xl font-bold leading-tight text-[#1D3C42] md:text-5xl">
+          <h1 className="mt-4 text-center font-display text-[clamp(1.75rem,4vw,3rem)] font-bold leading-tight text-[#1D3C42]">
             A Home Bakery Made for{" "}
             <span className="text-[#D4AF37]">Sweet Celebrations</span>
           </h1>
 
           <div className="mx-auto mt-10 max-w-3xl space-y-6 rounded-[2rem] bg-white/80 p-8 shadow-sm ring-1 ring-[#F4CFC8] backdrop-blur-sm md:p-12">
-            <p className="text-[15px] leading-8 text-[#7A6262]">
+            <p className="leading-8 text-[#7A6262]">
               At The Little Patisserie, we don&apos;t just bake desserts, we bake with intention. Because behind
               every dessert is a girl who bakes with one simple intention, to make people truly enjoy every
               bite. And thankfully, that little dream comes true almost every time.
             </p>
 
-            <p className="text-[15px] leading-8 text-[#7A6262]">
+            <p className="leading-8 text-[#7A6262]">
               Every dessert we create is made with the person receiving it in mind. Your dessert isn&apos;t just
               one among hundreds, it&apos;s thoughtfully made, especially for you. We believe a dessert is only as
               good as the ingredients that go into it, which is why compromising on quality is something we
@@ -103,7 +103,7 @@ export default function AboutPage() {
               quality simply never leaves our kitchen. It&apos;s a standard we hold onto, no matter what.
             </p>
 
-            <p className="text-[15px] leading-8 text-[#7A6262]">
+            <p className="leading-8 text-[#7A6262]">
               Every dessert on our menu has gone through multiple rounds of testing, tasting, and honest
               criticism from a family full of food lovers with incredibly sharp palates. And honestly, we
               wouldn&apos;t have it any other way.
@@ -111,7 +111,7 @@ export default function AboutPage() {
 
             <div className="mx-auto h-px w-24 bg-[#D4AF37]/30" />
 
-            <p className="text-[15px] leading-8 text-[#7A6262]">
+            <p className="leading-8 text-[#7A6262]">
               At The Little Patisserie, we want custom cakes to feel personal, they are stories, your stories,
               thoughtfully brought to life, which is why every cake we create carries not just your name, but
               a little piece of your story too. From adding elements that feel personal and meaningful to
@@ -119,7 +119,7 @@ export default function AboutPage() {
               Each cake is handcrafted to suit your preferences, themes, colours, and intricate details.
             </p>
 
-            <p className="text-[15px] leading-8 text-[#7A6262]">
+            <p className="leading-8 text-[#7A6262]">
               We are proud to have created and continue creating many moments worth remembering, filling
               hearts and stomachs with warmth, and crafting flavours that stay with you through time.
             </p>
@@ -129,7 +129,7 @@ export default function AboutPage() {
           <div className="mx-auto mt-20 max-w-4xl">
             <div className="text-center">
               <div className="mx-auto h-1 w-12 rounded-full bg-[#D4AF37]/60" />
-              <h2 className="mt-4 font-display text-3xl font-bold text-[#1D3C42] md:text-4xl">
+              <h2 className="mt-4 font-display text-[clamp(1.5rem,3vw,2.25rem)] font-bold text-[#1D3C42]">
                 Why Choose The Little Patisserie?
               </h2>
             </div>
@@ -144,7 +144,7 @@ export default function AboutPage() {
                     <f.icon size={22} className="text-[#D4AF37]" />
                   </div>
                   <h3 className="mt-4 font-display text-lg font-bold text-[#1D3C42]">{f.title}</h3>
-                  <p className="mt-2 text-sm leading-6 text-[#7A6262]">{f.desc}</p>
+                  <p className="mt-2 leading-6 text-[#7A6262]">{f.desc}</p>
                 </div>
               ))}
             </div>
@@ -156,13 +156,13 @@ export default function AboutPage() {
             <p className="mt-4 text-center text-xs font-semibold uppercase tracking-[0.3em] text-[#D4AF37]">
               Get in Touch
             </p>
-            <h2 className="mt-4 text-center font-display text-3xl font-bold text-[#1D3C42] md:text-4xl">
+            <h2 className="mt-4 text-center font-display text-[clamp(1.5rem,3vw,2.25rem)] font-bold text-[#1D3C42]">
               Let&apos;s Make Your{" "}
               <span className="text-[#D4AF37]">Celebration Sweeter</span>
             </h2>
 
             <div className="mx-auto mt-6 max-w-2xl text-center">
-              <p className="text-[15px] leading-8 text-[#7A6262]">
+              <p className="leading-8 text-[#7A6262]">
                 Have a question, want to place an order, or planning a custom cake? Reach out to us on WhatsApp and we&apos;ll help you choose the right cake, flavour, size, and design for your occasion.
               </p>
             </div>

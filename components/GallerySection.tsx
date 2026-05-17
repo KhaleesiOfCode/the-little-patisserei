@@ -82,13 +82,13 @@ export default function GallerySection() {
     <section className="bg-[#FFF8E4] px-0 pb-16 pt-8 sm:pb-24 sm:pt-12">
       <div className="mx-auto max-w-7xl">
         <div className="mb-10 text-center sm:mb-14">
-          <span className="text-xs font-bold uppercase tracking-[0.3em] text-[#D4AF37]">
+          <span className="text-[13px] font-bold uppercase tracking-[0.2em] text-[#D4AF37]">
             Custom Creations
           </span>
-          <h2 className="mt-3 font-display text-3xl font-bold text-[#1D3C42] sm:text-4xl">
+          <h2 className="mt-3 font-display text-[clamp(1.75rem,4vw,2.75rem)] font-bold text-[#1D3C42]">
             Our Gallery
           </h2>
-          <p className="mx-auto mt-3 max-w-xl text-sm leading-6 text-[#7A6262]">
+          <p className="mx-auto mt-3 max-w-xl leading-7 text-[#7A6262] sm:text-[16.5px]">
             Every cake tells a story. Browse our collection of custom-designed celebration cakes —
             each one crafted with love and attention to detail.
           </p>

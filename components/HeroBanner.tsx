@@ -60,11 +60,11 @@ export default function HeroBanner() {
                 href="/custom-cake"
                 className="group flex flex-col rounded-[28px] bg-[#F7F2EC] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-[#D4AF37]/20 transition hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(212,175,55,0.1)] hover:ring-[#D4AF37]/35"
               >
-                <span className="font-display text-lg font-bold text-[#5C3A2E]">Custom Cakes</span>
-                <p className="mt-1 text-sm leading-5 text-[#5C3A2E]/50">Designed around your celebration.</p>
+                <span className="font-display text-xl font-bold text-[#5C3A2E]">Custom Cakes</span>
+                <p className="mt-1.5 text-[15px] leading-6 text-[#5C3A2E]/50">Designed around your celebration.</p>
                 <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[#D4AF37] transition group-hover:gap-2.5">
                   Design Your Cake
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 4-4 4"/></svg>
+                  <svg width="15" height="15" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 4-4 4"/></svg>
                 </span>
               </Link>
             </motion.div>
@@ -79,8 +79,8 @@ export default function HeroBanner() {
                 href="/menu"
                 className="group flex flex-col rounded-[28px] bg-[#F7F2EC] p-6 shadow-[0_8px_32px_rgba(0,0,0,0.06)] ring-1 ring-[#D4AF37]/15 transition hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(212,175,55,0.1)] hover:ring-[#D4AF37]/30"
               >
-                <span className="font-display text-lg font-bold text-[#5C3A2E]">Browse the Menu</span>
-                <p className="mt-1 text-sm leading-5 text-[#5C3A2E]/50">Freshly baked brownies, cupcakes &amp; more.</p>
+                <span className="font-display text-xl font-bold text-[#5C3A2E]">Browse the Menu</span>
+                <p className="mt-1.5 text-[15px] leading-6 text-[#5C3A2E]/50">Freshly baked brownies, cupcakes &amp; more.</p>
                 <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[#D4AF37] transition group-hover:gap-2.5">
                   Explore Menu
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 4-4 4"/></svg>
@@ -132,8 +132,8 @@ export default function HeroBanner() {
               href="/custom-cake"
               className="group flex flex-col rounded-[28px] bg-[#F7F2EC] p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] ring-1 ring-[#D4AF37]/20 transition hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(212,175,55,0.12)] hover:ring-[#D4AF37]/40"
             >
-              <span className="font-display text-lg font-bold text-[#5C3A2E]">Custom Cakes</span>
-              <p className="mt-1 text-sm leading-5 text-[#5C3A2E]/50">Designed around your celebration.</p>
+              <span className="font-display text-xl font-bold text-[#5C3A2E]">Custom Cakes</span>
+              <p className="mt-1.5 text-[15px] leading-6 text-[#5C3A2E]/50">Designed around your celebration.</p>
               <span className="mt-3 inline-flex items-center gap-1.5 text-sm font-bold text-[#D4AF37] transition group-hover:gap-2.5">
                 Design Your Cake
                 <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 4-4 4"/></svg>
@@ -150,13 +150,13 @@ export default function HeroBanner() {
               className="group flex flex-col rounded-[28px] bg-[#F7F2EC] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.04)] ring-1 ring-[#D4AF37]/10 transition hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(0,0,0,0.08)] hover:ring-[#D4AF37]/30"
             >
               <div className="flex items-center justify-between">
-                <span className="font-display text-base font-bold text-[#5C3A2E]">Browse the Menu</span>
-                <span className="inline-flex items-center gap-1 text-xs font-bold text-[#D4AF37] transition group-hover:gap-2">
+                <span className="font-display text-lg font-bold text-[#5C3A2E]">Browse the Menu</span>
+                <span className="inline-flex items-center gap-1 text-sm font-bold text-[#D4AF37] transition group-hover:gap-2">
                   Explore Menu
                   <svg width="12" height="12" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M5 3l4 4-4 4"/></svg>
                 </span>
               </div>
-              <p className="mt-1 text-xs leading-5 text-[#5C3A2E]/40">Freshly baked brownies, cupcakes &amp; more.</p>
+              <p className="mt-1.5 text-[14px] leading-5 text-[#5C3A2E]/40">Freshly baked brownies, cupcakes &amp; more.</p>
             </Link>
           </motion.div>
         </div>

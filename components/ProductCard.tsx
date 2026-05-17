@@ -168,7 +168,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
           <div>
             <div className="flex flex-wrap items-start justify-between gap-2">
               <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
-                <h3 className="font-serif text-base font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-2xl">
+                <h3 className="font-serif text-[17px] font-bold leading-tight text-[#3A2A2A] sm:text-xl md:text-[22px]">
                   {product.name}
                 </h3>
 
@@ -201,14 +201,14 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
             </div>
           )}
 
-          <p className="mt-2 overflow-hidden text-sm leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-sm sm:leading-6">
+          <p className="mt-2 overflow-hidden leading-6 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-[15.5px] sm:leading-7">
             {highlightKeywords(product.description, product.keywords || [])}
           </p>
 
           <button
             type="button"
             onClick={() => setIsDetailsOpen(true)}
-            className="mt-0.5 text-left text-xs font-semibold text-[#D4AF37] underline-offset-2 transition hover:underline sm:text-sm"
+            className="mt-0.5 text-left text-[13px] font-semibold text-[#D4AF37] underline-offset-2 transition hover:underline sm:text-[14px]"
           >
             View more &rsaquo;
           </button>
@@ -218,7 +218,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
           <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
             {hasEggChoice ? (
               <div className="flex items-center gap-1.5 sm:gap-2">
-                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-xs">
+                <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-[11px]">
                   VARIANT
                 </span>
                 <div className="flex rounded-full bg-[#FFF8E4] p-0.5 ring-1 ring-[#F4CFC8] sm:p-1">
@@ -296,7 +296,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 </span>
               ) : null}
 
-              <p className="text-lg font-black text-[#1D3C42] sm:text-xl">
+              <p className="text-lg font-black text-[#1D3C42] sm:text-[20px]">
                 ₹{Number(selectedPrice.price)}
               </p>
 
@@ -304,7 +304,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 <motion.button
                   whileTap={{ scale: 0.92 }}
                   onClick={handleAddToCart}
-                  className={`rounded-full px-5 py-2 text-sm font-bold text-white shadow-sm transition hover:shadow-md sm:px-7 sm:py-3 ${
+                  className={`rounded-full px-5 py-2 text-[15px] font-bold text-white shadow-sm transition hover:shadow-md sm:px-7 sm:py-3 ${
                     isCelebrationCake
                       ? "bg-[#D4AF37] text-[#1D3C42] hover:bg-[#D4AF37]/90"
                       : "bg-[#1D3C42] hover:bg-[#163136]"
@@ -364,7 +364,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                   addToCart(cartProduct);
                   setCustomizationOpen(false);
                 }}
-                className="mt-3 w-full rounded-full bg-[#1D3C42] px-6 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
+                className="mt-3 w-full rounded-full bg-[#1D3C42] px-6 py-2.5 text-[15px] font-bold text-white shadow-sm transition hover:bg-[#163136] hover:shadow-md"
               >
                 Add to Cart
               </button>
