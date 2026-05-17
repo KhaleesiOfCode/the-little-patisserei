@@ -505,7 +505,6 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup date *</label>
                         <input type="date" value={form.pickupDate} onChange={(e) => update("pickupDate", e.target.value)} min={minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
                       </div>
                       <div>
                         <label className="mb-2 block text-sm font-semibold">Pickup time</label>
@@ -517,20 +516,14 @@ export default function CartPage() {
                         </select>
                       </div>
                     </div>
+                    <div className="rounded-xl bg-green-50 px-4 py-3 text-xs leading-relaxed text-green-800 ring-1 ring-green-200">
+                      We bake fresh on order, which is why we need 24 hours. Your order will be ready for pickup from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} onwards.
+                    </div>
                   </div>
                 )}
 
                 {(effectiveMode === "local_delivery" || effectiveMode === "courier") && (
                   <div className="mt-6 grid gap-4">
-                    <div className={`rounded-2xl p-4 text-sm font-semibold ring-1 ${
-                      effectiveMode === "courier"
-                        ? "bg-orange-50 text-orange-800 ring-orange-200"
-                        : "bg-green-50 text-green-800 ring-green-200"
-                    }`}>
-                      {effectiveMode === "courier" ? (
-                        <><AlertTriangle size={16} className="mr-1 inline" /> {slotInfo.prepLabel}. {courierDeliveryEstimate}</>
-                      ) : `Within Chennai — ${slotInfo.prepLabel}.`}
-                    </div>
                     <div className="grid gap-4 sm:grid-cols-2">
                       <div>
                         <input value={form.name} onChange={(e) => update("name", e.target.value)} onBlur={() => blur("name")} className={`rounded-2xl border bg-white px-4 py-3 outline-none w-full focus:border-[#1D3C42] ${touched.name && !form.name ? "border-red-400" : "border-[#F4CFC8]"}`} placeholder="Full name *" />
@@ -622,11 +615,6 @@ export default function CartPage() {
                       <div>
                         <label className="mb-2 block text-sm font-semibold">{effectiveMode === "courier" ? "Estimated delivery date" : "Preferred delivery date"}</label>
                         <input type="date" value={form.deliveryDate} onChange={(e) => update("deliveryDate", e.target.value)} min={effectiveMode === "courier" ? courierMinDate : minDate} className="w-full rounded-2xl border border-[#F4CFC8] bg-white px-4 py-3 outline-none focus:border-[#1D3C42]" />
-                        {effectiveMode === "courier" ? (
-                          <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel}) + {courierTransitDays} day{courierTransitDays > 1 ? "s" : ""} courier transit</p>
-                        ) : (
-                          <p className="mt-1 text-xs text-[#7A6262]">Ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} ({slotInfo.prepLabel})</p>
-                        )}
                       </div>
                       {effectiveMode !== "courier" && (
                         <div>
@@ -640,6 +628,15 @@ export default function CartPage() {
                         </div>
                       )}
                     </div>
+                    {effectiveMode === "courier" ? (
+                      <div className="rounded-xl bg-green-50 px-4 py-3 text-xs leading-relaxed text-green-800 ring-1 ring-green-200">
+                        We bake fresh on order, which is why we need 24 hours. Your bakes will be ready from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} and will arrive in approximately {courierTransitDays} day{courierTransitDays > 1 ? "s" : ""} via courier.
+                      </div>
+                    ) : (
+                      <div className="rounded-xl bg-green-50 px-4 py-3 text-xs leading-relaxed text-green-800 ring-1 ring-green-200">
+                        We bake fresh on order, which is why we need 24 hours. Your bakes will be available for delivery from {new Date(slotInfo.earliestDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })} onwards.
+                      </div>
+                    )}
 
                     {(effectiveMode === "courier") && !showCourierDetails && (
                       <>

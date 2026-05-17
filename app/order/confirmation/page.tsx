@@ -367,7 +367,7 @@ export default function OrderConfirmationPage() {
 
             {/* Bottom tear line */}
             <div className="mt-5 border-t-2 border-dashed border-[#D4AF37]/30 pt-3 text-center">
-              <p className="font-mono text-sm text-[#7A6262]">Thank you for your order! 💛</p>
+              <p className="font-mono text-sm text-[#7A6262]">Thank you for choosing us! The secret ingredient is always LOVE, and sometimes a little extra butter!</p>
               <p className="mt-0.5 font-mono text-xs text-[#D4AF37]/60">The Little Patisserie &middot; Chennai</p>
             </div>
 
