@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { CakeSlice, Heart, Award, Sparkles, MessageCircle, MapPin, Package, Truck, Clock, Camera, Mail } from "lucide-react";
+import { CakeSlice, Heart, Award, Sparkles, MessageCircle, MapPin, Clock, Camera, Mail } from "lucide-react";
 
 const WHATSAPP_NUMBER = "919488407130";
 
@@ -35,34 +35,19 @@ const features = [
 const contactCards = [
   {
     icon: MessageCircle,
-    title: "WhatsApp Orders",
+    title: "WhatsApp",
     content: "+91 94884 07130",
-    note: "Tap a button above to start a chat",
-  },
-  {
-    icon: Sparkles,
-    title: "Custom Cake Enquiries",
-    content: "Share your cake size, flavour, theme, and reference image on WhatsApp.",
+    note: "Quickest way to reach us",
   },
   {
     icon: MapPin,
     title: "Service Area",
-    content: "Chennai and selected nearby locations",
-  },
-  {
-    icon: Package,
-    title: "Pickup",
-    content: "Available by appointment only",
-  },
-  {
-    icon: Truck,
-    title: "Delivery",
-    content: "Available based on location and order type",
+    content: "Chennai & selected South Indian locations via courier",
   },
   {
     icon: Clock,
     title: "Order Notice",
-    content: "Regular menu items: 24 hours preferred\nCustom cakes: 48 hours or more preferred",
+    content: "24 hours preferred for menu items\n48 hours or more for custom cakes",
   },
   {
     icon: Camera,
@@ -75,6 +60,11 @@ const contactCards = [
     title: "Email",
     content: "For enquiries and custom orders",
     action: { label: "hello@thelittlepatisserie.com", href: "mailto:hello@thelittlepatisserie.com" },
+  },
+  {
+    icon: Sparkles,
+    title: "Pickup & Delivery",
+    content: "Pickup available by appointment. Delivery within Chennai based on location.",
   },
 ];
 
