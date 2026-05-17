@@ -1,28 +1,27 @@
 "use client";
 
-import Link from "next/link";
-import { Heart, Sun, Truck, Sparkles } from "lucide-react";
+import { Heart, Sun, Star, Sparkles } from "lucide-react";
 
 const usps = [
   {
     icon: Sun,
     title: "Freshly Baked Daily",
-    desc: "No pre-mixes, no preservatives — made fresh on order.",
+    desc: "Did you know we bake everything fresh, only on order? Yes, we make every dessert specifically with the person receiving it in mind. Your dessert isn&apos;t just one among hundreds. It&apos;s the one made just for you.",
   },
   {
     icon: Heart,
     title: "Egg & Eggless Options",
-    desc: "Both choices available so everyone can indulge.",
+    desc: "Egg based or Egg free desserts, the magic stays the same that you&apos;ll hardly know the difference.",
   },
   {
-    icon: Truck,
-    title: "Chennai & South India",
-    desc: "Free local delivery in Chennai, courier across South India.",
+    icon: Star,
+    title: "Quality Over Anything",
+    desc: "We believe a dessert is only as good as the ingredients that go into it, which is why compromising on quality is something we simply cannot do. Anything that doesn&apos;t satisfy us in taste, texture, or quality never leaves our kitchen.",
   },
   {
     icon: Sparkles,
     title: "Custom Creations",
-    desc: "Design your dream cake with our custom cake studio.",
+    desc: "We create celebration cakes that don&apos;t just carry your name, they tell your story. ❤️",
   },
 ];
 
@@ -46,23 +45,15 @@ export default function AboutSection() {
               Our Story
             </h2>
             <p className="mt-5 leading-relaxed text-[#7A6262]">
-              The Little Patisserie was born in Chennai from a love for
-              beautifully crafted desserts. Every cake, cupcake, and brownie is
-              handcrafted in small batches using premium ingredients — because
-              we believe the best desserts are made with care, not shortcuts.
+              Behind The Little Patisserie is just a girl from Chennai with a big love for French pastries,
+              warm desserts, and making people smile through food. Coming from a family of food lovers,
+              good food was always a given. But baking? That was never the plan.
             </p>
             <p className="mt-4 leading-relaxed text-[#7A6262]">
-              Whether you are celebrating a birthday, a milestone, or just
-              treating yourself, we bring thoughtful sweetness to every
-              occasion — with the warmth of a home bakery.
+              It started with a TV show during my 12th grade holidays, a few YouTube rabbit holes, and a
+              lot of trial and error in the kitchen. Somewhere along the way, what began as curiosity turned
+              into a quiet obsession, and then, six years into a corporate career, I had to make a choice.
             </p>
-            <Link
-              href="/about"
-              className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#D4AF37] px-6 py-2.5 text-sm font-bold text-[#D4AF37] transition hover:bg-[#D4AF37] hover:text-white"
-            >
-              About Us
-              <span aria-hidden="true">&rarr;</span>
-            </Link>
           </div>
         </div>
 

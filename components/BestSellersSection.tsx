@@ -31,14 +31,15 @@ export default function BestSellersSection() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-14 text-center">
           <span className="font-display text-sm italic tracking-wide text-[#D4AF37]">
-            best deals for you
+            Only the best for you, and yes, your diets end here!
           </span>
           <h2 className="mt-3 font-display text-3xl font-bold uppercase tracking-[0.08em] text-[#1D3C42] sm:text-4xl">
-            Cups of Cuteness
+            The repeat-order champions!!
           </h2>
           <p className="mx-auto mt-4 max-w-xl font-serif text-sm italic leading-6 text-[#7A6262]">
-            Discover our customer favorites, freshly baked with premium
-            ingredients and handmade details.
+            Too good to be a one-time thing!!<br />
+            Discover the crowd favourites, the ones that are too good for just one bite, one order or
+            even one serving!!
           </p>
         </div>
 

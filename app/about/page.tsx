@@ -13,7 +13,7 @@ const features = [
   {
     icon: CakeSlice,
     title: "Freshly Baked to Order",
-    desc: "Every dessert is prepared after your order is confirmed, so you receive it fresh and thoughtfully made.",
+    desc: "Did you know we bake everything fresh, only on order? Yes, we make every dessert specifically with the person receiving it in mind. Your dessert isn&apos;t just one among hundreds. The one made just for you.",
   },
   {
     icon: Heart,
@@ -23,12 +23,12 @@ const features = [
   {
     icon: Sparkles,
     title: "Custom Celebration Cakes",
-    desc: "From birthdays to special events, we create cakes that match your occasion, flavour preference, and design idea.",
+    desc: "We create celebration cakes that don&apos;t just carry your name, they tell your story.",
   },
   {
     icon: Award,
     title: "Premium Ingredients",
-    desc: "We use carefully selected ingredients to create desserts that taste as good as they look.",
+    desc: "We believe a dessert is only as good as the ingredients that go into it, which is why compromising on quality is something we simply cannot do, not even in our sleep.",
   },
 ];
 
@@ -98,21 +98,41 @@ export default function AboutPage() {
             <span className="text-[#D4AF37]">Sweet Celebrations</span>
           </h1>
 
-          <div className="mx-auto mt-10 max-w-3xl rounded-[2rem] bg-white/80 p-8 shadow-sm ring-1 ring-[#F4CFC8] backdrop-blur-sm md:p-10">
+          <div className="mx-auto mt-10 max-w-3xl space-y-6 rounded-[2rem] bg-white/80 p-8 shadow-sm ring-1 ring-[#F4CFC8] backdrop-blur-sm md:p-12">
             <p className="text-[15px] leading-8 text-[#7A6262]">
-              Welcome to The Little Patisserie — a home-based bakery created for people who love fresh, thoughtful, and beautifully made desserts.
+              At The Little Patisserie, we don&apos;t just bake desserts, we bake with intention. Because behind
+              every dessert is a girl who bakes with one simple intention, to make people truly enjoy every
+              bite. And thankfully, that little dream comes true almost every time.
             </p>
-            <p className="mt-5 text-[15px] leading-8 text-[#7A6262]">
-              Every cake, cupcake, brownie, and sweet treat is handcrafted in small batches using carefully chosen ingredients. From birthdays and celebrations to simple everyday cravings, each order is made with attention to flavour, freshness, and detail.
+
+            <p className="text-[15px] leading-8 text-[#7A6262]">
+              Every dessert we create is made with the person receiving it in mind. Your dessert isn&apos;t just
+              one among hundreds, it&apos;s thoughtfully made, especially for you. We believe a dessert is only as
+              good as the ingredients that go into it, which is why compromising on quality is something we
+              simply cannot do, not even in our sleep. Anything that doesn&apos;t satisfy us in taste, texture, or
+              quality simply never leaves our kitchen. It&apos;s a standard we hold onto, no matter what.
             </p>
-            <p className="mt-5 text-[15px] leading-8 text-[#7A6262]">
-              Because we bake from home, every order is prepared with care and planned ahead to ensure quality. Whether you are choosing from our menu or ordering a custom cake, we love being part of your special moments.
+
+            <p className="text-[15px] leading-8 text-[#7A6262]">
+              Every dessert on our menu has gone through multiple rounds of testing, tasting, and honest
+              criticism from a family full of food lovers with incredibly sharp palates. And honestly, we
+              wouldn&apos;t have it any other way.
             </p>
-            <div className="mx-auto mt-8 max-w-md rounded-2xl bg-[#FFF8E4] py-5 text-center ring-1 ring-[#D4AF37]/20">
-              <p className="font-display text-xl font-bold italic leading-snug text-[#1D3C42]">
-                &ldquo;Freshly baked. Thoughtfully designed. Made to celebrate.&rdquo;
-              </p>
-            </div>
+
+            <div className="mx-auto h-px w-24 bg-[#D4AF37]/30" />
+
+            <p className="text-[15px] leading-8 text-[#7A6262]">
+              At The Little Patisserie, we want custom cakes to feel personal, they are stories, your stories,
+              thoughtfully brought to life, which is why every cake we create carries not just your name, but
+              a little piece of your story too. From adding elements that feel personal and meaningful to
+              designing cakes that reflect your vision, every creation is made with care, intention, and heart.
+              Each cake is handcrafted to suit your preferences, themes, colours, and intricate details.
+            </p>
+
+            <p className="text-[15px] leading-8 text-[#7A6262]">
+              We are proud to have created and continue creating many moments worth remembering, filling
+              hearts and stomachs with warmth, and crafting flavours that stay with you through time.
+            </p>
           </div>
 
           {/* Features */}
