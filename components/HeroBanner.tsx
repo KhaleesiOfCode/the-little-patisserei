@@ -94,7 +94,7 @@ export default function HeroBanner() {
       {/* ===================== MOBILE ===================== */}
       <div className="flex flex-col md:hidden">
         {/* Image */}
-        <div className="relative -mx-6 aspect-[4/3] overflow-hidden">
+        <div className="relative aspect-[4/3] overflow-hidden sm:aspect-[16/9]">
           <motion.div
             initial={{ opacity: 0, scale: 1.05 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -122,7 +122,7 @@ export default function HeroBanner() {
         </div>
 
         {/* Mobile action cards */}
-        <div className="relative z-10 -mt-4 space-y-3 px-6 pt-6 pb-10">
+        <div className="relative z-10 -mt-4 space-y-3 px-5 pt-6 pb-8 sm:px-6 sm:pb-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -163,8 +163,8 @@ export default function HeroBanner() {
       </div>
 
       {/* ========== TRUST STRIP ========== */}
-      <div className="border-t border-[#D4AF37]/10 bg-[#EFE3D4]/25 py-5">
-        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-10 gap-y-2 px-6">
+      <div className="border-t border-[#D4AF37]/10 bg-[#EFE3D4]/25 py-4 sm:py-5">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-x-6 gap-y-1.5 px-5 sm:gap-x-10 sm:px-6">
           {trustItems.map((item) => (
             <span
               key={item}

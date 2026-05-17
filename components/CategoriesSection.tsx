@@ -40,7 +40,7 @@ export default function CategoriesSection() {
           </h2>
         </div>
 
-        <div className="flex flex-row gap-4">
+        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:flex md:flex-row">
           {display.map((cat, i) => {
             const item = cat.items[0];
 

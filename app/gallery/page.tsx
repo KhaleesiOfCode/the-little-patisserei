@@ -120,7 +120,7 @@ export default function GalleryPage() {
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#D4AF37] border-t-transparent" />
             </div>
           ) : (
-            <div className="columns-2 gap-4 md:columns-3 lg:columns-4">
+            <div className="columns-1 gap-4 sm:columns-2 md:columns-3 lg:columns-4">
               {images.map((img, i) => (
                 <button
                   key={img.id}

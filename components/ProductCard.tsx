@@ -136,7 +136,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
 
   return (
     <>
-      <article className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg grid-cols-[90px_1fr] sm:gap-5 sm:p-5 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-6">
+      <article className="grid gap-3 rounded-2xl bg-white p-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg grid-cols-[100px_1fr] sm:gap-5 sm:p-5 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[180px_1fr] md:gap-6">
         <button
           type="button"
           onClick={() => {

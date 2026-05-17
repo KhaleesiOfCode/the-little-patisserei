@@ -88,7 +88,7 @@ export default function AboutPage() {
             <span className="text-[#D4AF37]">Sweet Celebrations</span>
           </h1>
 
-          <div className="mx-auto mt-10 max-w-3xl space-y-6 rounded-[2rem] bg-white/80 p-8 shadow-sm ring-1 ring-[#F4CFC8] backdrop-blur-sm md:p-12">
+          <div className="mx-auto mt-10 max-w-3xl space-y-5 rounded-[2rem] bg-white/80 p-6 shadow-sm ring-1 ring-[#F4CFC8] backdrop-blur-sm sm:p-8 md:p-12">
             <p className="leading-8 text-[#7A6262]">
               At The Little Patisserie, we don&apos;t just bake desserts, we bake with intention. Because behind
               every dessert is a girl who bakes with one simple intention, to make people truly enjoy every
