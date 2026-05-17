@@ -225,8 +225,7 @@ export default function MenuPage() {
                   <div className="flex rounded-full bg-[#FFF8E4] p-1">
                     {[
                       { label: "All", value: "all" as const },
-                      { label: "Veg", value: "veg" as const },
-                      { label: "Egg", value: "nonveg" as const },
+                      { label: "Eggfree", value: "veg" as const },
                     ].map((filter) => (
                       <button
                         key={filter.value}

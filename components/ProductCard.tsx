@@ -31,7 +31,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
     tag.toLowerCase().includes("egg and eggless")
   );
 
-  const [eggOption, setEggOption] = useState(hasEggChoice ? "Eggless" : "");
+  const [eggOption, setEggOption] = useState(hasEggChoice ? "Eggfree" : "");
 
   const isCelebrationCake = product.category === "Celebration Cakes" || product.badges?.some((b) => b.toLowerCase().includes("celebration"))
 
@@ -84,7 +84,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
 
   const compactTags = useMemo(
     () =>
-      [...new Set([...(product.keywords || []), ...(product.ingredient_tags || [])])].slice(
+      [...new Set([...(product.keywords || []), ...(product.ingredient_tags?.filter(t => !t.toLowerCase().includes("egg and eggless")) || [])])].slice(
         0,
         3
       ),
@@ -232,10 +232,10 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
             {hasEggChoice ? (
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                  Egg
+                  VARIANT
                 </span>
                 <div className="flex rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
-                  {["Eggless", "Egg"].map((option) => (
+                  {["Eggfree", "Egg-based"].map((option) => (
                     <button
                       key={option}
                       type="button"
@@ -452,13 +452,13 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
                 </div>
               )}
 
-              {product.ingredient_tags?.length > 0 && (
+              {product.ingredient_tags?.filter(t => !t.toLowerCase().includes("egg and eggless")).length > 0 && (
                 <div className="mt-5">
                   <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                    Ingredients / Contains
+                    Allergen Info
                   </p>
                   <div className="flex flex-wrap gap-2">
-                    {product.ingredient_tags.map((tag) => (
+                    {product.ingredient_tags.filter(t => !t.toLowerCase().includes("egg and eggless")).map((tag) => (
                       <span
                         key={tag}
                         className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"

@@ -73,9 +73,6 @@ export default function CategoriesSection() {
                     <h3 className="font-display text-base font-bold leading-tight text-white sm:text-lg">
                       {cat.name}
                     </h3>
-                    <p className="mt-0.5 text-[10px] uppercase tracking-[0.15em] text-white/70 sm:text-xs">
-                      {cat.items.length} {cat.items.length === 1 ? "item" : "items"}
-                    </p>
                   </div>
                 </Link>
               </motion.div>

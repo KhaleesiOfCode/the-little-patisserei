@@ -74,10 +74,7 @@ export default function BestSellersSection() {
                   )}
 
                   <div className="relative mt-auto px-3 pb-3 pt-8 sm:px-4 sm:pb-4">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-[#D4AF37] sm:text-xs">
-                      {item.category}
-                    </p>
-                    <h3 className="mt-0.5 truncate font-display text-xs font-bold uppercase leading-tight text-white sm:text-sm">
+                    <h3 className="truncate font-display text-xs font-bold uppercase leading-tight text-white sm:text-sm">
                       {item.name}
                     </h3>
                   </div>
