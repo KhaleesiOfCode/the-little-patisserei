@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import {
   X,
   ChevronLeft,
@@ -17,6 +17,18 @@ import LiveDesignStudio from "./LiveDesignStudio";
 import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../lib/store-hours";
 
 const WHATSAPP_NUMBER = "919488407130";
+
+function highlightKeywords(text: string, keywords: string[]): ReactNode {
+  if (!keywords?.length) return text;
+  const escaped = keywords.map((k) => k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const pattern = new RegExp(`(${escaped.join("|")})`, "gi");
+  const parts = text.split(pattern);
+  return parts.map((part, i) =>
+    escaped.some((k) => new RegExp(k, "i").test(part))
+      ? <strong key={i} className="font-bold text-[#3A2A2A]">{part}</strong>
+      : part,
+  );
+}
 
 export default function ProductCard({ product, modeRequired, onModeRequired }: { product: MenuItem; modeRequired?: boolean; onModeRequired?: () => void }) {
   const { cart, addToCart, updateQty } = useCart();
@@ -82,15 +94,6 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
   const itemInCart = cart.find((item) => item.id === cartId);
   const fallbackImage = "/cakes/chocolate-cake-1.jpg";
 
-  const compactTags = useMemo(
-    () =>
-      [...new Set([...(product.keywords || []), ...(product.ingredient_tags?.filter(t => !t.toLowerCase().includes("egg and eggless")) || [])])].slice(
-        0,
-        3
-      ),
-    [product.keywords, product.ingredient_tags]
-  );
-
   const mediaItems = [
     ...(product.images?.length
       ? product.images
@@ -136,7 +139,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
 
   return (
     <>
-      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm ring-1 ring-[#F4CFC8] transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-5">
+      <article className="grid gap-2 rounded-2xl bg-white p-2 shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl grid-cols-[90px_1fr] sm:gap-4 sm:p-4 sm:grid-cols-[140px_1fr] sm:rounded-[2rem] md:grid-cols-[200px_1fr] md:gap-5">
         <button
           type="button"
           onClick={() => {
@@ -202,7 +205,7 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
           )}
 
           <p className="mt-1.5 overflow-hidden text-sm leading-5 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-sm sm:leading-6">
-            {product.description}
+            {highlightKeywords(product.description, product.keywords || [])}
           </p>
 
           <button
@@ -212,19 +215,6 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
           >
             View more
           </button>
-
-          {compactTags.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5 sm:mt-3 sm:gap-2">
-              {compactTags.map((tag, idx) => (
-                <span
-                  key={`${tag}-${idx}`}
-                  className="rounded-full bg-[#FFF8E4] px-3 py-1 text-xs font-semibold text-[#7A6262] ring-1 ring-[#F4CFC8]"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          )}
 
           </div>
 
@@ -431,26 +421,8 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
               </div>
 
               <p className="mt-5 text-sm leading-7 text-[#7A6262]">
-                {product.description}
+                {highlightKeywords(product.description, product.keywords || [])}
               </p>
-
-              {product.keywords?.length > 0 && (
-                <div className="mt-5">
-                  <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-[#D4AF37]">
-                    Taste Notes
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.keywords.map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full bg-[#F7F1DF] px-3 py-1 text-xs font-semibold text-[#1D3C42]"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
 
               {product.ingredient_tags?.filter(t => !t.toLowerCase().includes("egg and eggless")).length > 0 && (
                 <div className="mt-5">

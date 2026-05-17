@@ -246,10 +246,7 @@ export default function MenuPage() {
 
               <div className="mb-5 flex items-end justify-between">
                 <div>
-                  <p className="text-sm font-bold uppercase tracking-[0.22em] text-[#D4AF37]">
-                    {activeCategory === "Recommended" ? "Recommended" : activeCategory}
-                  </p>
-                  <h2 className="mt-2 font-serif text-3xl font-bold text-[#1D3C42]">
+                  <h2 className="font-serif text-3xl font-bold text-[#1D3C42]">
                     {activeCategory}
                   </h2>
                 </div>
