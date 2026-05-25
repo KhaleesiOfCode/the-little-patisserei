@@ -102,7 +102,7 @@ export default function MenuPage() {
 
       const matchesType = foodType === "all" || item.type === foodType;
 
-      const matchesDeliveryMode = !deliveryMode || deliveryMode === "local" || item.category === "Brownies";
+      const matchesDeliveryMode = !deliveryMode || deliveryMode === "local" || item.courier_supported === true;
 
       return matchesSearch && matchesType && matchesDeliveryMode;
     });
@@ -179,7 +179,7 @@ export default function MenuPage() {
                   <div className="mx-auto flex w-fit items-center gap-0 rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
                     {[
                       { value: "local" as const, label: "Chennai", desc: "Pickup · Chennai delivery" },
-                      { value: "courier" as const, label: "Courier", desc: "Brownies only · India-wide" },
+                      { value: "courier" as const, label: "Courier", desc: "Select items · India-wide" },
                     ].map((mode) => (
                       <button
                         key={mode.value}
@@ -226,6 +226,7 @@ export default function MenuPage() {
                     {[
                       { label: "All", value: "all" as const },
                       { label: "Eggfree", value: "veg" as const },
+                      { label: "Non-Veg", value: "nonveg" as const },
                     ].map((filter) => (
                       <button
                         key={filter.value}

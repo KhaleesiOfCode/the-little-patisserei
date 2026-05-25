@@ -2,15 +2,17 @@
 
 ## Project Overview
 
-Briefly describe what this project does, the tech stack, and the main goal.
+The Little Patisserie is a Next.js 16 e-commerce bakery website for a Chennai-based artisan cake shop. Customers browse the menu, customise cakes, place orders (pickup/delivery/courier), and track them. Admin panel manages orders, menu items, gallery, and store status.
 
 ## Repository Structure
 
-- `src/` — application source code
+- `app/` — Next.js App Router pages and API routes
 - `components/` — reusable UI components
-- `lib/` — shared utilities
-- `scripts/` — automation scripts
-- `docs/` — documentation and planning notes
+- `lib/` — shared utilities (Supabase, auth, delivery zones, validation)
+- `types/` — TypeScript type definitions
+- `data/` — fallback product data
+- `tests/` — Vitest unit tests
+- `supabase/` — database migrations
 
 ## Development Commands
 

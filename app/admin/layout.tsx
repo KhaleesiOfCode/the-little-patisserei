@@ -1,8 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
+const PAGE_TITLES: Record<string, string> = {
+  "/admin/orders": "Orders",
+  "/admin/menu": "Menu",
+  "/admin/new": "New Product",
+  "/admin/gallery": "Gallery",
+  "/admin/store-status": "Store Hours",
+  "/admin/login": "Admin Login",
+};
 import { Menu, X, ClipboardList, Box, Plus, Image, Clock, LogOut } from "lucide-react";
 
 const NAV_ITEMS = [
@@ -16,6 +25,15 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    const title = Object.entries(PAGE_TITLES).find(([path]) =>
+      pathname.startsWith(path)
+    )?.[1];
+    if (title) {
+      document.title = `${title} | The Little Patisserie`;
+    }
+  }, [pathname]);
 
   if (pathname === "/admin/login") {
     return <>{children}</>;
