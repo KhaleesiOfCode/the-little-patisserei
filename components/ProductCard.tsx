@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import {
   X,
   ChevronLeft,
@@ -28,7 +28,7 @@ function highlightKeywords(text: string, keywords: string[]): ReactNode {
   );
 }
 
-export default function ProductCard({ product, modeRequired, onModeRequired }: { product: MenuItem; modeRequired?: boolean; onModeRequired?: () => void }) {
+export default function ProductCard({ product }: { product: MenuItem }) {
   const { cart, addToCart, updateQty } = useCart();
 
   const prices = product.prices || [];
@@ -55,10 +55,6 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
   const [orderClosedPopup, setOrderClosedPopup] = useState(false);
 
   const handleAddToCart = async () => {
-    if (modeRequired) {
-      onModeRequired?.();
-      return;
-    }
     await refreshStoreStatus();
     if (!isOrderWindowOpen()) {
       setOrderClosedPopup(true);
@@ -188,18 +184,17 @@ export default function ProductCard({ product, modeRequired, onModeRequired }: {
               </div>
             </div>
 
-          {product.badges?.length > 0 && (
-            <div className="mt-1.5 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
-              {product.badges.map((badge) => (
-                <span
-                  key={badge}
-                  className="rounded-full bg-[#D4AF37]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#D4AF37] sm:px-3 sm:py-1 sm:text-xs"
-                >
-                  {badge}
-                </span>
-              ))}
-            </div>
-          )}
+          <div className="mt-1.5 flex flex-wrap gap-1.5 sm:mt-2 sm:gap-2">
+            {product.badges?.map((badge) => (
+              <span
+                key={badge}
+                className="rounded-full bg-[#D4AF37]/15 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-[#D4AF37] sm:px-3 sm:py-1 sm:text-xs"
+              >
+                {badge}
+              </span>
+            ))}
+
+          </div>
 
           <p className="mt-2 overflow-hidden leading-6 text-[#7A6262] [display:-webkit-box] [-webkit-line-clamp:2] [-webkit-box-orient:vertical] sm:text-[15.5px] sm:leading-7">
             {highlightKeywords(product.description, product.keywords || [])}

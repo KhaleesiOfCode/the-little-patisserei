@@ -170,6 +170,7 @@ export const categories: MenuCategory[] = [
         shelf_life: "",
         prices: [],
         category: "Brownies",
+        courier_supported: true,
       },
     ],
   },

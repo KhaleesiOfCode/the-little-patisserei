@@ -67,7 +67,7 @@ export default function AdminNewProductPage() {
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreview, setVideoPreview] = useState<string>("");
 
-  const [courierSupported, setCourierSupported] = useState(true);
+  const [courierSupported, setCourierSupported] = useState(false);
   const [courierWeight, setCourierWeight] = useState("");
   const [courierFragile, setCourierFragile] = useState(false);
   const [courierCategory, setCourierCategory] = useState("");

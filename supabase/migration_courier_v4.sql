@@ -10,7 +10,7 @@ alter table orders
   add column if not exists district text;
 
 alter table menu_items
-  add column if not exists courier_supported boolean default true,
+  add column if not exists courier_supported boolean default false,
   add column if not exists courier_weight_grams integer,
   add column if not exists courier_fragile boolean default false,
   add column if not exists courier_category text;

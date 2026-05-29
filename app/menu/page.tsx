@@ -6,7 +6,7 @@ import { ChevronDown } from "lucide-react";
 import { LayoutGroup, motion } from "framer-motion";
 import ProductCard from "../../components/ProductCard";
 import { getMenuCategories } from "../../lib/supabase/menu";
-import { isOrderWindowOpen, refreshStoreStatus, getFormattedClosureEnd, getClosureReason, getClosureType, getClosureEndMessage } from "../../lib/store-hours";
+import { isOrderWindowOpen, refreshStoreStatus, getClosureReason, getClosureType, getClosureEndMessage } from "../../lib/store-hours";
 import type { MenuCategory } from "../../types/menu";
 
 export default function MenuPage() {
@@ -17,18 +17,14 @@ export default function MenuPage() {
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [search, setSearch] = useState("");
   const [foodType, setFoodType] = useState<"all" | "veg" | "nonveg">("all");
-  const [deliveryMode, setDeliveryMode] = useState<"local" | "courier" | null>(null);
+  const [deliveryMode, setDeliveryMode] = useState<"local" | "courier">("local");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const [categoriesOpen, setCategoriesOpen] = useState(false);
-  const [showPopup, setShowPopup] = useState(true);
-  const [popupPending, setPopupPending] = useState<"local" | "courier">("local");
   const [showClosurePopup, setShowClosurePopup] = useState(false);
 
   useEffect(() => {
-    if (deliveryMode) {
-      try { sessionStorage.setItem("menuMode", deliveryMode); } catch {}
-    }
+    try { sessionStorage.setItem("menuMode", deliveryMode); } catch {}
   }, [deliveryMode]);
 
   useEffect(() => {
@@ -102,7 +98,7 @@ export default function MenuPage() {
 
       const matchesType = foodType === "all" || item.type === foodType;
 
-      const matchesDeliveryMode = !deliveryMode || deliveryMode === "local" || item.courier_supported === true;
+      const matchesDeliveryMode = deliveryMode === "local" || item.courier_supported === true;
 
       return matchesSearch && matchesType && matchesDeliveryMode;
     });
@@ -178,8 +174,8 @@ export default function MenuPage() {
                 <LayoutGroup>
                   <div className="mx-auto flex w-fit items-center gap-0 rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
                     {[
-                      { value: "local" as const, label: "Chennai", desc: "Pickup · Chennai delivery" },
-                      { value: "courier" as const, label: "Courier", desc: "Select items · India-wide" },
+                      { value: "local" as const, label: "Chennai" },
+                      { value: "courier" as const, label: "Courier" },
                     ].map((mode) => (
                       <button
                         key={mode.value}
@@ -269,7 +265,7 @@ export default function MenuPage() {
                   <div className="grid gap-6">
                     {activeItems.map((item) => (
                       <div key={item.id} id={`product-${item.id}`}>
-                        <ProductCard product={item} modeRequired={deliveryMode === null} onModeRequired={() => setShowPopup(true)} />
+                        <ProductCard product={item} />
                       </div>
                     ))}
                   </div>
@@ -279,68 +275,6 @@ export default function MenuPage() {
           </div>
         )}
       </section>
-
-      {showPopup && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-sm rounded-[2rem] bg-white p-6 text-center shadow-2xl"
-          >
-            <h2 className="font-display text-xl font-bold text-[#1D3C42]">How would you like your order?</h2>
-            <p className="mt-2 text-sm text-[#7A6262]">Choose a mode to see available items</p>
-
-            <div className="mt-6">
-              <LayoutGroup>
-                <div className="mx-auto flex w-fit items-center gap-0 rounded-full bg-[#FFF8E4] p-1 ring-1 ring-[#F4CFC8]">
-                  {[
-                    { value: "local" as const, label: "Chennai" },
-                    { value: "courier" as const, label: "Courier" },
-                  ].map((mode) => (
-                    <button
-                      key={mode.value}
-                      onClick={() => setPopupPending(mode.value)}
-                      className="relative flex items-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold"
-                    >
-                      {popupPending === mode.value && (
-                        <motion.div
-                          layoutId="popup-pill"
-                          className="absolute inset-0 rounded-full bg-[#1D3C42]"
-                          transition={{ type: "spring", stiffness: 500, damping: 35 }}
-                        />
-                      )}
-                      <span className={`relative z-10 transition-colors ${popupPending === mode.value ? "text-white" : "text-[#1D3C42]"}`}>
-                        {mode.label}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </LayoutGroup>
-
-              <p className="mt-4 text-sm leading-relaxed text-[#7A6262]">
-                {popupPending === "courier"
-                  ? "Shipped via courier across South India. Brownies only."
-                  : "Pickup from Arumbakkam or delivery within Chennai."}
-              </p>
-
-              <button
-                onClick={() => { setDeliveryMode(popupPending); setShowPopup(false); }}
-                className="mt-6 w-full rounded-full bg-[#1D3C42] px-8 py-3 text-sm font-bold text-white shadow-md transition hover:bg-[#163136]"
-              >
-                Browse {popupPending === "courier" ? "Courier" : "Chennai"} Menu
-              </button>
-
-              <button
-                onClick={() => setShowPopup(false)}
-                className="mt-3 text-xs font-bold text-[#7A6262] underline-offset-2 hover:underline hover:text-[#1D3C42]"
-              >
-                Skip — show all items
-              </button>
-            </div>
-          </motion.div>
-        </div>
-      )}
 
       {showClosurePopup && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 px-4" onClick={() => setShowClosurePopup(false)}>
